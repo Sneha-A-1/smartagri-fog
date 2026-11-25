@@ -15,8 +15,8 @@ from pydantic import BaseModel, ConfigDict, Field, model_validator
 from smartagri_core import __version__
 from smartagri_core.progress import ProgressReporter, null_progress
 from smartagri_core.registry import PluginKind, get_registry, register
-from smartagri_core.sim.engine import SimSettings, simulate
-from smartagri_core.sim.metrics import HEADLINE_METRICS, METRIC_INFO, compute_metrics
+from smartagri_core.sim.engine import SimSettings, Simulator, simulate
+from smartagri_core.sim.metrics import HEADLINE_METRICS, METRIC_INFO, compute_metrics, node_stats
 from smartagri_core.sim.policies import DISCIPLINE_KEYS, PLACEMENT_KEYS
 from smartagri_core.sim.topology import FarmTopologyParams, Topology, farm_topology
 from smartagri_core.sim.workload import WorkloadSpec, agri_workload, generate_trace
@@ -152,21 +152,96 @@ class SingleRun:
 
     def run(self, progress: ProgressReporter = null_progress) -> dict[str, Any]:
         topo, spec, settings = self.p.build()
-        trace = generate_trace(spec, topo, self.p.seed)
-        placement, discipline = _make_policies(self.p.placement, self.p.discipline)
-        sim = simulate(topo, trace, placement, discipline, settings, seed=self.p.seed, progress=progress)
-        metrics = _clean(compute_metrics(sim))
-        return {
-            "data_origin": str(DataOrigin.SYNTHETIC),
-            "kind": "simulation.single_run",
-            "params": self.p.model_dump(mode="json"),
-            "provenance": {"topology_sha256": topo.sha256, "trace_sha256": trace.sha256, **_environment()},
-            "metric_info": {k: list(v) for k, v in METRIC_INFO.items()},
-            "metrics": metrics,
-            "summary": {
-                k: metrics[k] for k in ["tasks_total", "deadline_success_rate", "mean_response_s", "energy_dynamic_j"]
-            },
+        return single_run_result(
+            topo,
+            spec,
+            settings,
+            self.p.placement,
+            self.p.discipline,
+            self.p.seed,
+            self.p.model_dump(mode="json"),
+            progress,
+        )
+
+
+def single_run_result(
+    topo: Topology,
+    workload: WorkloadSpec,
+    settings: SimSettings,
+    placement_key: str,
+    discipline_key: str,
+    seed: int,
+    params: dict[str, Any],
+    progress: ProgressReporter = null_progress,
+) -> dict[str, Any]:
+    """Run once and package metrics, per-node statistics and provenance."""
+    trace = generate_trace(workload, topo, seed)
+    placement, discipline = _make_policies(placement_key, discipline_key)
+    sim: Simulator = simulate(topo, trace, placement, discipline, settings, seed=seed, progress=progress)
+    metrics = _clean(compute_metrics(sim))
+    return {
+        "data_origin": str(DataOrigin.SYNTHETIC),
+        "kind": "simulation.single_run",
+        "params": params,
+        "provenance": {"topology_sha256": topo.sha256, "trace_sha256": trace.sha256, **_environment()},
+        "metric_info": {k: list(v) for k, v in METRIC_INFO.items()},
+        "metrics": metrics,
+        "nodes": node_stats(sim),
+        "summary": {
+            k: metrics[k] for k in ["tasks_total", "deadline_success_rate", "mean_response_s", "energy_dynamic_j"]
+        },
+    }
+
+
+class CustomRunParams(BaseModel):
+    """A single run on a saved topology and workload (used by the Simulation page)."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    topology: Topology
+    workload: WorkloadSpec
+    placement: PLACEMENT_KEYS = "mct"
+    discipline: DISCIPLINE_KEYS = "edf"
+    seed: int = Field(1, ge=0)
+    settings: SimSettings = Field(default_factory=SimSettings)
+    topology_name: str = ""
+    workload_name: str = ""
+
+
+@register(
+    kind=PluginKind.SIMULATION,
+    key="custom_run",
+    name="Simulation: run a saved network and workload",
+    version="0.1.0",
+    status=CapabilityStatus.IMPLEMENTED,
+    summary="Simulates one policy on a topology and workload designed in the browser.",
+    params=CustomRunParams,
+    phase=1,
+    tags=["internal", "simulation"],
+)
+class CustomRun:
+    def __init__(self, params: CustomRunParams) -> None:
+        self.p = params
+
+    def run(self, progress: ProgressReporter = null_progress) -> dict[str, Any]:
+        params = {
+            "placement": self.p.placement,
+            "discipline": self.p.discipline,
+            "seed": self.p.seed,
+            "topology": self.p.topology_name or self.p.topology.name,
+            "workload": self.p.workload_name or self.p.workload.name,
+            "settings": self.p.settings.model_dump(mode="json"),
         }
+        return single_run_result(
+            self.p.topology,
+            self.p.workload,
+            self.p.settings,
+            self.p.placement,
+            self.p.discipline,
+            self.p.seed,
+            params,
+            progress,
+        )
 
 
 class ComparisonParams(ScenarioParams):

@@ -20,11 +20,12 @@ from pydantic import BaseModel, ConfigDict, Field, model_validator
 from smartagri_core import __version__
 from smartagri_core.progress import ProgressReporter, null_progress
 from smartagri_core.registry import PluginKind, get_registry, register
-from smartagri_core.sim.engine import simulate
+from smartagri_core.sim.engine import SimSettings, simulate
 from smartagri_core.sim.metrics import HEADLINE_METRICS, METRIC_INFO, compute_metrics
 from smartagri_core.sim.policies import DISCIPLINE_KEYS, PLACEMENT_KEYS
 from smartagri_core.sim.runner import ScenarioParams
-from smartagri_core.sim.workload import generate_trace
+from smartagri_core.sim.topology import Topology
+from smartagri_core.sim.workload import WorkloadSpec, generate_trace
 from smartagri_core.stats import ALPHA, compare
 from smartagri_core.status import CapabilityStatus, DataOrigin
 
@@ -56,6 +57,10 @@ class ExperimentSpec(BaseModel):
     description: str = ""
     objective: str = Field("", description="Research question or hypothesis this experiment addresses")
     scenario: ScenarioParams = Field(default_factory=ScenarioParams)
+    topology: Topology | None = Field(None, description="A designed topology; replaces the generated farm network")
+    workload: WorkloadSpec | None = Field(None, description="A designed workload; replaces the default task mix")
+    topology_name: str = ""
+    workload_name: str = ""
     algorithms: list[AlgorithmSpec] = Field(min_length=2)
     replications: int = Field(30, ge=2, le=500)
     base_seed: int = Field(1, ge=0)
@@ -76,6 +81,11 @@ class ExperimentSpec(BaseModel):
     def sha256(self) -> str:
         return hashlib.sha256(json.dumps(self.model_dump(mode="json"), sort_keys=True).encode()).hexdigest()
 
+    def build(self) -> tuple[Topology, WorkloadSpec, SimSettings]:
+        """The simulated system: saved topology/workload when given, otherwise the generated scenario."""
+        topo, workload, settings = self.scenario.build()
+        return self.topology or topo, self.workload or workload, settings
+
     @property
     def total_runs(self) -> int:
         return self.replications * len(self.algorithms)
@@ -83,7 +93,7 @@ class ExperimentSpec(BaseModel):
 
 def run_experiment(spec: ExperimentSpec, progress: ProgressReporter = null_progress) -> dict[str, Any]:
     reg = get_registry()
-    topo, workload, settings = spec.scenario.build()
+    topo, workload, settings = spec.build()
     runs: list[dict[str, Any]] = []
     trace_hashes: list[str] = []
     total = spec.total_runs

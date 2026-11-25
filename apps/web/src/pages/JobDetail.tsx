@@ -128,12 +128,28 @@ export default function JobDetail() {
       {kind === "simulation.single_run" && <SingleRunView result={result as SingleRunResult} />}
       {kind === "simulation.comparison" && <ComparisonView result={result as ComparisonResult} />}
 
-      <section className="mt-10">
-        <h2 className="text-lg font-semibold">Parameters used</h2>
-        <pre className="mt-3 overflow-x-auto rounded-lg border border-line bg-surface p-4 text-xs leading-relaxed">
-          {JSON.stringify(job.params, null, 2)}
-        </pre>
-      </section>
+      <ParamsSection params={job.params} />
     </article>
+  );
+}
+
+function ParamsSection({ params }: { params: Record<string, unknown> }) {
+  const text = JSON.stringify(params, null, 2);
+  const large = text.length > 2500;
+  const pre = (
+    <pre className="mt-3 max-h-[32rem] overflow-auto rounded-lg border border-line bg-surface p-4 text-xs leading-relaxed">{text}</pre>
+  );
+  return (
+    <section className="mt-10">
+      <h2 className="text-lg font-semibold">Parameters used</h2>
+      {large ? (
+        <details className="mt-2 text-sm">
+          <summary className="cursor-pointer text-ink-2">Show all parameters ({Math.round(text.length / 1024)} KB, includes the full network and workload)</summary>
+          {pre}
+        </details>
+      ) : (
+        pre
+      )}
+    </section>
   );
 }

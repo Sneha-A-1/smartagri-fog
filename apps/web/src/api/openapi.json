@@ -1171,6 +1171,765 @@
         }
       }
     },
+    "/api/topologies/presets": {
+      "get": {
+        "tags": [
+          "designs"
+        ],
+        "summary": "Design Presets",
+        "operationId": "design_presets_api_topologies_presets_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DesignPresets"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ]
+      }
+    },
+    "/api/topologies/generate": {
+      "post": {
+        "tags": [
+          "designs"
+        ],
+        "summary": "Generate Topology",
+        "operationId": "generate_topology_api_topologies_generate_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FarmTopologyParams"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GeneratedTopology"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ]
+      }
+    },
+    "/api/topologies/validate": {
+      "post": {
+        "tags": [
+          "designs"
+        ],
+        "summary": "Validate Topology",
+        "operationId": "validate_topology_api_topologies_validate_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TopologyCheck"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TopologyCheckOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ]
+      }
+    },
+    "/api/topologies": {
+      "get": {
+        "tags": [
+          "designs"
+        ],
+        "summary": "List Topologies",
+        "operationId": "list_topologies_api_topologies_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/TopologyListItem"
+                  },
+                  "type": "array",
+                  "title": "Response List Topologies Api Topologies Get"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "designs"
+        ],
+        "summary": "Create Topology",
+        "operationId": "create_topology_api_topologies_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TopologyIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TopologyOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ]
+      }
+    },
+    "/api/topologies/{topo_id}": {
+      "get": {
+        "tags": [
+          "designs"
+        ],
+        "summary": "Get Topology",
+        "operationId": "get_topology_api_topologies__topo_id__get",
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "topo_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Topo Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TopologyOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "designs"
+        ],
+        "summary": "Update Topology",
+        "operationId": "update_topology_api_topologies__topo_id__put",
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "topo_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Topo Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TopologyIn"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TopologyOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "designs"
+        ],
+        "summary": "Delete Topology",
+        "operationId": "delete_topology_api_topologies__topo_id__delete",
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "topo_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Topo Id"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/topologies/{topo_id}/duplicate": {
+      "post": {
+        "tags": [
+          "designs"
+        ],
+        "summary": "Duplicate Topology",
+        "operationId": "duplicate_topology_api_topologies__topo_id__duplicate_post",
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "topo_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Topo Id"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TopologyOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/workloads/template": {
+      "get": {
+        "tags": [
+          "designs"
+        ],
+        "summary": "Workload Template",
+        "operationId": "workload_template_api_workloads_template_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WorkloadTemplate"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ]
+      }
+    },
+    "/api/workloads/preview": {
+      "post": {
+        "tags": [
+          "designs"
+        ],
+        "summary": "Preview Workload",
+        "description": "Expected load before running anything: arrivals and compute demand versus capacity.",
+        "operationId": "preview_workload_api_workloads_preview_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WorkloadPreviewIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WorkloadPreviewOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ]
+      }
+    },
+    "/api/workloads": {
+      "get": {
+        "tags": [
+          "designs"
+        ],
+        "summary": "List Workloads",
+        "operationId": "list_workloads_api_workloads_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/WorkloadListItem"
+                  },
+                  "type": "array",
+                  "title": "Response List Workloads Api Workloads Get"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "designs"
+        ],
+        "summary": "Create Workload",
+        "operationId": "create_workload_api_workloads_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WorkloadIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WorkloadOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ]
+      }
+    },
+    "/api/workloads/{wl_id}": {
+      "get": {
+        "tags": [
+          "designs"
+        ],
+        "summary": "Get Workload",
+        "operationId": "get_workload_api_workloads__wl_id__get",
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "wl_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Wl Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WorkloadOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "designs"
+        ],
+        "summary": "Update Workload",
+        "operationId": "update_workload_api_workloads__wl_id__put",
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "wl_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Wl Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WorkloadIn"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WorkloadOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "designs"
+        ],
+        "summary": "Delete Workload",
+        "operationId": "delete_workload_api_workloads__wl_id__delete",
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "wl_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Wl Id"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/workloads/{wl_id}/duplicate": {
+      "post": {
+        "tags": [
+          "designs"
+        ],
+        "summary": "Duplicate Workload",
+        "operationId": "duplicate_workload_api_workloads__wl_id__duplicate_post",
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "wl_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Wl Id"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WorkloadOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/simulations": {
+      "post": {
+        "tags": [
+          "designs"
+        ],
+        "summary": "Start Simulation",
+        "operationId": "start_simulation_api_simulations_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SimulationIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JobOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ]
+      }
+    },
     "/api/projects": {
       "get": {
         "tags": [
@@ -1576,6 +2335,42 @@
         ],
         "title": "Body_login_api_auth_login_post"
       },
+      "DesignPresets": {
+        "properties": {
+          "devices": {
+            "additionalProperties": {
+              "additionalProperties": {
+                "type": "number"
+              },
+              "type": "object"
+            },
+            "type": "object",
+            "title": "Devices"
+          },
+          "link_kinds": {
+            "additionalProperties": {
+              "additionalProperties": {
+                "type": "number"
+              },
+              "type": "object"
+            },
+            "type": "object",
+            "title": "Link Kinds"
+          },
+          "generator_schema": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Generator Schema"
+          }
+        },
+        "type": "object",
+        "required": [
+          "devices",
+          "link_kinds",
+          "generator_schema"
+        ],
+        "title": "DesignPresets"
+      },
       "ExperimentCreate": {
         "properties": {
           "spec": {
@@ -1788,6 +2583,125 @@
           "spec"
         ],
         "title": "ExperimentUpdate"
+      },
+      "FarmTopologyParams": {
+        "properties": {
+          "farms": {
+            "type": "integer",
+            "maximum": 200.0,
+            "minimum": 1.0,
+            "title": "Farms",
+            "description": "Number of farms (each with its own gateways and edge nodes).",
+            "default": 4
+          },
+          "gateways_per_farm": {
+            "type": "integer",
+            "maximum": 50.0,
+            "minimum": 1.0,
+            "title": "Gateways Per Farm",
+            "description": "IoT gateways per farm; tasks originate here.",
+            "default": 2
+          },
+          "edge_per_farm": {
+            "type": "integer",
+            "maximum": 20.0,
+            "minimum": 1.0,
+            "title": "Edge Per Farm",
+            "description": "Edge computing devices per farm.",
+            "default": 1
+          },
+          "fog_nodes": {
+            "type": "integer",
+            "maximum": 50.0,
+            "minimum": 1.0,
+            "title": "Fog Nodes",
+            "description": "Regional fog servers shared by the farms.",
+            "default": 2
+          },
+          "cloud_nodes": {
+            "type": "integer",
+            "maximum": 10.0,
+            "minimum": 1.0,
+            "title": "Cloud Nodes",
+            "description": "Cloud servers.",
+            "default": 1
+          },
+          "mtbf_edge_s": {
+            "type": "number",
+            "minimum": 0.0,
+            "title": "Mtbf Edge S",
+            "description": "Mean time between edge failures (0 = never fail).",
+            "default": 0.0,
+            "x-advanced": true,
+            "x-unit": "s"
+          },
+          "mtbf_fog_s": {
+            "type": "number",
+            "minimum": 0.0,
+            "title": "Mtbf Fog S",
+            "description": "Mean time between fog failures (0 = never fail).",
+            "default": 0.0,
+            "x-advanced": true,
+            "x-unit": "s"
+          },
+          "mttr_s": {
+            "type": "number",
+            "minimum": 0.0,
+            "title": "Mttr S",
+            "description": "Mean time to repair a failed node.",
+            "default": 300.0,
+            "x-advanced": true,
+            "x-unit": "s"
+          },
+          "wan_bandwidth_mbps": {
+            "type": "number",
+            "exclusiveMinimum": 0.0,
+            "title": "Wan Bandwidth Mbps",
+            "description": "Fog-to-cloud link bandwidth.",
+            "default": 50.0,
+            "x-advanced": true,
+            "x-unit": "Mbit/s"
+          },
+          "wan_latency_ms": {
+            "type": "number",
+            "minimum": 0.0,
+            "title": "Wan Latency Ms",
+            "description": "Fog-to-cloud one-way latency.",
+            "default": 100.0,
+            "x-advanced": true,
+            "x-unit": "ms"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "title": "FarmTopologyParams",
+        "description": "Parameters for :func:`farm_topology`. Exposed as a form in the GUI."
+      },
+      "GeneratedTopology": {
+        "properties": {
+          "topology": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Topology"
+          },
+          "layout": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Layout"
+          },
+          "summary": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Summary"
+          }
+        },
+        "type": "object",
+        "required": [
+          "topology",
+          "layout",
+          "summary"
+        ],
+        "title": "GeneratedTopology"
       },
       "HTTPValidationError": {
         "properties": {
@@ -2441,6 +3355,72 @@
         "type": "object",
         "title": "ProjectPatch"
       },
+      "SimulationIn": {
+        "properties": {
+          "topology_id": {
+            "type": "string",
+            "title": "Topology Id"
+          },
+          "workload_id": {
+            "type": "string",
+            "title": "Workload Id"
+          },
+          "placement": {
+            "type": "string",
+            "enum": [
+              "random",
+              "round_robin",
+              "least_loaded",
+              "mct",
+              "cloud_only",
+              "edge_ward",
+              "min_min",
+              "max_min"
+            ],
+            "title": "Placement",
+            "default": "mct"
+          },
+          "discipline": {
+            "type": "string",
+            "enum": [
+              "fcfs",
+              "edf",
+              "priority",
+              "sjf"
+            ],
+            "title": "Discipline",
+            "default": "edf"
+          },
+          "seed": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Seed",
+            "default": 1
+          },
+          "settings": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Settings"
+          },
+          "project_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Project Id"
+          }
+        },
+        "type": "object",
+        "required": [
+          "topology_id",
+          "workload_id"
+        ],
+        "title": "SimulationIn"
+      },
       "SystemInfo": {
         "properties": {
           "version": {
@@ -2518,6 +3498,232 @@
           "access_token"
         ],
         "title": "TokenOut"
+      },
+      "TopologyCheck": {
+        "properties": {
+          "topology": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Topology"
+          }
+        },
+        "type": "object",
+        "required": [
+          "topology"
+        ],
+        "title": "TopologyCheck"
+      },
+      "TopologyCheckOut": {
+        "properties": {
+          "valid": {
+            "type": "boolean",
+            "title": "Valid"
+          },
+          "problems": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Problems"
+          },
+          "summary": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Summary"
+          }
+        },
+        "type": "object",
+        "required": [
+          "valid",
+          "problems",
+          "summary"
+        ],
+        "title": "TopologyCheckOut"
+      },
+      "TopologyIn": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "maxLength": 200,
+            "minLength": 1,
+            "title": "Name"
+          },
+          "description": {
+            "type": "string",
+            "title": "Description",
+            "default": ""
+          },
+          "topology": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Topology"
+          },
+          "layout": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Layout"
+          },
+          "project_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Project Id"
+          }
+        },
+        "type": "object",
+        "required": [
+          "name",
+          "topology"
+        ],
+        "title": "TopologyIn"
+      },
+      "TopologyListItem": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "description": {
+            "type": "string",
+            "title": "Description"
+          },
+          "nodes": {
+            "type": "integer",
+            "title": "Nodes"
+          },
+          "links": {
+            "type": "integer",
+            "title": "Links"
+          },
+          "sha256": {
+            "type": "string",
+            "title": "Sha256"
+          },
+          "project_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Project Id"
+          },
+          "updated_at": {
+            "type": "string",
+            "title": "Updated At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "description",
+          "nodes",
+          "links",
+          "sha256",
+          "project_id",
+          "updated_at"
+        ],
+        "title": "TopologyListItem"
+      },
+      "TopologyOut": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "description": {
+            "type": "string",
+            "title": "Description"
+          },
+          "nodes": {
+            "type": "integer",
+            "title": "Nodes"
+          },
+          "links": {
+            "type": "integer",
+            "title": "Links"
+          },
+          "sha256": {
+            "type": "string",
+            "title": "Sha256"
+          },
+          "project_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Project Id"
+          },
+          "updated_at": {
+            "type": "string",
+            "title": "Updated At"
+          },
+          "topology": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Topology"
+          },
+          "layout": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Layout"
+          },
+          "summary": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Summary"
+          },
+          "problems": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Problems"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "description",
+          "nodes",
+          "links",
+          "sha256",
+          "project_id",
+          "updated_at",
+          "topology",
+          "layout",
+          "summary",
+          "problems"
+        ],
+        "title": "TopologyOut"
       },
       "UserCreate": {
         "properties": {
@@ -2655,6 +3861,276 @@
           "type"
         ],
         "title": "ValidationError"
+      },
+      "WorkloadIn": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "maxLength": 200,
+            "minLength": 1,
+            "title": "Name"
+          },
+          "description": {
+            "type": "string",
+            "title": "Description",
+            "default": ""
+          },
+          "spec": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Spec"
+          },
+          "project_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Project Id"
+          }
+        },
+        "type": "object",
+        "required": [
+          "name",
+          "spec"
+        ],
+        "title": "WorkloadIn"
+      },
+      "WorkloadListItem": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "description": {
+            "type": "string",
+            "title": "Description"
+          },
+          "classes": {
+            "type": "integer",
+            "title": "Classes"
+          },
+          "duration_s": {
+            "type": "number",
+            "title": "Duration S"
+          },
+          "intensity": {
+            "type": "number",
+            "title": "Intensity"
+          },
+          "sha256": {
+            "type": "string",
+            "title": "Sha256"
+          },
+          "project_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Project Id"
+          },
+          "updated_at": {
+            "type": "string",
+            "title": "Updated At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "description",
+          "classes",
+          "duration_s",
+          "intensity",
+          "sha256",
+          "project_id",
+          "updated_at"
+        ],
+        "title": "WorkloadListItem"
+      },
+      "WorkloadOut": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "description": {
+            "type": "string",
+            "title": "Description"
+          },
+          "classes": {
+            "type": "integer",
+            "title": "Classes"
+          },
+          "duration_s": {
+            "type": "number",
+            "title": "Duration S"
+          },
+          "intensity": {
+            "type": "number",
+            "title": "Intensity"
+          },
+          "sha256": {
+            "type": "string",
+            "title": "Sha256"
+          },
+          "project_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Project Id"
+          },
+          "updated_at": {
+            "type": "string",
+            "title": "Updated At"
+          },
+          "spec": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Spec"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "description",
+          "classes",
+          "duration_s",
+          "intensity",
+          "sha256",
+          "project_id",
+          "updated_at",
+          "spec"
+        ],
+        "title": "WorkloadOut"
+      },
+      "WorkloadPreviewIn": {
+        "properties": {
+          "spec": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Spec"
+          },
+          "topology": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Topology"
+          }
+        },
+        "type": "object",
+        "required": [
+          "spec"
+        ],
+        "title": "WorkloadPreviewIn"
+      },
+      "WorkloadPreviewOut": {
+        "properties": {
+          "sources": {
+            "type": "integer",
+            "title": "Sources"
+          },
+          "classes": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "type": "array",
+            "title": "Classes"
+          },
+          "tasks_per_hour": {
+            "type": "number",
+            "title": "Tasks Per Hour"
+          },
+          "expected_tasks": {
+            "type": "number",
+            "title": "Expected Tasks"
+          },
+          "demand_mips": {
+            "type": "number",
+            "title": "Demand Mips"
+          },
+          "capacity_mips": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Capacity Mips"
+          },
+          "load_ratio": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Load Ratio"
+          }
+        },
+        "type": "object",
+        "required": [
+          "sources",
+          "classes",
+          "tasks_per_hour",
+          "expected_tasks",
+          "demand_mips",
+          "capacity_mips",
+          "load_ratio"
+        ],
+        "title": "WorkloadPreviewOut"
+      },
+      "WorkloadTemplate": {
+        "properties": {
+          "spec": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Spec"
+          },
+          "task_class_schema": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Task Class Schema"
+          }
+        },
+        "type": "object",
+        "required": [
+          "spec",
+          "task_class_schema"
+        ],
+        "title": "WorkloadTemplate"
       }
     },
     "securitySchemes": {

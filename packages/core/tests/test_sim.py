@@ -232,3 +232,47 @@ def test_metrics_have_no_nans_in_headline_for_normal_run() -> None:
         m[k] is not None and not (isinstance(m[k], float) and math.isnan(m[k]))
         for k in ["deadline_success_rate", "mean_response_s", "energy_dynamic_j"]
     )
+
+
+# --- 5. Designed topologies and workloads (Phase 1c) ------------------------------------------------
+
+
+def test_topology_summary_counts_layers() -> None:
+    s = farm_topology(FarmTopologyParams(farms=3, gateways_per_farm=2, edge_per_farm=2, fog_nodes=1)).summary()
+    assert s["layers"]["iot"]["nodes"] == 6 and s["layers"]["edge"]["nodes"] == 6 and s["layers"]["fog"]["nodes"] == 1
+    assert s["layers"]["edge"]["capacity_mips"] == 6 * 4 * 1000
+
+
+def test_custom_run_reports_per_node_stats_consistently() -> None:
+    topo = farm_topology()
+    out = (
+        get_registry()
+        .create(
+            "simulation:custom_run",
+            {
+                "topology": topo.model_dump(mode="json"),
+                "workload": agri_workload(600, 10).model_dump(mode="json"),
+            },
+        )
+        .run()
+    )
+    completed = round(out["metrics"]["completion_rate"] * out["metrics"]["tasks_total"] / 100)
+    assert sum(n["tasks_done"] for n in out["nodes"]) == completed
+    assert all(0 <= n["utilization"] <= 100 for n in out["nodes"])
+    assert out["provenance"]["topology_sha256"] == topo.sha256
+
+
+def test_experiment_uses_designed_topology_and_workload() -> None:
+    from smartagri_core.experiment import AlgorithmSpec, ExperimentSpec, run_experiment
+
+    topo = farm_topology(FarmTopologyParams(farms=1, fog_nodes=1))
+    workload = agri_workload(300, 5)
+    spec = ExperimentSpec(
+        topology=topo,
+        workload=workload,
+        replications=2,
+        algorithms=[AlgorithmSpec(placement="mct"), AlgorithmSpec(placement="cloud_only")],
+    )
+    out = run_experiment(spec)
+    assert out["provenance"]["topology_sha256"] == topo.sha256
+    assert out["provenance"]["trace_sha256"][0] == generate_trace(workload, topo, 1).sha256

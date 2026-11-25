@@ -128,3 +128,28 @@ def compute_metrics(sim: Simulator) -> dict[str, float]:
         "makespan_s": horizon,
         "node_failures": sum(ns.failures for ns in sim.nodes.values()),
     }
+
+
+def node_stats(sim: Simulator) -> list[dict[str, float | str | int]]:
+    """Per-node statistics for the resource view, ordered cloud, fog, edge."""
+    horizon = max(sim.now, 1e-9)
+    order = {"cloud": 0, "fog": 1, "edge": 2, "iot": 3}
+    rows = []
+    for ns in sim.nodes.values():
+        if not ns.spec.can_compute:
+            continue
+        rows.append(
+            {
+                "id": ns.spec.id,
+                "layer": str(ns.spec.layer),
+                "cores": ns.spec.cores,
+                "mips": ns.spec.mips,
+                "utilization": round(100.0 * ns.busy_core_s / (ns.spec.cores * horizon), 4),
+                "tasks_done": ns.tasks_done,
+                "energy_j": ns.idle_j + ns.dynamic_j,
+                "dynamic_energy_j": ns.dynamic_j,
+                "failures": ns.failures,
+                "availability": round(100.0 * ns.up_s / horizon, 4),
+            }
+        )
+    return sorted(rows, key=lambda r: (order[str(r["layer"])], str(r["id"])))

@@ -9,8 +9,11 @@ export type SingleRunResult = {
   data_origin: string;
   metric_info: MetricInfo;
   metrics: Record<string, number | null>;
+  nodes?: NodeRow[];
   provenance: Record<string, unknown>;
 };
+
+type NodeRow = { id: string; layer: string; cores: number; mips: number; utilization: number; tasks_done: number; energy_j: number; dynamic_energy_j: number; failures: number; availability: number };
 
 export type ComparisonResult = {
   kind: "simulation.comparison";
@@ -71,8 +74,50 @@ export function SingleRunView({ result }: { result: SingleRunResult }) {
           </div>
         ))}
       </div>
+      {result.nodes && result.nodes.length > 0 && <NodeTable nodes={result.nodes} />}
       <Provenance provenance={result.provenance} />
     </section>
+  );
+}
+
+function NodeTable({ nodes }: { nodes: NodeRow[] }) {
+  return (
+    <div className="mt-10">
+      <h3 className="text-sm font-medium text-ink-2">Per device</h3>
+      <div className="mt-2 overflow-x-auto">
+        <table className="w-full min-w-[40rem] text-sm">
+          <thead className="text-left text-xs text-ink-3">
+            <tr className="border-b border-line">
+              <th className="py-1.5 pr-3 font-normal">Device</th>
+              <th className="py-1.5 pr-3 font-normal">Layer</th>
+              <th className="w-48 py-1.5 pr-3 font-normal">Utilisation</th>
+              <th className="py-1.5 pr-3 text-right font-normal">Tasks run</th>
+              <th className="py-1.5 pr-3 text-right font-normal">Energy (J)</th>
+              <th className="py-1.5 pr-3 text-right font-normal">Failures</th>
+              <th className="py-1.5 text-right font-normal">Available</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-line">
+            {nodes.map((n) => (
+              <tr key={n.id}>
+                <td className="py-1.5 pr-3">{n.id}</td>
+                <td className="py-1.5 pr-3 capitalize text-ink-2">{n.layer}</td>
+                <td className="py-1.5 pr-3">
+                  <div className="flex items-center gap-2">
+                    <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-surface-2"><div className="h-full rounded-full bg-accent" style={{ width: `${Math.min(100, n.utilization)}%` }} /></div>
+                    <span className="w-12 text-right tabular-nums text-xs">{fmt(n.utilization)}%</span>
+                  </div>
+                </td>
+                <td className="py-1.5 pr-3 text-right tabular-nums">{n.tasks_done.toLocaleString()}</td>
+                <td className="py-1.5 pr-3 text-right tabular-nums">{fmt(n.energy_j)}</td>
+                <td className="py-1.5 pr-3 text-right tabular-nums">{n.failures}</td>
+                <td className="py-1.5 text-right tabular-nums">{fmt(n.availability)}%</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
   );
 }
 

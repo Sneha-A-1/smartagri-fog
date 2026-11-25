@@ -1,4 +1,4 @@
-"""Catalogue of planned algorithms.
+"""Catalogue of planned algorithms (implemented baselines live in smartagri_core.sim.policies).
 
 These entries are browsable in the Algorithm Catalogue with a "Planned" badge and the phase in which
 they are scheduled. They have no implementation and the registry refuses to run them. When an
@@ -10,26 +10,6 @@ from smartagri_core.registry import PluginKind, declare
 E, F, C = "edge", "fog", "cloud"
 
 _SCHEDULERS = [
-    ("fcfs", "First-Come, First-Served", 1, "Runs waiting tasks in arrival order."),
-    ("round_robin", "Round Robin (placement)", 1, "Assigns successive tasks to nodes in cyclic order."),
-    ("edf", "Earliest Deadline First", 1, "Runs the waiting task with the nearest deadline first."),
-    ("least_loaded", "Least Loaded", 1, "Places each task on the node with the least queued work."),
-    ("min_min", "Min-Min", 1, "Batch mapper: repeatedly assigns the task with the smallest minimum completion time."),
-    (
-        "cloud_only",
-        "Cloud-only placement",
-        1,
-        "iFogSim baseline: every processing module runs in the cloud (Gupta et al., 2016).",
-    ),
-    (
-        "edge_ward",
-        "Edge-ward placement",
-        1,
-        "iFogSim baseline: places modules as close to the edge as capacity allows, moving toward the cloud.",
-    ),
-    ("sjf", "Shortest Job First", 4, "Runs the waiting task with the smallest processing length first."),
-    ("priority", "Priority Scheduling", 4, "Runs tasks in order of their priority class."),
-    ("max_min", "Max-Min", 4, "Batch mapper: assigns the task with the largest minimum completion time first."),
     ("heft", "HEFT", 4, "Heterogeneous Earliest Finish Time list scheduling for task DAGs."),
 ]
 

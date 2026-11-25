@@ -34,6 +34,8 @@ T = TypeVar("T")
 class PluginKind(StrEnum):
     SCHEDULER = "scheduler"
     PLACEMENT = "placement"
+    QUEUE_DISCIPLINE = "queue_discipline"
+    SIMULATION = "simulation"
     OPTIMIZER = "optimizer"
     PIPELINE_STAGE = "pipeline_stage"
     PREPROCESSOR = "preprocessor"

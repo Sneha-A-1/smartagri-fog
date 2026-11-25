@@ -40,8 +40,8 @@ def test_validate_params(client: TestClient) -> None:
 
 
 def test_planned_plugin_cannot_be_run(client: TestClient) -> None:
-    resp = client.post("/api/jobs", json={"plugin_id": "scheduler:edf", "params": {}})
-    assert resp.status_code == 409 and "Phase 1" in resp.json()["detail"]
+    resp = client.post("/api/jobs", json={"plugin_id": "scheduler:heft", "params": {}})
+    assert resp.status_code == 409 and "Phase 4" in resp.json()["detail"]
 
 
 def test_job_runs_and_streams_progress(client: TestClient) -> None:
@@ -116,3 +116,19 @@ def test_multi_user_mode_requires_login_and_enforces_roles(tmp_path: Path) -> No
         assert c.get("/api/auth/me", headers=headers).json()["roles"] == ["researcher"]
         assert c.get("/api/plugins", headers=headers).status_code == 200
         assert c.get("/api/users", headers=headers).status_code == 403
+
+
+def test_simulation_comparison_job(client: TestClient) -> None:
+    params = {"placements": ["cloud_only", "mct"], "replications": 2, "duration_s": 300, "farms": 2}
+    job = client.post("/api/jobs", json={"plugin_id": "simulation:comparison", "params": params}).json()
+    done = wait_for_job(client, job["id"], timeout=120)
+    assert done["status"] == "succeeded", done["error"]
+    result = client.get(f"/api/jobs/{job['id']}/result").json()
+    assert result["kind"] == "simulation.comparison" and result["data_origin"] == "synthetic"
+    assert set(result["comparison"]) == {"cloud_only", "mct"}
+    assert result["comparison"]["mct"]["deadline_success_rate"]["n"] == 2
+
+
+def test_new_plugin_kinds_listed(client: TestClient) -> None:
+    kinds = {p["kind"] for p in client.get("/api/plugins").json()}
+    assert {"placement", "queue_discipline", "simulation"} <= kinds

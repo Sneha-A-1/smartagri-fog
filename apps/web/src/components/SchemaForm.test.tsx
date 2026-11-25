@@ -36,3 +36,15 @@ describe("SchemaForm", () => {
     expect(screen.getByText("Too small")).toBeTruthy();
   });
 });
+
+describe("SchemaForm arrays", () => {
+  it("toggles options of a multi-select field", () => {
+    const onChange = vi.fn();
+    const arraySchema: JsonSchema = {
+      properties: { placements: { type: "array", title: "Placements", items: { enum: ["mct", "cloud_only"] } } },
+    };
+    render(<SchemaForm schema={arraySchema} values={{ placements: ["mct"] }} onChange={onChange} showAdvanced={false} />);
+    fireEvent.click(screen.getByRole("button", { name: "Cloud-only" }));
+    expect(onChange).toHaveBeenCalledWith({ placements: ["mct", "cloud_only"] });
+  });
+});

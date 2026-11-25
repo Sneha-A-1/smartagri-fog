@@ -30,7 +30,7 @@ export default function Overview() {
           SmartAgri-Fog is in Phase {CURRENT_PHASE}: {PHASES[CURRENT_PHASE].name.toLowerCase()}
         </h1>
         <p className="mt-2 max-w-2xl text-ink-2">
-          The research spine (simulator, schedulers and experiments) is built next. Pages and algorithms that don't
+          The simulator and baseline schedulers run now, from the algorithm catalogue. Pages and algorithms that don't
           exist yet are listed with the phase they arrive in, and none of them produce results.
         </p>
 

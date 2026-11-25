@@ -911,6 +911,7 @@ dependencies = [
     { name = "pydantic-settings" },
     { name = "pyjwt" },
     { name = "python-multipart" },
+    { name = "pyyaml" },
     { name = "smartagri-core" },
     { name = "smartagri-proposed" },
     { name = "sqlalchemy" },
@@ -924,6 +925,7 @@ requires-dist = [
     { name = "pydantic-settings", specifier = ">=2.4" },
     { name = "pyjwt", specifier = ">=2.9" },
     { name = "python-multipart", specifier = ">=0.0.9" },
+    { name = "pyyaml", specifier = ">=6" },
     { name = "smartagri-core", editable = "packages/core" },
     { name = "smartagri-proposed", editable = "packages/proposed" },
     { name = "sqlalchemy", specifier = ">=2.0.30" },
@@ -937,6 +939,7 @@ source = { editable = "packages/core" }
 dependencies = [
     { name = "numpy" },
     { name = "pydantic" },
+    { name = "pyyaml" },
     { name = "scipy" },
 ]
 
@@ -944,6 +947,7 @@ dependencies = [
 requires-dist = [
     { name = "numpy", specifier = ">=2.0" },
     { name = "pydantic", specifier = ">=2.9" },
+    { name = "pyyaml", specifier = ">=6" },
     { name = "scipy", specifier = ">=1.13" },
 ]
 

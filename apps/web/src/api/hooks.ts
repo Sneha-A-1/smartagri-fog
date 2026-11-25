@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { api, errorMessage, type Job } from "./client";
+import { api, errorMessage, type Experiment, type Job } from "./client";
 
 async function unwrap<T>(p: Promise<{ data?: T; error?: unknown }>): Promise<T> {
   const { data, error } = await p;
@@ -99,5 +99,80 @@ export function useSaveServerSettings() {
   return useMutation({
     mutationFn: (values: Record<string, unknown>) => unwrap(api.PUT("/api/settings/me", { body: { values } })),
     onSuccess: (data) => qc.setQueryData(["settings"], data),
+  });
+}
+
+// --- experiments -------------------------------------------------------------------------------
+
+const ACTIVE = new Set(["queued", "running"]);
+
+export const useExperimentSchema = () =>
+  useQuery({ queryKey: ["experiment-schema"], queryFn: () => unwrap(api.GET("/api/experiments/schema")), staleTime: Infinity });
+
+export const useExperiments = () =>
+  useQuery({
+    queryKey: ["experiments"],
+    queryFn: () => unwrap(api.GET("/api/experiments")),
+    refetchInterval: (q) => (q.state.data?.some((e) => ACTIVE.has(e.status)) ? 2000 : false),
+  });
+
+export const useExperiment = (id: string) =>
+  useQuery({
+    queryKey: ["experiment", id],
+    enabled: Boolean(id),
+    queryFn: () => unwrap(api.GET("/api/experiments/{exp_id}", { params: { path: { exp_id: id } } })),
+    refetchInterval: (q) => (q.state.data && ACTIVE.has(q.state.data.status) ? 1500 : false),
+  });
+
+export const useExperimentResult = (id: string, enabled: boolean, jobId: string | null | undefined) =>
+  useQuery({
+    queryKey: ["experiment-result", id, jobId],
+    enabled,
+    staleTime: Infinity,
+    queryFn: () => unwrap(api.GET("/api/experiments/{exp_id}/result", { params: { path: { exp_id: id } } })),
+  });
+
+function useExperimentMutation<T>(fn: (arg: T) => Promise<Experiment>) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: fn,
+    onSuccess: (exp) => {
+      qc.setQueryData(["experiment", exp.id], exp);
+      qc.invalidateQueries({ queryKey: ["experiments"] });
+    },
+  });
+}
+
+export const useCreateExperiment = () =>
+  useExperimentMutation((body: { spec: Record<string, unknown>; project_id?: string | null }) =>
+    unwrap(api.POST("/api/experiments", { body })),
+  );
+
+export const useUpdateExperiment = () =>
+  useExperimentMutation(({ id, spec }: { id: string; spec: Record<string, unknown> }) =>
+    unwrap(api.PUT("/api/experiments/{exp_id}", { params: { path: { exp_id: id } }, body: { spec } })),
+  );
+
+export const useRunExperiment = () =>
+  useExperimentMutation((id: string) =>
+    unwrap(api.POST("/api/experiments/{exp_id}/run", { params: { path: { exp_id: id } } })),
+  );
+
+export const useCancelExperiment = () =>
+  useExperimentMutation((id: string) =>
+    unwrap(api.POST("/api/experiments/{exp_id}/cancel", { params: { path: { exp_id: id } } })),
+  );
+
+export const useDuplicateExperiment = () =>
+  useExperimentMutation((id: string) =>
+    unwrap(api.POST("/api/experiments/{exp_id}/duplicate", { params: { path: { exp_id: id } } })),
+  );
+
+export function useDeleteExperiment() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) =>
+      unwrap(api.DELETE("/api/experiments/{exp_id}", { params: { path: { exp_id: id } } })),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["experiments"] }),
   });
 }

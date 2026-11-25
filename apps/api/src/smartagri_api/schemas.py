@@ -145,3 +145,47 @@ class AuditEntry(BaseModel):
     entity_type: str
     entity_id: str | None
     details: dict[str, Any]
+
+
+class ExperimentCreate(BaseModel):
+    spec: dict[str, Any] = Field(description="An ExperimentSpec (see /api/experiments/schema)")
+    project_id: str | None = None
+
+
+class ExperimentUpdate(BaseModel):
+    spec: dict[str, Any]
+
+
+class ExperimentOut(BaseModel):
+    id: str
+    name: str
+    description: str
+    objective: str
+    project_id: str | None
+    spec: dict[str, Any]
+    spec_sha256: str
+    algorithms: list[str]
+    total_runs: int
+    status: str = Field(description="draft | queued | running | succeeded | failed | cancelled | interrupted")
+    progress: float
+    message: str
+    job_id: str | None
+    has_result: bool
+    result_summary: dict[str, Any] | None
+    created_at: str
+    updated_at: str
+
+
+class PolicyOption(BaseModel):
+    key: str
+    name: str
+    summary: str
+
+
+class ExperimentSchemaOut(BaseModel):
+    scenario_schema: dict[str, Any]
+    default_spec: dict[str, Any]
+    placements: list[PolicyOption]
+    disciplines: list[PolicyOption]
+    metrics: dict[str, list[Any]]
+    headline_metrics: list[str]

@@ -62,20 +62,32 @@ class SoilMoistureDemoParams(BaseModel):
     )
     rain_probability: float = Field(0.15, ge=0, le=1, description="Chance of a rain event on any day.")
     rain_min_mm: float = Field(
-        5.0, ge=0, le=200, description="Smallest rain event.", json_schema_extra={"x-unit": "mm", "x-advanced": True}
+        title="Smallest rain event",
+        default=5.0,
+        ge=0,
+        le=200,
+        description="Smallest rain event.",
+        json_schema_extra={"x-unit": "mm", "x-advanced": True},
     )
     rain_max_mm: float = Field(
-        25.0, ge=0, le=300, description="Largest rain event.", json_schema_extra={"x-unit": "mm", "x-advanced": True}
+        title="Largest rain event",
+        default=25.0,
+        ge=0,
+        le=300,
+        description="Largest rain event.",
+        json_schema_extra={"x-unit": "mm", "x-advanced": True},
     )
     root_zone_depth_m: float = Field(
-        0.3,
+        title="Root-zone depth",
+        default=0.3,
         gt=0,
         le=2.0,
         description="Depth of soil the sensor represents.",
         json_schema_extra={"x-unit": "m", "x-advanced": True},
     )
     noise_std: float = Field(
-        0.005,
+        title="Sensor noise (std. dev.)",
+        default=0.005,
         ge=0,
         le=0.1,
         description="Standard deviation of sensor noise.",
@@ -83,7 +95,8 @@ class SoilMoistureDemoParams(BaseModel):
     )
     seed: int = Field(42, ge=0, description="Random seed. The same seed always gives the same series.")
     demo_delay_ms: int = Field(
-        40,
+        title="Demo delay per day",
+        default=40,
         ge=0,
         le=2000,
         description="Demo only: pause after each simulated day so live progress is visible.",

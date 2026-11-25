@@ -6,7 +6,7 @@ comparing and evaluating cloud–fog–edge computing strategies for agriculture
 Developed for the PhD research *"Design and Development of an Efficient Cloud-Enabled Framework for Smart
 Agriculture."*
 
-> **Status: Phase 1 in progress (1a: simulator and baseline schedulers).** Every feature carries an explicit status: *Implemented*, *Simulated*,
+> **Status: Phase 1 in progress (1a simulator and 1b experiments done).** Every feature carries an explicit status: *Implemented*, *Simulated*,
 > *Needs integration* or *Planned*. Planned features are listed with the phase they arrive in and never
 > produce results. Synthetic data is always labelled as synthetic.
 
@@ -31,7 +31,8 @@ Full instructions: [docs/getting-started.md](docs/getting-started.md).
 | Access | Local single-user mode; roles and permissions (admin, researcher, farmer, expert) for shared deployments |
 | Demo | A synthetic soil-moisture generator that exercises the whole pipeline |
 | Simulator (Phase 1a) | Discrete-event simulation of farm IoT-edge-fog-cloud networks; 8 placement policies and 4 queue disciplines; replicated comparisons with 95% confidence intervals; validated against M/M/1 queueing theory. See [docs/simulation-model.md](docs/simulation-model.md) |
-| Command line | `uv run smartagri plugins list`, `uv run smartagri demo` |
+| Experiments (Phase 1b) | Saved, frozen experiment definitions; 30-replication runs with Friedman, Nemenyi, Holm-corrected Wilcoxon and A12 effect sizes; CSV, LaTeX and YAML exports. See [docs/experiments.md](docs/experiments.md) |
+| Command line | `uv run smartagri plugins list`, `uv run smartagri experiment run experiments/rural-baseline.yaml --out results/x` |
 
 ## Architecture
 

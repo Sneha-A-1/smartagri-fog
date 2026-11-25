@@ -14,6 +14,7 @@ applyTheme(useUi.getState().theme);
 
 const JobDetail = lazy(() => import("./pages/JobDetail"));
 const PluginDetail = lazy(() => import("./pages/PluginDetail"));
+const ExperimentPage = lazy(() => import("./pages/ExperimentPage"));
 
 const queryClient = new QueryClient({ defaultOptions: { queries: { staleTime: 10_000, retry: 1 } } });
 
@@ -27,6 +28,8 @@ const router = createBrowserRouter([
       }),
       { path: "/algorithms/:pluginId", element: <PluginDetail /> },
       { path: "/jobs/:jobId", element: <JobDetail /> },
+      { path: "/experiments/new", element: <ExperimentPage /> },
+      { path: "/experiments/:expId", element: <ExperimentPage /> },
       {
         path: "*",
         element: (

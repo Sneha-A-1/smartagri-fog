@@ -2,7 +2,7 @@ import { OriginBadge } from "./StatusBadge";
 import { optionLabel } from "./SchemaForm";
 
 type MetricInfo = Record<string, [label: string, unit: string, higherIsBetter: boolean]>;
-type Summary = { n: number; mean: number | null; std: number | null; ci_low: number | null; ci_high: number | null; half_width: number | null };
+export type Summary = { n: number; mean: number | null; std: number | null; ci_low: number | null; ci_high: number | null; half_width: number | null };
 
 export type SingleRunResult = {
   kind: "simulation.single_run";
@@ -146,7 +146,7 @@ export function ComparisonView({ result }: { result: ComparisonResult }) {
   );
 }
 
-function Provenance({ provenance }: { provenance: Record<string, unknown> }) {
+export function Provenance({ provenance }: { provenance: Record<string, unknown> }) {
   return (
     <details className="mt-8 text-sm">
       <summary className="cursor-pointer text-ink-2">Reproducibility details</summary>
@@ -162,7 +162,7 @@ function Provenance({ provenance }: { provenance: Record<string, unknown> }) {
 }
 
 /** Mean (dot) with 95% confidence interval (whisker) per policy, on a shared horizontal scale. */
-function DotWhisker({ title, unit, rows }: { title: string; unit: string; rows: { label: string; summary: Summary }[] }) {
+export function DotWhisker({ title, unit, rows }: { title: string; unit: string; rows: { label: string; summary: Summary }[] }) {
   const lows = rows.map((r) => r.summary.ci_low ?? r.summary.mean ?? 0);
   const highs = rows.map((r) => r.summary.ci_high ?? r.summary.mean ?? 0);
   let lo = Math.min(...lows);

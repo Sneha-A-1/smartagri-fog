@@ -1,0 +1,21 @@
+# SmartAgri-Fog experiment. Run with:  uv run smartagri experiment run this-file.yaml --out results/my-experiment
+name: Placement baselines on a rural farm network
+objective: Do edge-ward and MCT placement meet more urgent deadlines than cloud-only on a slow cloud link?
+description: Baseline comparison for Paper 3.
+replications: 30          # 30 is the usual minimum for papers
+base_seed: 1
+scenario:
+  farms: 4
+  gateways_per_farm: 2
+  edge_per_farm: 1
+  fog_nodes: 2
+  cloud_nodes: 1
+  duration_s: 3600
+  intensity: 20
+  wan_bandwidth_mbps: 5
+  wan_latency_ms: 250
+algorithms:
+  - {placement: cloud_only, discipline: edf}
+  - {placement: edge_ward, discipline: edf}
+  - {placement: mct, discipline: edf}
+  - {placement: min_min, discipline: edf}

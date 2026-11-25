@@ -1,0 +1,101 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* Design tokens. "Field instrument": leaf-tinted surfaces, chlorophyll ink, indigo for actions.
+   Status colours carry meaning only (implemented / simulated / needs integration / planned). */
+:root {
+  --bg: #f4f7f4;
+  --surface: #ffffff;
+  --surface-2: #ebf0ec;
+  --ink: #17241c;
+  --ink-2: #4f5f55;
+  --ink-3: #75847b;
+  --line: #d6dfd8;
+  --accent: #3b4fa8;
+  --accent-hover: #2f418f;
+  --accent-ink: #ffffff;
+  --accent-soft: #e7eaf8;
+  --st-implemented: #26703f;
+  --st-implemented-bg: #e1f0e6;
+  --st-simulated: #8f5b0c;
+  --st-simulated-bg: #f7ebd3;
+  --st-integration: #1f5c9e;
+  --st-integration-bg: #e0eaf7;
+  --st-planned: #5c675f;
+  --st-planned-bg: #e9ede9;
+  --danger: #b42318;
+  --danger-bg: #fbe9e7;
+  color-scheme: light;
+}
+
+.dark {
+  --bg: #0e1612;
+  --surface: #151f19;
+  --surface-2: #111a15;
+  --ink: #e3ebe5;
+  --ink-2: #a2b1a7;
+  --ink-3: #7c8b81;
+  --line: #273429;
+  --accent: #93a3ee;
+  --accent-hover: #aab7f3;
+  --accent-ink: #0e1612;
+  --accent-soft: #232b4c;
+  --st-implemented: #7fcf9b;
+  --st-implemented-bg: #1b3325;
+  --st-simulated: #e4b360;
+  --st-simulated-bg: #3a2c12;
+  --st-integration: #8dbcf0;
+  --st-integration-bg: #182b42;
+  --st-planned: #a3aea6;
+  --st-planned-bg: #222b25;
+  --danger: #f2948a;
+  --danger-bg: #3d1a16;
+  color-scheme: dark;
+}
+
+@theme inline {
+  --font-sans: "Instrument Sans Variable", "Segoe UI", system-ui, sans-serif;
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-ink: var(--ink);
+  --color-ink-2: var(--ink-2);
+  --color-ink-3: var(--ink-3);
+  --color-line: var(--line);
+  --color-accent: var(--accent);
+  --color-accent-hover: var(--accent-hover);
+  --color-accent-ink: var(--accent-ink);
+  --color-accent-soft: var(--accent-soft);
+  --color-danger: var(--danger);
+  --color-danger-bg: var(--danger-bg);
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  font-size: 15px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
+}

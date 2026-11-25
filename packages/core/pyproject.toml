@@ -1,0 +1,22 @@
+[project]
+name = "smartagri-core"
+version = "0.1.0"
+description = "SmartAgri-Fog core: domain models, plugin registry, simulation and algorithms (no web code)"
+requires-python = ">=3.12"
+dependencies = [
+    "pydantic>=2.9",
+    "numpy>=2.0",
+]
+
+[project.scripts]
+smartagri = "smartagri_core.cli:main"
+
+[project.entry-points."smartagri.plugins"]
+builtin = "smartagri_core.plugins"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/smartagri_core"]

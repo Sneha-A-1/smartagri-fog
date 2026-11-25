@@ -129,8 +129,10 @@ export const MODULES: ModuleManifest[] = [
     description: "Configure workloads and failure scenarios and run the discrete-event simulator.",
   },
   {
-    id: "experiments", path: "/experiments", group: "research", icon: TestTubes, status: "planned", phase: 1,
-    description: "Reproducible experiments: topology, workload, algorithms, seeds and repeated runs.",
+    id: "experiments", path: "/experiments", group: "research", icon: TestTubes, status: "implemented", phase: 1,
+    permission: "job:read",
+    description: "Reproducible experiments: scenario, algorithms, seeded replications, significance tests and exports.",
+    component: lazy(() => import("@/pages/Experiments")),
   },
   {
     id: "evaluation", path: "/evaluation", group: "research", icon: ChartColumn, status: "planned", phase: 1,

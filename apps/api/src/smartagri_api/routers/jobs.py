@@ -89,7 +89,11 @@ def get_job_result(
     settings: Settings = Depends(get_settings),
     _: User = Depends(require("job:read")),
 ) -> Any:
-    job = session.get(Job, job_id)
+    return read_result(session.get(Job, job_id), settings)
+
+
+def read_result(job: Job | None, settings: Settings) -> Any:
+    """Load a finished job's result file, refusing paths outside the results folder."""
     if job is None or job.result_path is None:
         raise HTTPException(404, "No result for this job")
     path = Path(job.result_path).resolve()

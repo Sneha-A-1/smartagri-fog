@@ -34,6 +34,8 @@ export type Job = components["schemas"]["JobOut"];
 export type Project = components["schemas"]["ProjectOut"];
 export type User = components["schemas"]["UserOut"];
 export type SystemInfo = components["schemas"]["SystemInfo"];
+export type Experiment = components["schemas"]["ExperimentOut"];
+export type ExperimentSchema = components["schemas"]["ExperimentSchemaOut"];
 
 /** Turns an API error body into one readable sentence. */
 export function errorMessage(error: unknown): string {

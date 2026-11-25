@@ -41,6 +41,7 @@ export default function Catalogue() {
     const q = query.trim().toLowerCase();
     const filtered = (plugins ?? []).filter(
       (p) =>
+        !p.tags.includes("internal") &&
         (!statuses.size || statuses.has(p.status)) &&
         (!q || `${p.name} ${p.summary} ${p.kind} ${p.tags.join(" ")}`.toLowerCase().includes(q)),
     );

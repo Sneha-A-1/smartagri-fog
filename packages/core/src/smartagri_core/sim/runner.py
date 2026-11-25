@@ -31,11 +31,12 @@ class ScenarioParams(BaseModel):
 
     farms: int = Field(4, ge=1, le=200, description="Number of farms.")
     gateways_per_farm: int = Field(2, ge=1, le=50, description="IoT gateways per farm (task sources).")
-    edge_per_farm: int = Field(1, ge=1, le=20, description="Edge devices per farm.")
+    edge_per_farm: int = Field(1, title="Edge devices per farm", ge=1, le=20, description="Edge devices per farm.")
     fog_nodes: int = Field(2, ge=1, le=50, description="Regional fog servers.")
     cloud_nodes: int = Field(1, ge=1, le=10, description="Cloud servers.")
     duration_s: float = Field(
-        3600.0,
+        title="Duration",
+        default=3600.0,
         ge=60,
         le=7 * 86400,
         description="Simulated time over which tasks arrive.",
@@ -45,39 +46,45 @@ class ScenarioParams(BaseModel):
         20.0, gt=0, le=200, description="Workload multiplier on the agricultural task mix (1 = light load)."
     )
     window_s: float = Field(
-        5.0,
+        title="Batch window",
+        default=5.0,
         gt=0,
         le=600,
         description="Batch window for Min-Min and Max-Min.",
         json_schema_extra={"x-unit": "s", "x-advanced": True},
     )
     mtbf_edge_s: float = Field(
-        0.0,
+        title="Edge MTBF",
+        default=0.0,
         ge=0,
         description="Mean time between edge-device failures (0 = no failures).",
         json_schema_extra={"x-unit": "s", "x-advanced": True},
     )
     mtbf_fog_s: float = Field(
-        0.0,
+        title="Fog MTBF",
+        default=0.0,
         ge=0,
         description="Mean time between fog-server failures (0 = no failures).",
         json_schema_extra={"x-unit": "s", "x-advanced": True},
     )
     mttr_s: float = Field(
-        300.0,
+        title="Repair time (MTTR)",
+        default=300.0,
         ge=0,
         description="Mean repair time after a failure.",
         json_schema_extra={"x-unit": "s", "x-advanced": True},
     )
     wan_bandwidth_mbps: float = Field(
-        50.0,
+        title="Cloud link bandwidth",
+        default=50.0,
         gt=0,
         le=10000,
         description="Fog-to-cloud link bandwidth.",
         json_schema_extra={"x-unit": "Mbit/s", "x-advanced": True},
     )
     wan_latency_ms: float = Field(
-        100.0,
+        title="Cloud link latency",
+        default=100.0,
         ge=0,
         le=2000,
         description="Fog-to-cloud one-way latency.",
@@ -170,7 +177,7 @@ class ComparisonParams(ScenarioParams):
     )
     discipline: DISCIPLINE_KEYS = Field("edf", description="Queue discipline used by every node.")
     replications: int = Field(10, ge=2, le=100, description="Independent repetitions per policy (30 for papers).")
-    base_seed: int = Field(1, ge=0, description="Replication r uses seed base_seed + r.")
+    base_seed: int = Field(1, title="First seed", ge=0, description="Replication r uses seed base_seed + r.")
 
     @model_validator(mode="after")
     def _unique(self) -> ComparisonParams:

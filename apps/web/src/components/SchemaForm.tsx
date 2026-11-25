@@ -12,6 +12,8 @@ export type JsonSchemaProperty = {
   exclusiveMinimum?: number;
   exclusiveMaximum?: number;
   enum?: unknown[];
+  items?: { enum?: unknown[]; type?: string };
+  minItems?: number;
   "x-unit"?: string;
   "x-advanced"?: boolean;
 };
@@ -103,7 +105,35 @@ function Field({
   );
 
   let control;
-  if (prop.type === "boolean") {
+  if (prop.type === "array" && prop.items?.enum) {
+    const selected = new Set(Array.isArray(value) ? (value as unknown[]).map(String) : []);
+    control = (
+      <div id={id} role="group" aria-describedby={`${id}-help`} className="flex flex-wrap gap-1.5">
+        {prop.items.enum.map((opt) => {
+          const key = String(opt);
+          const on = selected.has(key);
+          return (
+            <button
+              key={key}
+              type="button"
+              aria-pressed={on}
+              disabled={disabled}
+              onClick={() => {
+                const next = (prop.items!.enum as unknown[]).map(String).filter((o) => (o === key ? !on : selected.has(o)));
+                onChange(next);
+              }}
+              className={cn(
+                "rounded-md border px-2.5 py-1 text-sm",
+                on ? "border-accent bg-accent-soft text-accent" : "border-line bg-surface text-ink-2 hover:bg-surface-2",
+              )}
+            >
+              {optionLabel(key)}
+            </button>
+          );
+        })}
+      </div>
+    );
+  } else if (prop.type === "boolean") {
     control = (
       <input
         id={id}
@@ -125,7 +155,7 @@ function Field({
       >
         {prop.enum.map((opt) => (
           <option key={String(opt)} value={String(opt)}>
-            {String(opt)}
+            {optionLabel(String(opt))}
           </option>
         ))}
       </select>
@@ -194,4 +224,24 @@ function sentenceCase(title: string): string {
     .split(" ")
     .map((w, i) => (i === 0 || /^[A-Z0-9]{2,}$/.test(w) ? w : w.toLowerCase()))
     .join(" ");
+}
+
+/** Readable labels for enum values used by scheduling parameters. Unknown values are shown as-is. */
+const OPTION_LABELS: Record<string, string> = {
+  random: "Random",
+  round_robin: "Round Robin",
+  least_loaded: "Least Loaded",
+  mct: "Minimum Completion Time",
+  cloud_only: "Cloud-only",
+  edge_ward: "Edge-ward",
+  min_min: "Min-Min",
+  max_min: "Max-Min",
+  fcfs: "First-Come, First-Served",
+  edf: "Earliest Deadline First",
+  priority: "Priority",
+  sjf: "Shortest Job First",
+};
+
+export function optionLabel(value: string): string {
+  return OPTION_LABELS[value] ?? value;
 }

@@ -3,6 +3,12 @@ import { Link, useParams } from "react-router-dom";
 import { useCancelJob, useJob, useJobResult, usePlugins } from "@/api/hooks";
 import { Button } from "@/components/Button";
 import { ProgressBar } from "@/components/ProgressBar";
+import {
+  type ComparisonResult,
+  ComparisonView,
+  type SingleRunResult,
+  SingleRunView,
+} from "@/components/SimulationResults";
 import { OriginBadge } from "@/components/StatusBadge";
 import { formatDuration, formatTime } from "@/lib/format";
 
@@ -36,6 +42,7 @@ export default function JobDetail() {
   const plugin = plugins?.find((p) => p.id === job.plugin_id);
   const active = job.status === "running" || job.status === "queued";
   const soil = job.plugin_id === "data_generator:soil_moisture_demo" ? (result as SoilResult | undefined) : undefined;
+  const kind = (result as { kind?: string } | undefined)?.kind;
 
   return (
     <article>
@@ -117,6 +124,9 @@ export default function JobDetail() {
           </dl>
         </section>
       )}
+
+      {kind === "simulation.single_run" && <SingleRunView result={result as SingleRunResult} />}
+      {kind === "simulation.comparison" && <ComparisonView result={result as ComparisonResult} />}
 
       <section className="mt-10">
         <h2 className="text-lg font-semibold">Parameters used</h2>

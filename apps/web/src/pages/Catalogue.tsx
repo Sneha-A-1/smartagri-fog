@@ -8,8 +8,10 @@ import { cn } from "@/lib/cn";
 
 /** Display order follows the research spine: scheduling first, supporting methods after. */
 const KIND_LABELS: Record<string, string> = {
-  scheduler: "Scheduling",
-  placement: "Placement",
+  simulation: "Simulation and experiments",
+  scheduler: "Complete schedulers",
+  placement: "Placement policies",
+  queue_discipline: "Queue disciplines",
   optimizer: "Optimisation",
   data_generator: "Data generators",
   data_source: "Data sources",

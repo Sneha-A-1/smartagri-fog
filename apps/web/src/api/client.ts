@@ -42,6 +42,8 @@ export type FarmFieldT = components["schemas"]["FieldOut"];
 export type WaterBalance = components["schemas"]["WaterBalanceOut"];
 export type WeatherData = components["schemas"]["WeatherOut"];
 export type AgroPresets = components["schemas"]["AgroPresets"];
+export type DeviceT = components["schemas"]["DeviceOut"];
+export type Twin = components["schemas"]["TwinOut"];
 
 /** Turns an API error body into one readable sentence. */
 export function errorMessage(error: unknown): string {

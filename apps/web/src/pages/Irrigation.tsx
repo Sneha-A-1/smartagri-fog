@@ -19,7 +19,8 @@ export default function Irrigation() {
   const allFields = (farms ?? []).flatMap((farm) => farm.fields.map((f) => ({ ...f, farmName: farm.name })));
   const fieldId = params.get("field") ?? allFields.find((f) => f.sowing_date)?.id ?? "";
   const source = (params.get("source") as WeatherSource) || "open_meteo";
-  const { data: wb, error, isFetching } = useWaterBalance(fieldId, source);
+  const useSensors = params.get("sensors") === "1";
+  const { data: wb, error, isFetching } = useWaterBalance(fieldId, source, useSensors);
   const set = (k: string, v: string) => { const p = new URLSearchParams(params); p.set(k, v); setParams(p, { replace: true }); };
 
   const select = "rounded-lg border border-line bg-surface px-3 py-2 text-sm";
@@ -50,6 +51,10 @@ export default function Irrigation() {
                 {SOURCES.map(([k, l]) => <option key={k} value={k}>{l}</option>)}
               </select>
             </label>
+            <label className="flex items-center gap-2 pb-2 text-sm">
+              <input type="checkbox" checked={useSensors} onChange={(e) => set("sensors", e.target.checked ? "1" : "0")} />
+              Correct with soil-moisture sensors
+            </label>
             {isFetching && <span className="pb-2 text-sm text-ink-3">Calculating…</span>}
           </div>
           {error && (
@@ -78,7 +83,9 @@ function BalanceView({ wb }: { wb: NonNullable<ReturnType<typeof useWaterBalance
     et0: Math.round(d.et0 * 100) / 100,
     etc: Math.round(d.etc_adj * 100) / 100,
     kc: Math.round(d.kc * 100) / 100,
+    model: d.model_depletion === null || d.model_depletion === undefined ? null : Math.round((d.taw - d.model_depletion) * 10) / 10,
   }));
+  const corrected = wb.sensors_used > 0;
   const firstForecast = wb.days.find((d) => d.forecast)?.day;
   const s = wb.summary;
   const tone = rec.action === "irrigate" ? "border-accent bg-accent-soft" : "border-line bg-surface";
@@ -110,6 +117,7 @@ function BalanceView({ wb }: { wb: NonNullable<ReturnType<typeof useWaterBalance
         <p className="mt-1 text-sm text-ink-2">
           The line falls as the crop uses water and rises with rain and irrigation. Below the dashed line the crop is
           stressed.{firstForecast && " The shaded days are forecast."}
+          {corrected && ` Each evening the model is reset to what the field's ${wb.sensors_used > 1 ? `${wb.sensors_used} sensors` : "sensor"} measured; the dotted line shows what the model alone expected that day. Summed over the season, the corrections add up to ${Math.abs(Math.round(Number(s.sensor_correction_mm)))} mm: the field ${Number(s.sensor_correction_mm) >= 0 ? "used more" : "used less"} water than the model expected (day-to-day differences also include sensor noise).`}
         </p>
         <div className="mt-3 h-80">
           <ResponsiveContainer>
@@ -125,7 +133,8 @@ function BalanceView({ wb }: { wb: NonNullable<ReturnType<typeof useWaterBalance
               <Bar yAxisId="p" dataKey="irrigation" name="Irrigation (applied)" fill="var(--accent)" isAnimationActive={false} />
               <Line yAxisId="w" dataKey="taw" name="Full (field capacity)" stroke="var(--ink-3)" strokeWidth={1} dot={false} isAnimationActive={false} />
               <Line yAxisId="w" dataKey="threshold" name="Stress threshold" stroke="var(--danger)" strokeDasharray="5 4" strokeWidth={1.5} dot={false} isAnimationActive={false} />
-              <Line yAxisId="w" dataKey="available" name="Water available" stroke="var(--st-implemented)" strokeWidth={2.5} dot={false} isAnimationActive={false} />
+              {corrected && <Line yAxisId="w" dataKey="model" name="Model before sensor correction" stroke="var(--ink-3)" strokeDasharray="2 3" strokeWidth={1.5} dot={false} connectNulls isAnimationActive={false} />}
+              <Line yAxisId="w" dataKey="available" name={corrected ? "Water available (sensor-corrected)" : "Water available"} stroke="var(--st-implemented)" strokeWidth={2.5} dot={false} isAnimationActive={false} />
             </ComposedChart>
           </ResponsiveContainer>
         </div>

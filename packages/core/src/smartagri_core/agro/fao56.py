@@ -258,6 +258,8 @@ class BalanceDay:
     raw: float
     p: float
     forecast: bool
+    model_depletion: float | None = None  # before correction, on days with a sensor observation
+    correction: float = 0.0  # observed minus modelled depletion, mm (positive: drier than modelled)
 
 
 @dataclass
@@ -281,6 +283,8 @@ class BalanceResult:
             "irrigation_events": sum(1 for d in past if d.irrigation_net > 0),
             "deep_percolation_mm": sum(d.deep_percolation for d in past),
             "stress_days": sum(1 for d in past if d.ks < 1),
+            "sensor_days": sum(1 for d in past if d.model_depletion is not None),
+            "sensor_correction_mm": sum(d.correction for d in past),
             "relative_yield": max(0.0, rel) if rel is not None else None,
         }
 
@@ -288,6 +292,34 @@ class BalanceResult:
 def adjusted_p(p_table: float, etc: float) -> float:
     """FAO-56 Table 22 footnote: p = p_table + 0.04 (5 - ETc), limited to 0.1-0.8."""
     return min(0.8, max(0.1, p_table + 0.04 * (5 - etc)))
+
+
+@dataclass(frozen=True)
+class Step:
+    etc: float
+    etc_adj: float
+    ks: float
+    effective_rain: float
+    deep_percolation: float
+    depletion: float
+    p: float
+    raw: float
+
+
+def day_step(
+    dr: float, w: DayWeather, crop: Crop, n: int, taw: float, policy: IrrigationPolicy, irr_net: float
+) -> Step:
+    """One day of FAO-56 eq. 85 starting from depletion ``dr`` with ``irr_net`` mm applied in the morning."""
+    kc = crop.kc(n)
+    etc = kc * w.et0
+    p = adjusted_p(crop.p, etc)
+    raw = p * taw
+    eff_rain = w.rain if w.rain >= policy.min_rain_fraction * w.et0 else 0.0
+    start = dr - irr_net  # depletion after the morning irrigation drives today's stress (eq. 84)
+    ks = 1.0 if start <= raw else max(0.0, (taw - start) / ((1 - p) * taw)) if taw > 0 else 0.0
+    etc_adj = ks * etc
+    new = dr - eff_rain - irr_net + etc_adj
+    return Step(etc, etc_adj, ks, eff_rain, max(0.0, -new), min(max(new, 0.0), taw), p, raw)
 
 
 def water_balance(
@@ -299,12 +331,17 @@ def water_balance(
     root_depth_m: float | None = None,
     policy: IrrigationPolicy | None = None,
     initial_depletion: float = 0.0,
+    observations: dict[date, float] | None = None,
 ) -> BalanceResult:
     """Daily root-zone depletion (FAO-56 eq. 85) with the single crop coefficient and water stress (eq. 84).
 
     Simplifications (documented): fixed root depth, no capillary rise, no runoff beyond the interception
     threshold; water above field capacity drains as deep percolation the same day.
     Irrigation is applied at the start of a day when the previous day's depletion reached the trigger.
+
+    ``observations`` maps days to measured end-of-day depletion (from soil-moisture sensors). On those days the
+    modelled depletion is replaced by the measurement (direct insertion), and the difference is recorded, so the
+    water balance closes as: change in depletion = ETa - rain - irrigation + drainage + corrections.
     """
     policy = policy or IrrigationPolicy()
     zr = root_depth_m or crop.root_depth_m
@@ -316,20 +353,17 @@ def water_balance(
         if n < 0:
             continue
         kc = crop.kc(n)
-        etc = kc * w.et0
-        p = adjusted_p(crop.p, etc)
-        raw = p * taw
+        p = adjusted_p(crop.p, kc * w.et0)
         trigger = (policy.trigger if policy.trigger is not None else p) * taw
-        irr_net = 0.0
-        if not policy.rainfed and not w.forecast and dr >= trigger and dr > 0:
-            irr_net = dr
-        eff_rain = w.rain if w.rain >= policy.min_rain_fraction * w.et0 else 0.0
-        start = dr - irr_net  # depletion after the morning irrigation drives today's stress (eq. 84)
-        ks = 1.0 if start <= raw else max(0.0, (taw - start) / ((1 - p) * taw)) if taw > 0 else 0.0
-        etc_adj = ks * etc
-        new = dr - eff_rain - irr_net + etc_adj
-        dp = max(0.0, -new)
-        dr = min(max(new, 0.0), taw)
+        irr_net = dr if (not policy.rainfed and not w.forecast and dr >= trigger and dr > 0) else 0.0
+        st = day_step(dr, w, crop, n, taw, policy, irr_net)
+        etc, etc_adj, ks, eff_rain, dp, raw = st.etc, st.etc_adj, st.ks, st.effective_rain, st.deep_percolation, st.raw
+        dr = st.depletion
+        model_dr, correction = None, 0.0
+        if observations and w.day in observations and not w.forecast:
+            model_dr = dr
+            dr = min(max(observations[w.day], 0.0), taw)
+            correction = dr - model_dr
         out.days.append(
             BalanceDay(
                 w.day,
@@ -349,6 +383,8 @@ def water_balance(
                 raw,
                 p,
                 w.forecast,
+                model_dr,
+                correction,
             )
         )
         if n >= crop.season_days - 1:

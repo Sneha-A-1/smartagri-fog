@@ -63,8 +63,10 @@ export const MODULES: ModuleManifest[] = [
     component: lazy(() => import("@/pages/Overview")),
   },
   {
-    id: "digitalTwin", path: "/digital-twin", group: "monitor", icon: MapIcon, status: "planned", phase: 2,
-    description: "Map of farms, fields, sensors, irrigation zones and network nodes, with switchable layers.",
+    id: "digitalTwin", path: "/digital-twin", group: "monitor", icon: MapIcon, status: "implemented", phase: 2,
+    permission: "project:read",
+    description: "Map of farms, fields coloured by water status, sensors, valves and gateways, with switchable layers.",
+    component: lazy(() => import("@/pages/DigitalTwin")),
   },
   {
     id: "farms", path: "/farms", group: "monitor", icon: Tractor, status: "implemented", phase: 2,
@@ -73,8 +75,10 @@ export const MODULES: ModuleManifest[] = [
     component: lazy(() => import("@/pages/Farms")),
   },
   {
-    id: "devices", path: "/devices", group: "monitor", icon: RadioTower, status: "planned", phase: 2,
-    description: "Configure sensors and actuators and run the MQTT device simulator.",
+    id: "devices", path: "/devices", group: "monitor", icon: RadioTower, status: "implemented", phase: 2,
+    permission: "project:read",
+    description: "Simulated and real sensors, weather stations, valves and gateways, with readings and token-based ingestion.",
+    component: lazy(() => import("@/pages/Devices")),
   },
   {
     id: "acquisition", path: "/data/acquisition", group: "data", icon: Database, status: "planned", phase: 3,

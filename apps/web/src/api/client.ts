@@ -36,6 +36,7 @@ export type User = components["schemas"]["UserOut"];
 export type SystemInfo = components["schemas"]["SystemInfo"];
 export type Experiment = components["schemas"]["ExperimentOut"];
 export type ExperimentSchema = components["schemas"]["ExperimentSchemaOut"];
+export type LitEntry = components["schemas"]["EntryOut"];
 
 /** Turns an API error body into one readable sentence. */
 export function errorMessage(error: unknown): string {

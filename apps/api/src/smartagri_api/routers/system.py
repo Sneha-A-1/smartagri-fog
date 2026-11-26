@@ -8,7 +8,7 @@ from fastapi import APIRouter, Depends
 from sqlalchemy import select, text
 from sqlalchemy.orm import Session
 
-from smartagri_api import __version__
+from smartagri_api import __commit__, __version__
 from smartagri_api.config import Settings, get_settings
 from smartagri_api.db import get_session
 from smartagri_api.deps import require
@@ -28,6 +28,7 @@ def health(session: Session = Depends(get_session), settings: Settings = Depends
     return Health(
         status="ok" if db == "ok" else "degraded",
         version=__version__,
+        commit=__commit__,
         core_version=smartagri_core.__version__,
         local_mode=settings.local_mode,
         database=db,

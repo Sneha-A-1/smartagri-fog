@@ -19,6 +19,7 @@ try {
 } finally {
     Pop-Location
 }
+Set-Content -Path "apps/web/dist/.build-commit" -Value ((git rev-parse HEAD).Trim()) -NoNewline
 
 Write-Host ""
 Write-Host "[3/3] Preparing settings..." -ForegroundColor Cyan

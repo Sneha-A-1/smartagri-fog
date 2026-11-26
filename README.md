@@ -15,7 +15,7 @@ Agriculture."*
 ```powershell
 cd D:\dev\smartagri-fog
 .\scripts\setup.ps1     # install everything and build the interface
-.\scripts\start.ps1     # start the platform; opens http://127.0.0.1:8000
+.\scripts\start.ps1     # start the platform; rebuilds the interface automatically after git pull
 ```
 
 Full instructions: [docs/getting-started.md](docs/getting-started.md).
@@ -33,6 +33,7 @@ Full instructions: [docs/getting-started.md](docs/getting-started.md).
 | Simulator (Phase 1a) | Discrete-event simulation of farm IoT-edge-fog-cloud networks; 8 placement policies and 4 queue disciplines; replicated comparisons with 95% confidence intervals; validated against M/M/1 queueing theory. See [docs/simulation-model.md](docs/simulation-model.md) |
 | Experiments (Phase 1b) | Saved, frozen experiment definitions; 30-replication runs with Friedman, Nemenyi, Holm-corrected Wilcoxon and A12 effect sizes; CSV, LaTeX and YAML exports. See [docs/experiments.md](docs/experiments.md) |
 | Network designer (Phase 1c) | Drag-and-drop topology designer (Cytoscape.js) with generator, validation and JSON import/export; workload editor with load preview; simulations and experiments on saved designs with per-device results. See [docs/designing-networks.md](docs/designing-networks.md) |
+| Literature review (Phase 1d) | Import BibTeX or CSL JSON from Zotero and databases with duplicate detection; PRISMA 2020 screening with live flow counts; tagging by layer, technique, metric, domain and evaluation; research-gap matrix; BibTeX, CSV and LaTeX exports. See [docs/literature-review.md](docs/literature-review.md) |
 | Command line | `uv run smartagri plugins list`, `uv run smartagri experiment run experiments/rural-baseline.yaml --out results/x` |
 
 ## Architecture

@@ -165,3 +165,49 @@ class SavedWorkload(TimestampMixin, Base):
     sha256: Mapped[str] = mapped_column(String(64), index=True)
     project_id: Mapped[str | None] = mapped_column(ForeignKey("projects.id", ondelete="SET NULL"), nullable=True)
     created_by: Mapped[str | None] = mapped_column(ForeignKey("users.id", ondelete="SET NULL"), nullable=True)
+
+
+class LiteratureEntry(TimestampMixin, Base):
+    """One paper in the literature review, with screening stage and classification tags."""
+
+    __tablename__ = "literature_entries"
+    project_id: Mapped[str | None] = mapped_column(ForeignKey("projects.id", ondelete="SET NULL"), nullable=True)
+    bibtex_key: Mapped[str] = mapped_column(String(200), index=True)
+    entry_type: Mapped[str] = mapped_column(String(40), default="article")
+    title: Mapped[str] = mapped_column(Text)
+    title_norm: Mapped[str] = mapped_column(String(500), index=True)
+    authors: Mapped[str] = mapped_column(Text, default="")
+    year: Mapped[int | None] = mapped_column(nullable=True)
+    venue: Mapped[str] = mapped_column(String(500), default="")
+    doi: Mapped[str] = mapped_column(String(300), default="", index=True)
+    url: Mapped[str] = mapped_column(String(1000), default="")
+    abstract: Mapped[str] = mapped_column(Text, default="")
+    keywords: Mapped[str] = mapped_column(Text, default="")
+    raw_bibtex: Mapped[str] = mapped_column(Text, default="")
+    stage: Mapped[str] = mapped_column(String(20), default="identified", index=True)
+    exclusion_reason: Mapped[str] = mapped_column(String(300), default="")
+    relevance: Mapped[int] = mapped_column(default=0)
+    layers: Mapped[list[str]] = mapped_column(JSON, default=list)
+    techniques: Mapped[list[str]] = mapped_column(JSON, default=list)
+    metrics: Mapped[list[str]] = mapped_column(JSON, default=list)
+    domains: Mapped[list[str]] = mapped_column(JSON, default=list)
+    evaluation: Mapped[list[str]] = mapped_column(JSON, default=list)
+    datasets: Mapped[list[str]] = mapped_column(JSON, default=list)
+    tags: Mapped[list[str]] = mapped_column(JSON, default=list)
+    contribution: Mapped[str] = mapped_column(Text, default="")
+    limitations: Mapped[str] = mapped_column(Text, default="")
+    notes: Mapped[str] = mapped_column(Text, default="")
+
+
+class LiteratureImport(Base):
+    """One import batch, kept for the PRISMA counts (records identified, duplicates removed)."""
+
+    __tablename__ = "literature_imports"
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=new_id)
+    at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
+    filename: Mapped[str] = mapped_column(String(300), default="")
+    source: Mapped[str] = mapped_column(String(200), default="", doc="Database searched, e.g. Scopus")
+    added: Mapped[int] = mapped_column(default=0)
+    duplicates: Mapped[int] = mapped_column(default=0)
+    failed: Mapped[int] = mapped_column(default=0)
+    project_id: Mapped[str | None] = mapped_column(String(36), nullable=True)

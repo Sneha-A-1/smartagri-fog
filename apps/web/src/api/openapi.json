@@ -1930,6 +1930,518 @@
         ]
       }
     },
+    "/api/literature/vocabulary": {
+      "get": {
+        "tags": [
+          "literature"
+        ],
+        "summary": "Vocabulary",
+        "description": "Suggested values, merged with every value already used, most used first.",
+        "operationId": "vocabulary_api_literature_vocabulary_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Vocabulary"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ]
+      }
+    },
+    "/api/literature": {
+      "get": {
+        "tags": [
+          "literature"
+        ],
+        "summary": "List Entries",
+        "operationId": "list_entries_api_literature_get",
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "stage",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Stage"
+            }
+          },
+          {
+            "name": "project_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Project Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/EntryOut"
+                  },
+                  "title": "Response List Entries Api Literature Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "literature"
+        ],
+        "summary": "Create Entry",
+        "operationId": "create_entry_api_literature_post",
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EntryIn"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EntryOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/literature/import": {
+      "post": {
+        "tags": [
+          "literature"
+        ],
+        "summary": "Import Entries",
+        "operationId": "import_entries_api_literature_import_post",
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/Body_import_entries_api_literature_import_post"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ImportOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ]
+      }
+    },
+    "/api/literature/prisma": {
+      "get": {
+        "tags": [
+          "literature"
+        ],
+        "summary": "Prisma",
+        "operationId": "prisma_api_literature_prisma_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PrismaOut"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ]
+      }
+    },
+    "/api/literature/matrix": {
+      "get": {
+        "tags": [
+          "literature"
+        ],
+        "summary": "Matrix",
+        "description": "Cross-tabulation of two classification dimensions. Empty or sparse cells point to research gaps.",
+        "operationId": "matrix_api_literature_matrix_get",
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "rows",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "enum": [
+                "layers",
+                "techniques",
+                "metrics",
+                "domains",
+                "evaluation",
+                "datasets",
+                "tags"
+              ],
+              "type": "string",
+              "default": "techniques",
+              "title": "Rows"
+            }
+          },
+          {
+            "name": "cols",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "enum": [
+                "layers",
+                "techniques",
+                "metrics",
+                "domains",
+                "evaluation",
+                "datasets",
+                "tags"
+              ],
+              "type": "string",
+              "default": "layers",
+              "title": "Cols"
+            }
+          },
+          {
+            "name": "stage",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": "included",
+              "title": "Stage"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MatrixOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/literature/export/{fmt}": {
+      "get": {
+        "tags": [
+          "literature"
+        ],
+        "summary": "Export",
+        "operationId": "export_api_literature_export__fmt__get",
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "fmt",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Fmt"
+            }
+          },
+          {
+            "name": "stage",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Stage"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/literature/{entry_id}": {
+      "get": {
+        "tags": [
+          "literature"
+        ],
+        "summary": "Get Entry",
+        "operationId": "get_entry_api_literature__entry_id__get",
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "entry_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Entry Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EntryOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "literature"
+        ],
+        "summary": "Update Entry",
+        "operationId": "update_entry_api_literature__entry_id__patch",
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "entry_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Entry Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EntryPatch"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EntryOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "literature"
+        ],
+        "summary": "Delete Entry",
+        "operationId": "delete_entry_api_literature__entry_id__delete",
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "entry_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Entry Id"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/projects": {
       "get": {
         "tags": [
@@ -2276,6 +2788,36 @@
         ],
         "title": "AuditEntry"
       },
+      "Body_import_entries_api_literature_import_post": {
+        "properties": {
+          "file": {
+            "type": "string",
+            "contentMediaType": "application/octet-stream",
+            "title": "File"
+          },
+          "source": {
+            "type": "string",
+            "title": "Source",
+            "default": ""
+          },
+          "project_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Project Id"
+          }
+        },
+        "type": "object",
+        "required": [
+          "file"
+        ],
+        "title": "Body_import_entries_api_literature_import_post"
+      },
       "Body_login_api_auth_login_post": {
         "properties": {
           "grant_type": {
@@ -2370,6 +2912,503 @@
           "generator_schema"
         ],
         "title": "DesignPresets"
+      },
+      "EntryIn": {
+        "properties": {
+          "title": {
+            "type": "string",
+            "minLength": 1,
+            "title": "Title"
+          },
+          "authors": {
+            "type": "string",
+            "title": "Authors",
+            "default": ""
+          },
+          "year": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "maximum": 2100.0,
+                "minimum": 1900.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Year"
+          },
+          "venue": {
+            "type": "string",
+            "title": "Venue",
+            "default": ""
+          },
+          "doi": {
+            "type": "string",
+            "title": "Doi",
+            "default": ""
+          },
+          "url": {
+            "type": "string",
+            "title": "Url",
+            "default": ""
+          },
+          "abstract": {
+            "type": "string",
+            "title": "Abstract",
+            "default": ""
+          },
+          "bibtex_key": {
+            "type": "string",
+            "title": "Bibtex Key",
+            "default": ""
+          },
+          "project_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Project Id"
+          }
+        },
+        "type": "object",
+        "required": [
+          "title"
+        ],
+        "title": "EntryIn"
+      },
+      "EntryOut": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "bibtex_key": {
+            "type": "string",
+            "title": "Bibtex Key"
+          },
+          "entry_type": {
+            "type": "string",
+            "title": "Entry Type"
+          },
+          "title": {
+            "type": "string",
+            "title": "Title"
+          },
+          "authors": {
+            "type": "string",
+            "title": "Authors"
+          },
+          "year": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Year"
+          },
+          "venue": {
+            "type": "string",
+            "title": "Venue"
+          },
+          "doi": {
+            "type": "string",
+            "title": "Doi"
+          },
+          "url": {
+            "type": "string",
+            "title": "Url"
+          },
+          "abstract": {
+            "type": "string",
+            "title": "Abstract"
+          },
+          "keywords": {
+            "type": "string",
+            "title": "Keywords"
+          },
+          "stage": {
+            "type": "string",
+            "title": "Stage"
+          },
+          "exclusion_reason": {
+            "type": "string",
+            "title": "Exclusion Reason"
+          },
+          "relevance": {
+            "type": "integer",
+            "title": "Relevance"
+          },
+          "layers": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Layers"
+          },
+          "techniques": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Techniques"
+          },
+          "metrics": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Metrics"
+          },
+          "domains": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Domains"
+          },
+          "evaluation": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Evaluation"
+          },
+          "datasets": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Datasets"
+          },
+          "tags": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Tags"
+          },
+          "contribution": {
+            "type": "string",
+            "title": "Contribution"
+          },
+          "limitations": {
+            "type": "string",
+            "title": "Limitations"
+          },
+          "notes": {
+            "type": "string",
+            "title": "Notes"
+          },
+          "project_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Project Id"
+          },
+          "updated_at": {
+            "type": "string",
+            "title": "Updated At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "bibtex_key",
+          "entry_type",
+          "title",
+          "authors",
+          "year",
+          "venue",
+          "doi",
+          "url",
+          "abstract",
+          "keywords",
+          "stage",
+          "exclusion_reason",
+          "relevance",
+          "layers",
+          "techniques",
+          "metrics",
+          "domains",
+          "evaluation",
+          "datasets",
+          "tags",
+          "contribution",
+          "limitations",
+          "notes",
+          "project_id",
+          "updated_at"
+        ],
+        "title": "EntryOut"
+      },
+      "EntryPatch": {
+        "properties": {
+          "title": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Title"
+          },
+          "authors": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Authors"
+          },
+          "year": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Year"
+          },
+          "venue": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Venue"
+          },
+          "doi": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Doi"
+          },
+          "url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Url"
+          },
+          "abstract": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Abstract"
+          },
+          "stage": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "identified",
+                  "screened_out",
+                  "full_text",
+                  "excluded",
+                  "included"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Stage"
+          },
+          "exclusion_reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Exclusion Reason"
+          },
+          "relevance": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "maximum": 3.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Relevance"
+          },
+          "layers": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Layers"
+          },
+          "techniques": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Techniques"
+          },
+          "metrics": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Metrics"
+          },
+          "domains": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Domains"
+          },
+          "evaluation": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Evaluation"
+          },
+          "datasets": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Datasets"
+          },
+          "tags": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Tags"
+          },
+          "contribution": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Contribution"
+          },
+          "limitations": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Limitations"
+          },
+          "notes": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Notes"
+          }
+        },
+        "type": "object",
+        "title": "EntryPatch"
       },
       "ExperimentCreate": {
         "properties": {
@@ -2726,6 +3765,12 @@
             "type": "string",
             "title": "Version"
           },
+          "commit": {
+            "type": "string",
+            "title": "Commit",
+            "description": "Git commit of the running server",
+            "default": "unknown"
+          },
           "core_version": {
             "type": "string",
             "title": "Core Version"
@@ -2748,6 +3793,37 @@
           "database"
         ],
         "title": "Health"
+      },
+      "ImportOut": {
+        "properties": {
+          "added": {
+            "type": "integer",
+            "title": "Added"
+          },
+          "duplicates": {
+            "type": "integer",
+            "title": "Duplicates"
+          },
+          "failed": {
+            "type": "integer",
+            "title": "Failed"
+          },
+          "duplicate_titles": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Duplicate Titles"
+          }
+        },
+        "type": "object",
+        "required": [
+          "added",
+          "duplicates",
+          "failed",
+          "duplicate_titles"
+        ],
+        "title": "ImportOut"
       },
       "JobCreate": {
         "properties": {
@@ -2915,6 +3991,58 @@
           "finished_at"
         ],
         "title": "JobOut"
+      },
+      "MatrixOut": {
+        "properties": {
+          "rows": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Rows"
+          },
+          "cols": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Cols"
+          },
+          "counts": {
+            "items": {
+              "items": {
+                "type": "integer"
+              },
+              "type": "array"
+            },
+            "type": "array",
+            "title": "Counts"
+          },
+          "papers": {
+            "additionalProperties": {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            "type": "object",
+            "title": "Papers",
+            "description": "'row|col' -> entry ids"
+          },
+          "total": {
+            "type": "integer",
+            "title": "Total"
+          }
+        },
+        "type": "object",
+        "required": [
+          "rows",
+          "cols",
+          "counts",
+          "papers",
+          "total"
+        ],
+        "title": "MatrixOut"
       },
       "ParamsIn": {
         "properties": {
@@ -3246,6 +4374,76 @@
           "summary"
         ],
         "title": "PolicyOption"
+      },
+      "PrismaOut": {
+        "properties": {
+          "identified": {
+            "type": "integer",
+            "title": "Identified",
+            "description": "Records identified across all imports (before de-duplication)"
+          },
+          "duplicates_removed": {
+            "type": "integer",
+            "title": "Duplicates Removed"
+          },
+          "by_source": {
+            "additionalProperties": {
+              "type": "integer"
+            },
+            "type": "object",
+            "title": "By Source"
+          },
+          "screened": {
+            "type": "integer",
+            "title": "Screened"
+          },
+          "excluded_screening": {
+            "type": "integer",
+            "title": "Excluded Screening"
+          },
+          "assessed_full_text": {
+            "type": "integer",
+            "title": "Assessed Full Text"
+          },
+          "excluded_full_text": {
+            "type": "integer",
+            "title": "Excluded Full Text"
+          },
+          "exclusion_reasons": {
+            "additionalProperties": {
+              "type": "integer"
+            },
+            "type": "object",
+            "title": "Exclusion Reasons"
+          },
+          "awaiting_screening": {
+            "type": "integer",
+            "title": "Awaiting Screening"
+          },
+          "awaiting_full_text": {
+            "type": "integer",
+            "title": "Awaiting Full Text"
+          },
+          "included": {
+            "type": "integer",
+            "title": "Included"
+          }
+        },
+        "type": "object",
+        "required": [
+          "identified",
+          "duplicates_removed",
+          "by_source",
+          "screened",
+          "excluded_screening",
+          "assessed_full_text",
+          "excluded_full_text",
+          "exclusion_reasons",
+          "awaiting_screening",
+          "awaiting_full_text",
+          "included"
+        ],
+        "title": "PrismaOut"
       },
       "ProjectIn": {
         "properties": {
@@ -3861,6 +5059,41 @@
           "type"
         ],
         "title": "ValidationError"
+      },
+      "Vocabulary": {
+        "properties": {
+          "dimensions": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Dimensions"
+          },
+          "stages": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "type": "object",
+            "title": "Stages"
+          },
+          "suggestions": {
+            "additionalProperties": {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            "type": "object",
+            "title": "Suggestions"
+          }
+        },
+        "type": "object",
+        "required": [
+          "dimensions",
+          "stages",
+          "suggestions"
+        ],
+        "title": "Vocabulary"
       },
       "WorkloadIn": {
         "properties": {

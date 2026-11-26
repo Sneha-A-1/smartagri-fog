@@ -11,6 +11,7 @@ from pydantic import BaseModel, ConfigDict, Field
 class Health(BaseModel):
     status: str
     version: str
+    commit: str = Field("unknown", description="Git commit of the running server")
     core_version: str
     local_mode: bool
     database: str

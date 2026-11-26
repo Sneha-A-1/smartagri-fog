@@ -126,3 +126,36 @@ def test_open_meteo_is_cached_and_errors_are_clear(client: TestClient, monkeypat
     monkeypatch.setattr(weather_service.httpx, "get", offline)
     r = client.get(f"/api/farms/{farm['id']}/weather", params={"start": "2020-01-01", "end": "2020-01-10"})
     assert r.status_code == 502 and "synthetic weather" in r.json()["detail"]
+
+
+def test_place_search_and_elevation(client: TestClient, monkeypatch) -> None:
+    from smartagri_api.routers import geo
+
+    seen = {}
+
+    class Resp:
+        def __init__(self, payload):
+            self._p = payload
+
+        def json(self):
+            return self._p
+
+    def fake_get(url, params=None, headers=None, timeout=None):
+        seen[url] = (params, headers)
+        if "nominatim" in url:  # shaped like a Nominatim answer; values invented for the test
+            return Resp(
+                [{"display_name": "Pusa, New Delhi, India", "lat": "28.636", "lon": "77.153", "addresstype": "suburb"}]
+            )
+        return Resp({"elevation": [228.4]})
+
+    monkeypatch.setattr(geo.httpx, "get", fake_get)
+    places = client.get("/api/geo/search", params={"q": "Pusa Delhi"}).json()
+    assert places == [{"name": "Pusa, New Delhi, India", "latitude": 28.636, "longitude": 77.153, "kind": "suburb"}]
+    assert "SmartAgri-Fog" in seen[geo.NOMINATIM][1]["User-Agent"]
+    assert client.get("/api/geo/elevation", params={"latitude": 28.6, "longitude": 77.2}).json()["elevation_m"] == 228
+
+    def offline(*a, **k):
+        raise geo.httpx.ConnectError("offline")
+
+    monkeypatch.setattr(geo.httpx, "get", offline)
+    assert client.get("/api/geo/search", params={"q": "Pusa"}).status_code == 502

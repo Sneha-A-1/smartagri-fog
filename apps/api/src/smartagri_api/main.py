@@ -19,7 +19,7 @@ from smartagri_api.db import init_engine, session_scope
 from smartagri_api.jobs.runner import JobEventHub, JobRunner
 from smartagri_api.migrate import run_migrations
 from smartagri_api.rbac import seed_access_control
-from smartagri_api.routers import agro, auth, designs, experiments, jobs, literature, plugins, projects, system
+from smartagri_api.routers import agro, auth, designs, experiments, geo, jobs, literature, plugins, projects, system
 from smartagri_api.routers import settings as settings_router
 
 log = logging.getLogger("smartagri_api")
@@ -67,7 +67,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         allow_headers=["*"],
     )
 
-    for module in (system, auth, plugins, jobs, experiments, designs, literature, agro, projects, settings_router):
+    for module in (system, auth, plugins, jobs, experiments, designs, literature, agro, geo, projects, settings_router):
         app.include_router(module.router, prefix="/api")
 
     if WEB_DIST.is_dir():  # serve the built web interface when it exists (production / one-command mode)

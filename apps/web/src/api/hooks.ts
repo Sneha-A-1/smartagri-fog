@@ -455,3 +455,7 @@ export const useWaterBalance = (fieldId: string, source: WeatherSource, trigger?
     queryFn: () =>
       unwrap(api.GET("/api/fields/{field_id}/water-balance", { params: { path: { field_id: fieldId }, query: { source, trigger } } })),
   });
+
+export const placeSearch = (q: string) => unwrap(api.GET("/api/geo/search", { params: { query: { q } } }));
+export const elevationAt = (latitude: number, longitude: number) =>
+  unwrap(api.GET("/api/geo/elevation", { params: { query: { latitude, longitude } } }));

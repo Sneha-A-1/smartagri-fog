@@ -34,7 +34,9 @@ Full instructions: [docs/getting-started.md](docs/getting-started.md).
 | Experiments (Phase 1b) | Saved, frozen experiment definitions; 30-replication runs with Friedman, Nemenyi, Holm-corrected Wilcoxon and A12 effect sizes; CSV, LaTeX and YAML exports. See [docs/experiments.md](docs/experiments.md) |
 | Network designer (Phase 1c) | Drag-and-drop topology designer (Cytoscape.js) with generator, validation and JSON import/export; workload editor with load preview; simulations and experiments on saved designs with per-device results. See [docs/designing-networks.md](docs/designing-networks.md) |
 | Literature review (Phase 1d) | Import BibTeX or CSL JSON from Zotero and databases with duplicate detection; PRISMA 2020 screening with live flow counts; tagging by layer, technique, metric, domain and evaluation; research-gap matrix; BibTeX, CSV and LaTeX exports. See [docs/literature-review.md](docs/literature-review.md) |
-| Command line | `uv run smartagri plugins list`, `uv run smartagri experiment run experiments/rural-baseline.yaml --out results/x` |
+| iFogSim reproduction (Phase 1e) | Module-based simulator following iFogSim's model; the paper's EEG game case study with results next to the published figures, including the parts that don't match. See [docs/ifogsim-reproduction.md](docs/ifogsim-reproduction.md) |
+| Task-graph scheduling | HEFT and CPOP, validated against the published example (schedule lengths 80 and 86); seeded random-graph experiments with significance tests. See [docs/dag-scheduling.md](docs/dag-scheduling.md) |
+| Command line | `uv run smartagri plugins list`, `uv run smartagri experiment run experiments/rural-baseline.yaml --out results/x`, `uv run smartagri plugins run simulation:ifogsim_eeg --out results/eeg` |
 
 ## Architecture
 

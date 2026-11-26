@@ -9,6 +9,14 @@ import {
   type SingleRunResult,
   SingleRunView,
 } from "@/components/SimulationResults";
+import {
+  type DagComparisonResult,
+  DagComparisonView,
+  type DagScheduleResult,
+  DagScheduleView,
+  type EEGResult,
+  EEGCaseStudyView,
+} from "@/components/CaseStudyResults";
 import { OriginBadge } from "@/components/StatusBadge";
 import { formatDuration, formatTime } from "@/lib/format";
 
@@ -127,6 +135,9 @@ export default function JobDetail() {
 
       {kind === "simulation.single_run" && <SingleRunView result={result as SingleRunResult} />}
       {kind === "simulation.comparison" && <ComparisonView result={result as ComparisonResult} />}
+      {kind === "simulation.case_study.ifogsim_eeg" && <EEGCaseStudyView result={result as EEGResult} />}
+      {kind === "scheduler.dag_schedule" && <DagScheduleView result={result as DagScheduleResult} />}
+      {kind === "simulation.dag_comparison" && <DagComparisonView result={result as DagComparisonResult} />}
 
       <ParamsSection params={job.params} />
     </article>

@@ -149,8 +149,11 @@ export function ExperimentResults({ result, exportBase }: { result: ExperimentRe
 }
 
 function MetricDetail({ metric, result }: { metric: string; result: ExperimentResult }) {
-  const an = result.analysis[metric];
-  const [label] = result.metric_info[metric];
+  return <AnalysisDetail label={result.metric_info[metric][0]} an={result.analysis[metric]} />;
+}
+
+/** Verdict, omnibus test and every pairwise comparison for one metric (output of smartagri_core.stats.compare). */
+export function AnalysisDetail({ label, an }: { label: string; an: ExperimentResult["analysis"][string] }) {
   return (
     <div className="rounded-xl border border-line bg-surface p-5">
       <h3 className="font-semibold">{label}</h3>

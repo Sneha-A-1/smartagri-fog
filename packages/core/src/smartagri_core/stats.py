@@ -171,14 +171,14 @@ def compare(samples: dict[str, Sequence[float]], higher_is_better: bool, alpha: 
 
 def _omnibus_text(omnibus: dict[str, Any], pairs: list[dict[str, Any]], k: int) -> str:
     if k >= 3 and omnibus["p_value"] is not None:
-        return f"Friedman p = {_p(omnibus['p_value'])}"
+        return f"Friedman {_p(omnibus['p_value'])}"
     if pairs:
-        return f"Wilcoxon p = {_p(pairs[0]['p_holm'])}"
+        return f"Wilcoxon {_p(pairs[0]['p_holm'])}"
     return "no test"
 
 
 def _p(p: float) -> str:
-    return "< 0.001" if p < 0.001 else f"{p:.3f}"
+    return "p < 0.001" if p < 0.001 else f"p = {p:.3f}"
 
 
 def _nan_to_none(d: dict[str, Any]) -> dict[str, Any]:

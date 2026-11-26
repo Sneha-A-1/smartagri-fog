@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse
+import contextlib
 
 import uvicorn
 
@@ -16,7 +17,7 @@ def main() -> None:
     parser.add_argument("--port", type=int, default=settings.port)
     parser.add_argument("--reload", action="store_true", help="Restart automatically when code changes")
     args = parser.parse_args()
-    try:
+    with contextlib.suppress(KeyboardInterrupt):
         uvicorn.run(
             "smartagri_api.main:create_app",
             factory=True,
@@ -25,8 +26,6 @@ def main() -> None:
             reload=args.reload,
             timeout_graceful_shutdown=10,  # never hang on Ctrl+C, even with a stuck connection
         )
-    except KeyboardInterrupt:
-        pass
     print("SmartAgri-Fog stopped.")
 
 

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { useCreateFarm, useFarms } from "@/api/hooks";
+import { elevationAt, placeSearch, useCreateFarm, useFarms } from "@/api/hooks";
 import { Button } from "@/components/Button";
 import { FarmMap } from "@/components/FarmMap";
 import { PageHeader } from "@/components/PageHeader";
@@ -11,7 +11,19 @@ const DEFAULT_CENTER: [number, number] = [22.5, 79]; // India
 export default function Farms() {
   const { data: farms, isLoading } = useFarms();
   const [creating, setCreating] = useState(false);
-  const [form, setForm] = useState({ name: "", region: "", latitude: "", longitude: "", elevation_m: "0" });
+  const [form, setForm] = useState({ name: "", region: "", latitude: "", longitude: "", elevation_m: "" });
+  const [flyTo, setFlyTo] = useState<number[][] | null>(null);
+  const [elevNote, setElevNote] = useState("");
+
+  // Place the farm, then look up its elevation unless the user typed one.
+  const locate = (la: number, lo: number, fly: boolean, region?: string) => {
+    setForm((f) => ({ ...f, latitude: la.toFixed(5), longitude: lo.toFixed(5), region: region && !f.region ? region : f.region }));
+    if (fly) setFlyTo([[lo, la]]);
+    setElevNote("Looking up elevation…");
+    elevationAt(la, lo)
+      .then((r) => { setForm((f) => ({ ...f, elevation_m: String(r.elevation_m) })); setElevNote("Filled in from a terrain model; change it if you know better."); })
+      .catch(() => setElevNote("Couldn't look it up; type an estimate."));
+  };
   const create = useCreateFarm();
   const navigate = useNavigate();
   const projectId = useUi((s) => s.currentProjectId);
@@ -39,9 +51,9 @@ export default function Farms() {
           zoom={farms?.length ? 12 : 5}
           points={points}
           fields={fields}
-          fitTo={creating ? null : fit.length ? fit : null}
+          fitTo={creating ? flyTo : fit.length ? fit : null}
           onPointClick={(id) => id !== "new" && navigate(`/farms/${id}`)}
-          onMapClick={creating ? (la, lo) => setForm({ ...form, latitude: la.toFixed(5), longitude: lo.toFixed(5) }) : undefined}
+          onMapClick={creating ? (la, lo) => locate(la, lo, false) : undefined}
           className="h-[34rem] overflow-hidden rounded-xl border border-line"
         />
         <aside>
@@ -57,7 +69,15 @@ export default function Farms() {
               }}
             >
               <h2 className="font-semibold">New farm</h2>
-              <p className="text-sm text-ink-2">Click the farm's location on the map, or type its coordinates.</p>
+              <p className="text-sm text-ink-2">Find the village or town, then click the exact spot on the satellite map.</p>
+              <PlaceSearch onPick={(p) => locate(p.latitude, p.longitude, true, p.name.split(",").slice(0, 2).join(",").trim())} />
+              <button type="button" className="text-sm text-accent hover:underline"
+                onClick={() => navigator.geolocation?.getCurrentPosition(
+                  (pos) => locate(pos.coords.latitude, pos.coords.longitude, true),
+                  () => setElevNote("Your browser didn't share its location; search or click the map instead."),
+                )}>
+                Use my current location
+              </button>
               <label className="block text-sm">
                 <span className="mb-1 block text-xs text-ink-3">Name</span>
                 <input className={input} value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} required />
@@ -79,7 +99,7 @@ export default function Farms() {
               <label className="block text-sm">
                 <span className="mb-1 block text-xs text-ink-3">Elevation (m above sea level)</span>
                 <input className={input} inputMode="decimal" value={form.elevation_m} onChange={(e) => setForm({ ...form, elevation_m: e.target.value })} />
-                <span className="mt-1 block text-xs text-ink-3">Used for air pressure in the evapotranspiration formula; an estimate is fine.</span>
+                <span className="mt-1 block text-xs text-ink-3">{elevNote || "Used for air pressure in the evapotranspiration formula; an estimate is fine."}</span>
               </label>
               {create.error && <p className="text-sm text-danger">{create.error.message}</p>}
               <div className="flex gap-2">
@@ -114,5 +134,52 @@ export default function Farms() {
         </aside>
       </div>
     </>
+  );
+}
+
+type Place = { name: string; latitude: number; longitude: number; kind: string };
+
+function PlaceSearch({ onPick }: { onPick: (p: Place) => void }) {
+  const [q, setQ] = useState("");
+  const [results, setResults] = useState<Place[] | null>(null);
+  const [error, setError] = useState("");
+  const [busy, setBusy] = useState(false);
+  const search = () => {
+    if (q.trim().length < 2) return;
+    setBusy(true);
+    setError("");
+    placeSearch(q.trim())
+      .then((r) => setResults(r))
+      .catch((e: Error) => { setResults(null); setError(e.message); })
+      .finally(() => setBusy(false));
+  };
+  return (
+    <div>
+      <div className="flex gap-2">
+        <input
+          className="w-full rounded-lg border border-line bg-surface px-3 py-2 text-sm"
+          placeholder="Village, town or district"
+          aria-label="Search for a place"
+          value={q}
+          onChange={(e) => setQ(e.target.value)}
+          onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); search(); } }}
+        />
+        <Button onClick={search} disabled={busy || q.trim().length < 2}>{busy ? "Searching…" : "Find"}</Button>
+      </div>
+      {error && <p className="mt-1 text-xs text-danger">{error}</p>}
+      {results && results.length === 0 && <p className="mt-1 text-xs text-ink-3">No places found. Try adding the district or state.</p>}
+      {results && results.length > 0 && (
+        <ul className="mt-2 max-h-48 divide-y divide-line overflow-y-auto rounded-lg border border-line text-sm">
+          {results.map((p) => (
+            <li key={`${p.latitude},${p.longitude}`}>
+              <button type="button" className="w-full px-3 py-2 text-left hover:bg-surface-2" onClick={() => { onPick(p); setResults(null); }}>
+                {p.name}
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
+      <p className="mt-1 text-[11px] text-ink-3">Search by OpenStreetMap Nominatim.</p>
+    </div>
   );
 }

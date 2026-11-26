@@ -847,6 +847,40 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/geo/search": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Search Places */
+        get: operations["search_places_api_geo_search_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/geo/elevation": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Elevation */
+        get: operations["elevation_api_geo_elevation_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/projects": {
         parameters: {
             query?: never;
@@ -1074,6 +1108,13 @@ export interface components {
             generator_schema: {
                 [key: string]: unknown;
             };
+        };
+        /** Elevation */
+        Elevation: {
+            /** Elevation M */
+            elevation_m: number;
+            /** Source */
+            source: string;
         };
         /** EntryIn */
         EntryIn: {
@@ -1671,6 +1712,17 @@ export interface components {
             errors?: {
                 [key: string]: unknown;
             }[];
+        };
+        /** Place */
+        Place: {
+            /** Name */
+            name: string;
+            /** Latitude */
+            latitude: number;
+            /** Longitude */
+            longitude: number;
+            /** Kind */
+            kind: string;
         };
         /** PluginDetail */
         PluginDetail: {
@@ -4239,6 +4291,69 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["WaterBalanceOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    search_places_api_geo_search_get: {
+        parameters: {
+            query: {
+                q: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Place"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    elevation_api_geo_elevation_get: {
+        parameters: {
+            query: {
+                latitude: number;
+                longitude: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Elevation"];
                 };
             };
             /** @description Validation Error */

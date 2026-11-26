@@ -90,7 +90,10 @@ class JobRunner:
         self._stopping = True
         for job_id in list(self._futures):
             self._cancel_flags[job_id] = True
-        await self._pump_task
+        try:
+            await self._pump_task
+        except asyncio.CancelledError:
+            self._pump_task.cancel()  # forced quit: skip waiting for progress messages
         self._executor.shutdown(wait=True, cancel_futures=True)
         self._manager.shutdown()
 

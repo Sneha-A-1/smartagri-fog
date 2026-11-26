@@ -67,8 +67,10 @@ export const MODULES: ModuleManifest[] = [
     description: "Map of farms, fields, sensors, irrigation zones and network nodes, with switchable layers.",
   },
   {
-    id: "farms", path: "/farms", group: "monitor", icon: Tractor, status: "planned", phase: 2,
-    description: "Create and configure farms, fields, crops, soil types and agricultural scenarios.",
+    id: "farms", path: "/farms", group: "monitor", icon: Tractor, status: "implemented", phase: 2,
+    permission: "project:read",
+    description: "Farms and fields on a satellite map, with crop, sowing date, soil and irrigation method.",
+    component: lazy(() => import("@/pages/Farms")),
   },
   {
     id: "devices", path: "/devices", group: "monitor", icon: RadioTower, status: "planned", phase: 2,
@@ -87,16 +89,20 @@ export const MODULES: ModuleManifest[] = [
     description: "Preprocessing, dimensionality reduction, clustering and anomaly detection with comparisons.",
   },
   {
-    id: "irrigation", path: "/irrigation", group: "agri", icon: Droplets, status: "planned", phase: 6,
-    description: "Crop- and soil-specific thresholds, pump and valve status, and irrigation recommendations.",
+    id: "irrigation", path: "/irrigation", group: "agri", icon: Droplets, status: "implemented", phase: 2,
+    permission: "project:read",
+    description: "FAO-56 soil-water balance per field and irrigation advice. Pump and valve control arrives with the device simulator.",
+    component: lazy(() => import("@/pages/Irrigation")),
   },
   {
     id: "cropHealth", path: "/crop-health", group: "agri", icon: Leaf, status: "planned", phase: 6,
     description: "Upload leaf images and get disease predictions with confidence and recommendations.",
   },
   {
-    id: "weather", path: "/weather", group: "agri", icon: CloudSun, status: "planned", phase: 6,
-    description: "Weather trends, evapotranspiration, drought and heat-stress alerts.",
+    id: "weather", path: "/weather", group: "agri", icon: CloudSun, status: "implemented", phase: 2,
+    permission: "project:read",
+    description: "Daily weather per farm (Open-Meteo, station CSV or synthetic) and FAO-56 reference evapotranspiration.",
+    component: lazy(() => import("@/pages/Weather")),
   },
   {
     id: "mlLab", path: "/ml-lab", group: "agri", icon: BrainCircuit, status: "planned", phase: 6,

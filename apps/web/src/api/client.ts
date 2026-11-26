@@ -37,6 +37,11 @@ export type SystemInfo = components["schemas"]["SystemInfo"];
 export type Experiment = components["schemas"]["ExperimentOut"];
 export type ExperimentSchema = components["schemas"]["ExperimentSchemaOut"];
 export type LitEntry = components["schemas"]["EntryOut"];
+export type Farm = components["schemas"]["FarmOut"];
+export type FarmFieldT = components["schemas"]["FieldOut"];
+export type WaterBalance = components["schemas"]["WaterBalanceOut"];
+export type WeatherData = components["schemas"]["WeatherOut"];
+export type AgroPresets = components["schemas"]["AgroPresets"];
 
 /** Turns an API error body into one readable sentence. */
 export function errorMessage(error: unknown): string {

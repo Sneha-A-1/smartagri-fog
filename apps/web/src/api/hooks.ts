@@ -343,3 +343,115 @@ export function useImportLit() {
     onSuccess: () => invalidateLiterature(qc),
   });
 }
+
+// --- farms, weather and irrigation ---------------------------------------------------------------
+
+export type WeatherSource = "open_meteo" | "csv" | "synthetic";
+
+export const useAgroPresets = () =>
+  useQuery({ queryKey: ["agro-presets"], staleTime: Infinity, queryFn: () => unwrap(api.GET("/api/agro/presets")) });
+
+export const useFarms = () => useQuery({ queryKey: ["farms"], queryFn: () => unwrap(api.GET("/api/farms")) });
+
+export const useFarm = (id: string) =>
+  useQuery({
+    queryKey: ["farm", id],
+    enabled: Boolean(id),
+    queryFn: () => unwrap(api.GET("/api/farms/{farm_id}", { params: { path: { farm_id: id } } })),
+  });
+
+function invalidateFarms(qc: ReturnType<typeof useQueryClient>) {
+  for (const key of ["farms", "farm", "water-balance"]) qc.invalidateQueries({ queryKey: [key] });
+}
+
+export function useCreateFarm() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (body: FarmBody) => unwrap(api.POST("/api/farms", { body: { description: "", region: "", ...body } })),
+    onSuccess: () => invalidateFarms(qc),
+  });
+}
+
+export type FarmBody = { name: string; latitude: number; longitude: number; elevation_m: number; region?: string; description?: string; project_id?: string | null };
+
+export function useUpdateFarm() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, patch }: { id: string; patch: Partial<FarmBody> }) =>
+      unwrap(api.PATCH("/api/farms/{farm_id}", { params: { path: { farm_id: id } }, body: patch })),
+    onSuccess: () => invalidateFarms(qc),
+  });
+}
+
+export function useDeleteFarm() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => unwrap(api.DELETE("/api/farms/{farm_id}", { params: { path: { farm_id: id } } })),
+    onSuccess: () => invalidateFarms(qc),
+  });
+}
+
+export function useCreateField() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ farmId, body }: { farmId: string; body: Record<string, unknown> }) =>
+      unwrap(api.POST("/api/farms/{farm_id}/fields", { params: { path: { farm_id: farmId } }, body: body as never })),
+    onSuccess: () => invalidateFarms(qc),
+  });
+}
+
+export function useUpdateField() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, patch }: { id: string; patch: Record<string, unknown> }) =>
+      unwrap(api.PATCH("/api/fields/{field_id}", { params: { path: { field_id: id } }, body: patch as never })),
+    onSuccess: () => invalidateFarms(qc),
+  });
+}
+
+export function useDeleteField() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => unwrap(api.DELETE("/api/fields/{field_id}", { params: { path: { field_id: id } } })),
+    onSuccess: () => invalidateFarms(qc),
+  });
+}
+
+export const useFarmWeather = (farmId: string, source: WeatherSource, start?: string, end?: string) =>
+  useQuery({
+    queryKey: ["weather", farmId, source, start, end],
+    enabled: Boolean(farmId),
+    retry: false,
+    queryFn: () =>
+      unwrap(api.GET("/api/farms/{farm_id}/weather", { params: { path: { farm_id: farmId }, query: { source, start, end } } })),
+  });
+
+export function useImportWeatherCsv() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ farmId, file }: { farmId: string; file: File }) => {
+      const form = new FormData();
+      form.append("file", file);
+      return unwrap(
+        api.POST("/api/farms/{farm_id}/weather/csv", {
+          params: { path: { farm_id: farmId } },
+          body: form as never,
+          bodySerializer: (b) => b as unknown as FormData,
+        }),
+      );
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["weather"] });
+      qc.invalidateQueries({ queryKey: ["water-balance"] });
+    },
+  });
+}
+
+export const useWaterBalance = (fieldId: string, source: WeatherSource, trigger?: number) =>
+  useQuery({
+    queryKey: ["water-balance", fieldId, source, trigger],
+    enabled: Boolean(fieldId),
+    retry: false,
+    queryFn: () =>
+      unwrap(api.GET("/api/fields/{field_id}/water-balance", { params: { path: { field_id: fieldId }, query: { source, trigger } } })),
+  });

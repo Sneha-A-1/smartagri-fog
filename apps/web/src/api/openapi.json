@@ -2442,6 +2442,655 @@
         }
       }
     },
+    "/api/agro/presets": {
+      "get": {
+        "tags": [
+          "agro"
+        ],
+        "summary": "Presets",
+        "operationId": "presets_api_agro_presets_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AgroPresets"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ]
+      }
+    },
+    "/api/farms": {
+      "get": {
+        "tags": [
+          "agro"
+        ],
+        "summary": "List Farms",
+        "operationId": "list_farms_api_farms_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/FarmOut"
+                  },
+                  "type": "array",
+                  "title": "Response List Farms Api Farms Get"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "agro"
+        ],
+        "summary": "Create Farm",
+        "operationId": "create_farm_api_farms_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FarmIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FarmOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ]
+      }
+    },
+    "/api/farms/{farm_id}": {
+      "get": {
+        "tags": [
+          "agro"
+        ],
+        "summary": "Get Farm",
+        "operationId": "get_farm_api_farms__farm_id__get",
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "farm_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Farm Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FarmOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "agro"
+        ],
+        "summary": "Update Farm",
+        "operationId": "update_farm_api_farms__farm_id__patch",
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "farm_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Farm Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FarmPatch"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FarmOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "agro"
+        ],
+        "summary": "Delete Farm",
+        "operationId": "delete_farm_api_farms__farm_id__delete",
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "farm_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Farm Id"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/farms/{farm_id}/fields": {
+      "post": {
+        "tags": [
+          "agro"
+        ],
+        "summary": "Create Field",
+        "operationId": "create_field_api_farms__farm_id__fields_post",
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "farm_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Farm Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FieldIn"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FieldOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/fields/{field_id}": {
+      "patch": {
+        "tags": [
+          "agro"
+        ],
+        "summary": "Update Field",
+        "operationId": "update_field_api_fields__field_id__patch",
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "field_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Field Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FieldPatch"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FieldOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "agro"
+        ],
+        "summary": "Delete Field",
+        "operationId": "delete_field_api_fields__field_id__delete",
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "field_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Field Id"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/farms/{farm_id}/weather": {
+      "get": {
+        "tags": [
+          "agro"
+        ],
+        "summary": "Farm Weather",
+        "operationId": "farm_weather_api_farms__farm_id__weather_get",
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "farm_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Farm Id"
+            }
+          },
+          {
+            "name": "start",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "date"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Start"
+            }
+          },
+          {
+            "name": "end",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "date"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "End"
+            }
+          },
+          {
+            "name": "source",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "enum": [
+                "open_meteo",
+                "csv",
+                "synthetic"
+              ],
+              "type": "string",
+              "default": "open_meteo",
+              "title": "Source"
+            }
+          },
+          {
+            "name": "seed",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "default": 1,
+              "title": "Seed"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WeatherOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/farms/{farm_id}/weather/csv": {
+      "post": {
+        "tags": [
+          "agro"
+        ],
+        "summary": "Import Weather Csv",
+        "operationId": "import_weather_csv_api_farms__farm_id__weather_csv_post",
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "farm_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Farm Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/Body_import_weather_csv_api_farms__farm_id__weather_csv_post"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CsvImportOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/fields/{field_id}/water-balance": {
+      "get": {
+        "tags": [
+          "agro"
+        ],
+        "summary": "Field Water Balance",
+        "operationId": "field_water_balance_api_fields__field_id__water_balance_get",
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "field_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Field Id"
+            }
+          },
+          {
+            "name": "source",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "enum": [
+                "open_meteo",
+                "csv",
+                "synthetic"
+              ],
+              "type": "string",
+              "default": "open_meteo",
+              "title": "Source"
+            }
+          },
+          {
+            "name": "seed",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "default": 1,
+              "title": "Seed"
+            }
+          },
+          {
+            "name": "trigger",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "number",
+                  "exclusiveMaximum": 1,
+                  "exclusiveMinimum": 0
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Depletion fraction that triggers irrigation",
+              "title": "Trigger"
+            },
+            "description": "Depletion fraction that triggers irrigation"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WaterBalanceOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/projects": {
       "get": {
         "tags": [
@@ -2729,6 +3378,57 @@
   },
   "components": {
     "schemas": {
+      "AgroPresets": {
+        "properties": {
+          "crops": {
+            "items": {
+              "$ref": "#/components/schemas/CropOut"
+            },
+            "type": "array",
+            "title": "Crops"
+          },
+          "soils": {
+            "items": {
+              "$ref": "#/components/schemas/SoilOut"
+            },
+            "type": "array",
+            "title": "Soils"
+          },
+          "irrigation_methods": {
+            "additionalProperties": {
+              "type": "number"
+            },
+            "type": "object",
+            "title": "Irrigation Methods"
+          },
+          "csv_columns": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "type": "object",
+            "title": "Csv Columns"
+          },
+          "weather_sources": {
+            "additionalProperties": {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            "type": "object",
+            "title": "Weather Sources"
+          }
+        },
+        "type": "object",
+        "required": [
+          "crops",
+          "soils",
+          "irrigation_methods",
+          "csv_columns",
+          "weather_sources"
+        ],
+        "title": "AgroPresets"
+      },
       "AuditEntry": {
         "properties": {
           "id": {
@@ -2788,6 +3488,100 @@
         ],
         "title": "AuditEntry"
       },
+      "BalanceDayOut": {
+        "properties": {
+          "day": {
+            "type": "string",
+            "format": "date",
+            "title": "Day"
+          },
+          "stage_day": {
+            "type": "integer",
+            "title": "Stage Day"
+          },
+          "et0": {
+            "type": "number",
+            "title": "Et0"
+          },
+          "kc": {
+            "type": "number",
+            "title": "Kc"
+          },
+          "etc": {
+            "type": "number",
+            "title": "Etc"
+          },
+          "etc_adj": {
+            "type": "number",
+            "title": "Etc Adj"
+          },
+          "ks": {
+            "type": "number",
+            "title": "Ks"
+          },
+          "rain": {
+            "type": "number",
+            "title": "Rain"
+          },
+          "effective_rain": {
+            "type": "number",
+            "title": "Effective Rain"
+          },
+          "irrigation_net": {
+            "type": "number",
+            "title": "Irrigation Net"
+          },
+          "irrigation_gross": {
+            "type": "number",
+            "title": "Irrigation Gross"
+          },
+          "deep_percolation": {
+            "type": "number",
+            "title": "Deep Percolation"
+          },
+          "depletion": {
+            "type": "number",
+            "title": "Depletion"
+          },
+          "taw": {
+            "type": "number",
+            "title": "Taw"
+          },
+          "raw": {
+            "type": "number",
+            "title": "Raw"
+          },
+          "p": {
+            "type": "number",
+            "title": "P"
+          },
+          "forecast": {
+            "type": "boolean",
+            "title": "Forecast"
+          }
+        },
+        "type": "object",
+        "required": [
+          "day",
+          "stage_day",
+          "et0",
+          "kc",
+          "etc",
+          "etc_adj",
+          "ks",
+          "rain",
+          "effective_rain",
+          "irrigation_net",
+          "irrigation_gross",
+          "deep_percolation",
+          "depletion",
+          "taw",
+          "raw",
+          "p",
+          "forecast"
+        ],
+        "title": "BalanceDayOut"
+      },
       "Body_import_entries_api_literature_import_post": {
         "properties": {
           "file": {
@@ -2817,6 +3611,20 @@
           "file"
         ],
         "title": "Body_import_entries_api_literature_import_post"
+      },
+      "Body_import_weather_csv_api_farms__farm_id__weather_csv_post": {
+        "properties": {
+          "file": {
+            "type": "string",
+            "contentMediaType": "application/octet-stream",
+            "title": "File"
+          }
+        },
+        "type": "object",
+        "required": [
+          "file"
+        ],
+        "title": "Body_import_weather_csv_api_farms__farm_id__weather_csv_post"
       },
       "Body_login_api_auth_login_post": {
         "properties": {
@@ -2876,6 +3684,90 @@
           "password"
         ],
         "title": "Body_login_api_auth_login_post"
+      },
+      "CropOut": {
+        "properties": {
+          "key": {
+            "type": "string",
+            "title": "Key"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "kc_ini": {
+            "type": "number",
+            "title": "Kc Ini"
+          },
+          "kc_mid": {
+            "type": "number",
+            "title": "Kc Mid"
+          },
+          "kc_end": {
+            "type": "number",
+            "title": "Kc End"
+          },
+          "stages": {
+            "items": {
+              "type": "integer"
+            },
+            "type": "array",
+            "title": "Stages"
+          },
+          "root_depth_m": {
+            "type": "number",
+            "title": "Root Depth M"
+          },
+          "p": {
+            "type": "number",
+            "title": "P"
+          },
+          "ky": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ky"
+          }
+        },
+        "type": "object",
+        "required": [
+          "key",
+          "name",
+          "kc_ini",
+          "kc_mid",
+          "kc_end",
+          "stages",
+          "root_depth_m",
+          "p",
+          "ky"
+        ],
+        "title": "CropOut"
+      },
+      "CsvImportOut": {
+        "properties": {
+          "imported": {
+            "type": "integer",
+            "title": "Imported"
+          },
+          "errors": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Errors"
+          }
+        },
+        "type": "object",
+        "required": [
+          "imported",
+          "errors"
+        ],
+        "title": "CsvImportOut"
       },
       "DesignPresets": {
         "properties": {
@@ -3623,6 +4515,216 @@
         ],
         "title": "ExperimentUpdate"
       },
+      "FarmIn": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "maxLength": 200,
+            "minLength": 1,
+            "title": "Name"
+          },
+          "description": {
+            "type": "string",
+            "title": "Description",
+            "default": ""
+          },
+          "latitude": {
+            "type": "number",
+            "maximum": 90.0,
+            "minimum": -90.0,
+            "title": "Latitude"
+          },
+          "longitude": {
+            "type": "number",
+            "maximum": 180.0,
+            "minimum": -180.0,
+            "title": "Longitude"
+          },
+          "elevation_m": {
+            "type": "number",
+            "maximum": 9000.0,
+            "minimum": -500.0,
+            "title": "Elevation M",
+            "default": 0.0
+          },
+          "region": {
+            "type": "string",
+            "title": "Region",
+            "default": ""
+          },
+          "project_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Project Id"
+          }
+        },
+        "type": "object",
+        "required": [
+          "name",
+          "latitude",
+          "longitude"
+        ],
+        "title": "FarmIn"
+      },
+      "FarmOut": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "description": {
+            "type": "string",
+            "title": "Description"
+          },
+          "latitude": {
+            "type": "number",
+            "title": "Latitude"
+          },
+          "longitude": {
+            "type": "number",
+            "title": "Longitude"
+          },
+          "elevation_m": {
+            "type": "number",
+            "title": "Elevation M"
+          },
+          "region": {
+            "type": "string",
+            "title": "Region"
+          },
+          "project_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Project Id"
+          },
+          "fields": {
+            "items": {
+              "$ref": "#/components/schemas/FieldOut"
+            },
+            "type": "array",
+            "title": "Fields"
+          },
+          "total_area_ha": {
+            "type": "number",
+            "title": "Total Area Ha"
+          },
+          "updated_at": {
+            "type": "string",
+            "title": "Updated At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "description",
+          "latitude",
+          "longitude",
+          "elevation_m",
+          "region",
+          "project_id",
+          "fields",
+          "total_area_ha",
+          "updated_at"
+        ],
+        "title": "FarmOut"
+      },
+      "FarmPatch": {
+        "properties": {
+          "name": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 200,
+                "minLength": 1
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Name"
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Description"
+          },
+          "latitude": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 90.0,
+                "minimum": -90.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Latitude"
+          },
+          "longitude": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 180.0,
+                "minimum": -180.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Longitude"
+          },
+          "elevation_m": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 9000.0,
+                "minimum": -500.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Elevation M"
+          },
+          "region": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Region"
+          }
+        },
+        "type": "object",
+        "title": "FarmPatch"
+      },
       "FarmTopologyParams": {
         "properties": {
           "farms": {
@@ -3715,6 +4817,376 @@
         "type": "object",
         "title": "FarmTopologyParams",
         "description": "Parameters for :func:`farm_topology`. Exposed as a form in the GUI."
+      },
+      "FieldIn": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "maxLength": 200,
+            "minLength": 1,
+            "title": "Name"
+          },
+          "boundary": {
+            "items": {
+              "items": {
+                "type": "number"
+              },
+              "type": "array"
+            },
+            "type": "array",
+            "title": "Boundary",
+            "description": "[[lon, lat], ...]"
+          },
+          "crop": {
+            "type": "string",
+            "title": "Crop",
+            "default": "wheat"
+          },
+          "sowing_date": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sowing Date"
+          },
+          "stages": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "integer"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Stages"
+          },
+          "soil": {
+            "type": "string",
+            "title": "Soil",
+            "default": "loam"
+          },
+          "root_depth_m": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 5.0,
+                "exclusiveMinimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Root Depth M"
+          },
+          "irrigation_method": {
+            "type": "string",
+            "enum": [
+              "surface",
+              "sprinkler",
+              "drip"
+            ],
+            "title": "Irrigation Method",
+            "default": "surface"
+          },
+          "efficiency": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 1.0,
+                "exclusiveMinimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Efficiency"
+          },
+          "rainfed": {
+            "type": "boolean",
+            "title": "Rainfed",
+            "default": false
+          },
+          "notes": {
+            "type": "string",
+            "title": "Notes",
+            "default": ""
+          }
+        },
+        "type": "object",
+        "required": [
+          "name"
+        ],
+        "title": "FieldIn"
+      },
+      "FieldOut": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "farm_id": {
+            "type": "string",
+            "title": "Farm Id"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "boundary": {
+            "items": {
+              "items": {
+                "type": "number"
+              },
+              "type": "array"
+            },
+            "type": "array",
+            "title": "Boundary"
+          },
+          "area_ha": {
+            "type": "number",
+            "title": "Area Ha"
+          },
+          "crop": {
+            "type": "string",
+            "title": "Crop"
+          },
+          "sowing_date": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sowing Date"
+          },
+          "stages": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "integer"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Stages"
+          },
+          "soil": {
+            "type": "string",
+            "title": "Soil"
+          },
+          "root_depth_m": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Root Depth M"
+          },
+          "irrigation_method": {
+            "type": "string",
+            "title": "Irrigation Method"
+          },
+          "efficiency": {
+            "type": "number",
+            "title": "Efficiency"
+          },
+          "rainfed": {
+            "type": "boolean",
+            "title": "Rainfed"
+          },
+          "notes": {
+            "type": "string",
+            "title": "Notes"
+          },
+          "updated_at": {
+            "type": "string",
+            "title": "Updated At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "farm_id",
+          "name",
+          "boundary",
+          "area_ha",
+          "crop",
+          "sowing_date",
+          "stages",
+          "soil",
+          "root_depth_m",
+          "irrigation_method",
+          "efficiency",
+          "rainfed",
+          "notes",
+          "updated_at"
+        ],
+        "title": "FieldOut"
+      },
+      "FieldPatch": {
+        "properties": {
+          "name": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 200,
+                "minLength": 1
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Name"
+          },
+          "boundary": {
+            "anyOf": [
+              {
+                "items": {
+                  "items": {
+                    "type": "number"
+                  },
+                  "type": "array"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Boundary"
+          },
+          "crop": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Crop"
+          },
+          "sowing_date": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sowing Date"
+          },
+          "stages": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "integer"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Stages"
+          },
+          "soil": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Soil"
+          },
+          "root_depth_m": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 5.0,
+                "exclusiveMinimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Root Depth M"
+          },
+          "irrigation_method": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "surface",
+                  "sprinkler",
+                  "drip"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Irrigation Method"
+          },
+          "efficiency": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 1.0,
+                "exclusiveMinimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Efficiency"
+          },
+          "rainfed": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Rainfed"
+          },
+          "notes": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Notes"
+          }
+        },
+        "type": "object",
+        "title": "FieldPatch"
       },
       "GeneratedTopology": {
         "properties": {
@@ -4619,6 +6091,39 @@
         ],
         "title": "SimulationIn"
       },
+      "SoilOut": {
+        "properties": {
+          "key": {
+            "type": "string",
+            "title": "Key"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "field_capacity": {
+            "type": "number",
+            "title": "Field Capacity"
+          },
+          "wilting_point": {
+            "type": "number",
+            "title": "Wilting Point"
+          },
+          "taw_per_m": {
+            "type": "number",
+            "title": "Taw Per M"
+          }
+        },
+        "type": "object",
+        "required": [
+          "key",
+          "name",
+          "field_capacity",
+          "wilting_point",
+          "taw_per_m"
+        ],
+        "title": "SoilOut"
+      },
       "SystemInfo": {
         "properties": {
           "version": {
@@ -5094,6 +6599,279 @@
           "suggestions"
         ],
         "title": "Vocabulary"
+      },
+      "WaterBalanceOut": {
+        "properties": {
+          "field_id": {
+            "type": "string",
+            "title": "Field Id"
+          },
+          "field_name": {
+            "type": "string",
+            "title": "Field Name"
+          },
+          "crop": {
+            "$ref": "#/components/schemas/CropOut"
+          },
+          "soil": {
+            "$ref": "#/components/schemas/SoilOut"
+          },
+          "root_depth_m": {
+            "type": "number",
+            "title": "Root Depth M"
+          },
+          "efficiency": {
+            "type": "number",
+            "title": "Efficiency"
+          },
+          "rainfed": {
+            "type": "boolean",
+            "title": "Rainfed"
+          },
+          "season_start": {
+            "type": "string",
+            "format": "date",
+            "title": "Season Start"
+          },
+          "season_end": {
+            "type": "string",
+            "format": "date",
+            "title": "Season End"
+          },
+          "source": {
+            "type": "string",
+            "title": "Source"
+          },
+          "data_origin": {
+            "type": "string",
+            "title": "Data Origin"
+          },
+          "source_description": {
+            "type": "string",
+            "title": "Source Description"
+          },
+          "days": {
+            "items": {
+              "$ref": "#/components/schemas/BalanceDayOut"
+            },
+            "type": "array",
+            "title": "Days"
+          },
+          "summary": {
+            "additionalProperties": {
+              "anyOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "type": "object",
+            "title": "Summary"
+          },
+          "recommendation": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Recommendation"
+          },
+          "assumptions": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Assumptions"
+          }
+        },
+        "type": "object",
+        "required": [
+          "field_id",
+          "field_name",
+          "crop",
+          "soil",
+          "root_depth_m",
+          "efficiency",
+          "rainfed",
+          "season_start",
+          "season_end",
+          "source",
+          "data_origin",
+          "source_description",
+          "days",
+          "summary",
+          "recommendation",
+          "assumptions"
+        ],
+        "title": "WaterBalanceOut"
+      },
+      "WeatherDayOut": {
+        "properties": {
+          "day": {
+            "type": "string",
+            "format": "date",
+            "title": "Day"
+          },
+          "tmax": {
+            "type": "number",
+            "title": "Tmax"
+          },
+          "tmin": {
+            "type": "number",
+            "title": "Tmin"
+          },
+          "rain": {
+            "type": "number",
+            "title": "Rain"
+          },
+          "rh_max": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Rh Max"
+          },
+          "rh_min": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Rh Min"
+          },
+          "rh_mean": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Rh Mean"
+          },
+          "wind_2m": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Wind 2M"
+          },
+          "rs": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Rs"
+          },
+          "et0": {
+            "type": "number",
+            "title": "Et0"
+          },
+          "et0_reference": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Et0 Reference"
+          },
+          "radiation_estimated": {
+            "type": "boolean",
+            "title": "Radiation Estimated"
+          },
+          "forecast": {
+            "type": "boolean",
+            "title": "Forecast"
+          }
+        },
+        "type": "object",
+        "required": [
+          "day",
+          "tmax",
+          "tmin",
+          "rain",
+          "rh_max",
+          "rh_min",
+          "rh_mean",
+          "wind_2m",
+          "rs",
+          "et0",
+          "et0_reference",
+          "radiation_estimated",
+          "forecast"
+        ],
+        "title": "WeatherDayOut"
+      },
+      "WeatherOut": {
+        "properties": {
+          "farm_id": {
+            "type": "string",
+            "title": "Farm Id"
+          },
+          "source": {
+            "type": "string",
+            "title": "Source"
+          },
+          "data_origin": {
+            "type": "string",
+            "title": "Data Origin"
+          },
+          "source_description": {
+            "type": "string",
+            "title": "Source Description"
+          },
+          "days": {
+            "items": {
+              "$ref": "#/components/schemas/WeatherDayOut"
+            },
+            "type": "array",
+            "title": "Days"
+          },
+          "et0_mean_abs_difference": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Et0 Mean Abs Difference",
+            "description": "Mean |our ET0 - provider ET0| over days where the provider reports ET0"
+          }
+        },
+        "type": "object",
+        "required": [
+          "farm_id",
+          "source",
+          "data_origin",
+          "source_description",
+          "days",
+          "et0_mean_abs_difference"
+        ],
+        "title": "WeatherOut"
       },
       "WorkloadIn": {
         "properties": {

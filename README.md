@@ -36,6 +36,7 @@ Full instructions: [docs/getting-started.md](docs/getting-started.md).
 | Literature review (Phase 1d) | Import BibTeX or CSL JSON from Zotero and databases with duplicate detection; PRISMA 2020 screening with live flow counts; tagging by layer, technique, metric, domain and evaluation; research-gap matrix; BibTeX, CSV and LaTeX exports. See [docs/literature-review.md](docs/literature-review.md) |
 | iFogSim reproduction (Phase 1e) | Module-based simulator following iFogSim's model; the paper's EEG game case study with results next to the published figures, including the parts that don't match. See [docs/ifogsim-reproduction.md](docs/ifogsim-reproduction.md) |
 | Task-graph scheduling | HEFT and CPOP, validated against the published example (schedule lengths 80 and 86); seeded random-graph experiments with significance tests. See [docs/dag-scheduling.md](docs/dag-scheduling.md) |
+| Farms and irrigation (Phase 2a) | Farms and fields drawn on a satellite map; daily weather from Open-Meteo, station CSV or a synthetic generator; FAO-56 ET₀ and soil-water balance with irrigation advice, validated against FAO-56 worked examples. See [docs/farms-and-irrigation.md](docs/farms-and-irrigation.md) |
 | Command line | `uv run smartagri plugins list`, `uv run smartagri experiment run experiments/rural-baseline.yaml --out results/x`, `uv run smartagri plugins run simulation:ifogsim_eeg --out results/eeg` |
 
 ## Architecture

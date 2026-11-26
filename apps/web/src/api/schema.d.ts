@@ -707,6 +707,146 @@ export interface paths {
         patch: operations["update_entry_api_literature__entry_id__patch"];
         trace?: never;
     };
+    "/api/agro/presets": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Presets */
+        get: operations["presets_api_agro_presets_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/farms": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Farms */
+        get: operations["list_farms_api_farms_get"];
+        put?: never;
+        /** Create Farm */
+        post: operations["create_farm_api_farms_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/farms/{farm_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Farm */
+        get: operations["get_farm_api_farms__farm_id__get"];
+        put?: never;
+        post?: never;
+        /** Delete Farm */
+        delete: operations["delete_farm_api_farms__farm_id__delete"];
+        options?: never;
+        head?: never;
+        /** Update Farm */
+        patch: operations["update_farm_api_farms__farm_id__patch"];
+        trace?: never;
+    };
+    "/api/farms/{farm_id}/fields": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Create Field */
+        post: operations["create_field_api_farms__farm_id__fields_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/fields/{field_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Delete Field */
+        delete: operations["delete_field_api_fields__field_id__delete"];
+        options?: never;
+        head?: never;
+        /** Update Field */
+        patch: operations["update_field_api_fields__field_id__patch"];
+        trace?: never;
+    };
+    "/api/farms/{farm_id}/weather": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Farm Weather */
+        get: operations["farm_weather_api_farms__farm_id__weather_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/farms/{farm_id}/weather/csv": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Import Weather Csv */
+        post: operations["import_weather_csv_api_farms__farm_id__weather_csv_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/fields/{field_id}/water-balance": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Field Water Balance */
+        get: operations["field_water_balance_api_fields__field_id__water_balance_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/projects": {
         parameters: {
             query?: never;
@@ -766,6 +906,25 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        /** AgroPresets */
+        AgroPresets: {
+            /** Crops */
+            crops: components["schemas"]["CropOut"][];
+            /** Soils */
+            soils: components["schemas"]["SoilOut"][];
+            /** Irrigation Methods */
+            irrigation_methods: {
+                [key: string]: number;
+            };
+            /** Csv Columns */
+            csv_columns: {
+                [key: string]: string;
+            };
+            /** Weather Sources */
+            weather_sources: {
+                [key: string]: string[];
+            };
+        };
         /** AuditEntry */
         AuditEntry: {
             /** Id */
@@ -788,6 +947,46 @@ export interface components {
                 [key: string]: unknown;
             };
         };
+        /** BalanceDayOut */
+        BalanceDayOut: {
+            /**
+             * Day
+             * Format: date
+             */
+            day: string;
+            /** Stage Day */
+            stage_day: number;
+            /** Et0 */
+            et0: number;
+            /** Kc */
+            kc: number;
+            /** Etc */
+            etc: number;
+            /** Etc Adj */
+            etc_adj: number;
+            /** Ks */
+            ks: number;
+            /** Rain */
+            rain: number;
+            /** Effective Rain */
+            effective_rain: number;
+            /** Irrigation Net */
+            irrigation_net: number;
+            /** Irrigation Gross */
+            irrigation_gross: number;
+            /** Deep Percolation */
+            deep_percolation: number;
+            /** Depletion */
+            depletion: number;
+            /** Taw */
+            taw: number;
+            /** Raw */
+            raw: number;
+            /** P */
+            p: number;
+            /** Forecast */
+            forecast: boolean;
+        };
         /** Body_import_entries_api_literature_import_post */
         Body_import_entries_api_literature_import_post: {
             /** File */
@@ -799,6 +998,11 @@ export interface components {
             source: string;
             /** Project Id */
             project_id?: string | null;
+        };
+        /** Body_import_weather_csv_api_farms__farm_id__weather_csv_post */
+        Body_import_weather_csv_api_farms__farm_id__weather_csv_post: {
+            /** File */
+            file: string;
         };
         /** Body_login_api_auth_login_post */
         Body_login_api_auth_login_post: {
@@ -823,6 +1027,34 @@ export interface components {
              * Format: password
              */
             client_secret?: string | null;
+        };
+        /** CropOut */
+        CropOut: {
+            /** Key */
+            key: string;
+            /** Name */
+            name: string;
+            /** Kc Ini */
+            kc_ini: number;
+            /** Kc Mid */
+            kc_mid: number;
+            /** Kc End */
+            kc_end: number;
+            /** Stages */
+            stages: number[];
+            /** Root Depth M */
+            root_depth_m: number;
+            /** P */
+            p: number;
+            /** Ky */
+            ky: number | null;
+        };
+        /** CsvImportOut */
+        CsvImportOut: {
+            /** Imported */
+            imported: number;
+            /** Errors */
+            errors: string[];
         };
         /** DesignPresets */
         DesignPresets: {
@@ -1064,6 +1296,72 @@ export interface components {
                 [key: string]: unknown;
             };
         };
+        /** FarmIn */
+        FarmIn: {
+            /** Name */
+            name: string;
+            /**
+             * Description
+             * @default
+             */
+            description: string;
+            /** Latitude */
+            latitude: number;
+            /** Longitude */
+            longitude: number;
+            /**
+             * Elevation M
+             * @default 0
+             */
+            elevation_m: number;
+            /**
+             * Region
+             * @default
+             */
+            region: string;
+            /** Project Id */
+            project_id?: string | null;
+        };
+        /** FarmOut */
+        FarmOut: {
+            /** Id */
+            id: string;
+            /** Name */
+            name: string;
+            /** Description */
+            description: string;
+            /** Latitude */
+            latitude: number;
+            /** Longitude */
+            longitude: number;
+            /** Elevation M */
+            elevation_m: number;
+            /** Region */
+            region: string;
+            /** Project Id */
+            project_id: string | null;
+            /** Fields */
+            fields: components["schemas"]["FieldOut"][];
+            /** Total Area Ha */
+            total_area_ha: number;
+            /** Updated At */
+            updated_at: string;
+        };
+        /** FarmPatch */
+        FarmPatch: {
+            /** Name */
+            name?: string | null;
+            /** Description */
+            description?: string | null;
+            /** Latitude */
+            latitude?: number | null;
+            /** Longitude */
+            longitude?: number | null;
+            /** Elevation M */
+            elevation_m?: number | null;
+            /** Region */
+            region?: string | null;
+        };
         /**
          * FarmTopologyParams
          * @description Parameters for :func:`farm_topology`. Exposed as a form in the GUI.
@@ -1129,6 +1427,108 @@ export interface components {
              * @default 100
              */
             wan_latency_ms: number;
+        };
+        /** FieldIn */
+        FieldIn: {
+            /** Name */
+            name: string;
+            /**
+             * Boundary
+             * @description [[lon, lat], ...]
+             */
+            boundary?: number[][];
+            /**
+             * Crop
+             * @default wheat
+             */
+            crop: string;
+            /** Sowing Date */
+            sowing_date?: string | null;
+            /** Stages */
+            stages?: number[] | null;
+            /**
+             * Soil
+             * @default loam
+             */
+            soil: string;
+            /** Root Depth M */
+            root_depth_m?: number | null;
+            /**
+             * Irrigation Method
+             * @default surface
+             * @enum {string}
+             */
+            irrigation_method: "surface" | "sprinkler" | "drip";
+            /** Efficiency */
+            efficiency?: number | null;
+            /**
+             * Rainfed
+             * @default false
+             */
+            rainfed: boolean;
+            /**
+             * Notes
+             * @default
+             */
+            notes: string;
+        };
+        /** FieldOut */
+        FieldOut: {
+            /** Id */
+            id: string;
+            /** Farm Id */
+            farm_id: string;
+            /** Name */
+            name: string;
+            /** Boundary */
+            boundary: number[][];
+            /** Area Ha */
+            area_ha: number;
+            /** Crop */
+            crop: string;
+            /** Sowing Date */
+            sowing_date: string | null;
+            /** Stages */
+            stages: number[] | null;
+            /** Soil */
+            soil: string;
+            /** Root Depth M */
+            root_depth_m: number | null;
+            /** Irrigation Method */
+            irrigation_method: string;
+            /** Efficiency */
+            efficiency: number;
+            /** Rainfed */
+            rainfed: boolean;
+            /** Notes */
+            notes: string;
+            /** Updated At */
+            updated_at: string;
+        };
+        /** FieldPatch */
+        FieldPatch: {
+            /** Name */
+            name?: string | null;
+            /** Boundary */
+            boundary?: number[][] | null;
+            /** Crop */
+            crop?: string | null;
+            /** Sowing Date */
+            sowing_date?: string | null;
+            /** Stages */
+            stages?: number[] | null;
+            /** Soil */
+            soil?: string | null;
+            /** Root Depth M */
+            root_depth_m?: number | null;
+            /** Irrigation Method */
+            irrigation_method?: ("surface" | "sprinkler" | "drip") | null;
+            /** Efficiency */
+            efficiency?: number | null;
+            /** Rainfed */
+            rainfed?: boolean | null;
+            /** Notes */
+            notes?: string | null;
         };
         /** GeneratedTopology */
         GeneratedTopology: {
@@ -1474,6 +1874,19 @@ export interface components {
             /** Project Id */
             project_id?: string | null;
         };
+        /** SoilOut */
+        SoilOut: {
+            /** Key */
+            key: string;
+            /** Name */
+            name: string;
+            /** Field Capacity */
+            field_capacity: number;
+            /** Wilting Point */
+            wilting_point: number;
+            /** Taw Per M */
+            taw_per_m: number;
+        };
         /** SystemInfo */
         SystemInfo: {
             /** Version */
@@ -1663,6 +2076,99 @@ export interface components {
             suggestions: {
                 [key: string]: string[];
             };
+        };
+        /** WaterBalanceOut */
+        WaterBalanceOut: {
+            /** Field Id */
+            field_id: string;
+            /** Field Name */
+            field_name: string;
+            crop: components["schemas"]["CropOut"];
+            soil: components["schemas"]["SoilOut"];
+            /** Root Depth M */
+            root_depth_m: number;
+            /** Efficiency */
+            efficiency: number;
+            /** Rainfed */
+            rainfed: boolean;
+            /**
+             * Season Start
+             * Format: date
+             */
+            season_start: string;
+            /**
+             * Season End
+             * Format: date
+             */
+            season_end: string;
+            /** Source */
+            source: string;
+            /** Data Origin */
+            data_origin: string;
+            /** Source Description */
+            source_description: string;
+            /** Days */
+            days: components["schemas"]["BalanceDayOut"][];
+            /** Summary */
+            summary: {
+                [key: string]: number | null;
+            };
+            /** Recommendation */
+            recommendation: {
+                [key: string]: unknown;
+            };
+            /** Assumptions */
+            assumptions: string[];
+        };
+        /** WeatherDayOut */
+        WeatherDayOut: {
+            /**
+             * Day
+             * Format: date
+             */
+            day: string;
+            /** Tmax */
+            tmax: number;
+            /** Tmin */
+            tmin: number;
+            /** Rain */
+            rain: number;
+            /** Rh Max */
+            rh_max: number | null;
+            /** Rh Min */
+            rh_min: number | null;
+            /** Rh Mean */
+            rh_mean: number | null;
+            /** Wind 2M */
+            wind_2m: number | null;
+            /** Rs */
+            rs: number | null;
+            /** Et0 */
+            et0: number;
+            /** Et0 Reference */
+            et0_reference: number | null;
+            /** Radiation Estimated */
+            radiation_estimated: boolean;
+            /** Forecast */
+            forecast: boolean;
+        };
+        /** WeatherOut */
+        WeatherOut: {
+            /** Farm Id */
+            farm_id: string;
+            /** Source */
+            source: string;
+            /** Data Origin */
+            data_origin: string;
+            /** Source Description */
+            source_description: string;
+            /** Days */
+            days: components["schemas"]["WeatherDayOut"][];
+            /**
+             * Et0 Mean Abs Difference
+             * @description Mean |our ET0 - provider ET0| over days where the provider reports ET0
+             */
+            et0_mean_abs_difference: number | null;
         };
         /** WorkloadIn */
         WorkloadIn: {
@@ -3359,6 +3865,380 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["EntryOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    presets_api_agro_presets_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AgroPresets"];
+                };
+            };
+        };
+    };
+    list_farms_api_farms_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FarmOut"][];
+                };
+            };
+        };
+    };
+    create_farm_api_farms_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["FarmIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FarmOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_farm_api_farms__farm_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                farm_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FarmOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    delete_farm_api_farms__farm_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                farm_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_farm_api_farms__farm_id__patch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                farm_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["FarmPatch"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FarmOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_field_api_farms__farm_id__fields_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                farm_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["FieldIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FieldOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    delete_field_api_fields__field_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                field_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_field_api_fields__field_id__patch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                field_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["FieldPatch"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FieldOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    farm_weather_api_farms__farm_id__weather_get: {
+        parameters: {
+            query?: {
+                start?: string | null;
+                end?: string | null;
+                source?: "open_meteo" | "csv" | "synthetic";
+                seed?: number;
+            };
+            header?: never;
+            path: {
+                farm_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["WeatherOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    import_weather_csv_api_farms__farm_id__weather_csv_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                farm_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "multipart/form-data": components["schemas"]["Body_import_weather_csv_api_farms__farm_id__weather_csv_post"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CsvImportOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    field_water_balance_api_fields__field_id__water_balance_get: {
+        parameters: {
+            query?: {
+                source?: "open_meteo" | "csv" | "synthetic";
+                seed?: number;
+                /** @description Depletion fraction that triggers irrigation */
+                trigger?: number | null;
+            };
+            header?: never;
+            path: {
+                field_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["WaterBalanceOut"];
                 };
             };
             /** @description Validation Error */

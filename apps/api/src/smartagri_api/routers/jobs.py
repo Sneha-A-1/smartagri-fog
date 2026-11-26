@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import asyncio
 import json
 from pathlib import Path
 from typing import Any
@@ -126,10 +127,19 @@ async def jobs_ws(websocket: WebSocket) -> None:
     await websocket.accept()
     hub = websocket.app.state.job_hub
     q = hub.subscribe()
-    try:
+
+    async def forward() -> None:
         while True:
             await websocket.send_json(await q.get())
-    except (WebSocketDisconnect, RuntimeError):
+
+    sender = asyncio.create_task(forward())
+    try:
+        # Keep reading so a closed tab or a server shutdown is noticed straight away; otherwise
+        # this handler would wait forever on the queue and block Ctrl+C.
+        while (await websocket.receive())["type"] != "websocket.disconnect":
+            pass
+    except (WebSocketDisconnect, RuntimeError, asyncio.CancelledError):
         pass
     finally:
+        sender.cancel()
         hub.unsubscribe(q)

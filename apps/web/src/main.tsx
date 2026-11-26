@@ -13,6 +13,7 @@ import { applyTheme, useUi } from "./stores/ui";
 applyTheme(useUi.getState().theme);
 
 const JobDetail = lazy(() => import("./pages/JobDetail"));
+const FarmDetail = lazy(() => import("./pages/FarmDetail"));
 const PluginDetail = lazy(() => import("./pages/PluginDetail"));
 const ExperimentPage = lazy(() => import("./pages/ExperimentPage"));
 const TopologyEditor = lazy(() => import("./pages/TopologyEditor"));
@@ -30,6 +31,7 @@ const router = createBrowserRouter([
       }),
       { path: "/algorithms/:pluginId", element: <PluginDetail /> },
       { path: "/jobs/:jobId", element: <JobDetail /> },
+      { path: "/farms/:farmId", element: <FarmDetail /> },
       { path: "/experiments/new", element: <ExperimentPage /> },
       { path: "/topology/new", element: <TopologyEditor /> },
       { path: "/topology/:topoId", element: <TopologyEditor /> },

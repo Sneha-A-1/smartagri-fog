@@ -6,13 +6,14 @@ Later phases add their tables through additive Alembic migrations.
 from __future__ import annotations
 
 import uuid
-from datetime import UTC, datetime
+from datetime import UTC, date, datetime
 from typing import Any
 
 from sqlalchemy import (
     JSON,
     Boolean,
     Column,
+    Date,
     DateTime,
     Float,
     ForeignKey,
@@ -211,3 +212,54 @@ class LiteratureImport(Base):
     duplicates: Mapped[int] = mapped_column(default=0)
     failed: Mapped[int] = mapped_column(default=0)
     project_id: Mapped[str | None] = mapped_column(String(36), nullable=True)
+
+
+class Farm(TimestampMixin, Base):
+    """A farm: a named location. Its fields hold boundaries, crops and soils."""
+
+    __tablename__ = "farms"
+    name: Mapped[str] = mapped_column(String(200))
+    description: Mapped[str] = mapped_column(Text, default="")
+    latitude: Mapped[float] = mapped_column(Float)
+    longitude: Mapped[float] = mapped_column(Float)
+    elevation_m: Mapped[float] = mapped_column(Float, default=0.0)
+    region: Mapped[str] = mapped_column(String(200), default="")
+    project_id: Mapped[str | None] = mapped_column(ForeignKey("projects.id", ondelete="SET NULL"), nullable=True)
+    created_by: Mapped[str | None] = mapped_column(ForeignKey("users.id", ondelete="SET NULL"), nullable=True)
+    fields: Mapped[list[FarmField]] = relationship(
+        back_populates="farm", cascade="all, delete-orphan", order_by="FarmField.name"
+    )
+
+
+class FarmField(TimestampMixin, Base):
+    """A field within a farm: boundary polygon, crop and sowing date, soil and irrigation set-up."""
+
+    __tablename__ = "fields"
+    farm_id: Mapped[str] = mapped_column(ForeignKey("farms.id", ondelete="CASCADE"), index=True)
+    name: Mapped[str] = mapped_column(String(200))
+    boundary: Mapped[list[Any]] = mapped_column(JSON, default=list)  # [[lon, lat], ...], GeoJSON order
+    area_ha: Mapped[float] = mapped_column(Float, default=0.0)
+    crop: Mapped[str] = mapped_column(String(40), default="wheat")
+    sowing_date: Mapped[date | None] = mapped_column(Date, nullable=True)
+    stages: Mapped[list[int] | None] = mapped_column(JSON, nullable=True)  # overrides the crop's stage lengths
+    soil: Mapped[str] = mapped_column(String(40), default="loam")
+    root_depth_m: Mapped[float | None] = mapped_column(Float, nullable=True)
+    irrigation_method: Mapped[str] = mapped_column(String(40), default="surface")
+    efficiency: Mapped[float] = mapped_column(Float, default=0.6)
+    rainfed: Mapped[bool] = mapped_column(Boolean, default=False)
+    notes: Mapped[str] = mapped_column(Text, default="")
+    farm: Mapped[Farm] = relationship(back_populates="fields")
+
+
+class WeatherRecord(Base):
+    """One day of weather for a location and source, cached so seasons are not downloaded repeatedly."""
+
+    __tablename__ = "weather_records"
+    __table_args__ = (UniqueConstraint("location_key", "day", "source", name="uq_weather_location_day_source"),)
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=new_id)
+    location_key: Mapped[str] = mapped_column(String(80), index=True)
+    day: Mapped[date] = mapped_column(Date, index=True)
+    source: Mapped[str] = mapped_column(String(20))  # open_meteo | csv
+    forecast: Mapped[bool] = mapped_column(Boolean, default=False)
+    data: Mapped[dict[str, Any]] = mapped_column(JSON)
+    fetched_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)

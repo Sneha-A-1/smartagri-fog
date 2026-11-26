@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { api, errorMessage, type Experiment, type Job } from "./client";
+import { api, errorMessage, type Experiment, type Job, type LitEntry } from "./client";
 
 async function unwrap<T>(p: Promise<{ data?: T; error?: unknown }>): Promise<T> {
   const { data, error } = await p;
@@ -280,3 +280,66 @@ export function useStartSimulation() {
 export const fetchTopology = (id: string) =>
   unwrap(api.GET("/api/topologies/{topo_id}", { params: { path: { topo_id: id } } }));
 export const fetchWorkload = (id: string) => unwrap(api.GET("/api/workloads/{wl_id}", { params: { path: { wl_id: id } } }));
+
+// --- literature ----------------------------------------------------------------------------------
+
+export const useLiterature = () => useQuery({ queryKey: ["literature"], queryFn: () => unwrap(api.GET("/api/literature")) });
+
+export const useLitVocabulary = () =>
+  useQuery({ queryKey: ["literature-vocabulary"], queryFn: () => unwrap(api.GET("/api/literature/vocabulary")) });
+
+export const useLitPrisma = () =>
+  useQuery({ queryKey: ["literature-prisma"], queryFn: () => unwrap(api.GET("/api/literature/prisma")) });
+
+export const useLitMatrix = (rows: string, cols: string, stage: string) =>
+  useQuery({
+    queryKey: ["literature-matrix", rows, cols, stage],
+    queryFn: () => unwrap(api.GET("/api/literature/matrix", { params: { query: { rows: rows as never, cols: cols as never, stage } } })),
+  });
+
+function invalidateLiterature(qc: ReturnType<typeof useQueryClient>) {
+  for (const key of ["literature", "literature-prisma", "literature-matrix", "literature-vocabulary"])
+    qc.invalidateQueries({ queryKey: [key] });
+}
+
+export function useUpdateLit() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, patch }: { id: string; patch: Record<string, unknown> }) =>
+      unwrap(api.PATCH("/api/literature/{entry_id}", { params: { path: { entry_id: id } }, body: patch as never })),
+    onSuccess: (row) => {
+      qc.setQueryData<LitEntry[]>(["literature"], (old) => old?.map((e) => (e.id === row.id ? row : e)));
+      invalidateLiterature(qc);
+    },
+  });
+}
+
+export function useCreateLit() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (body: { title: string; authors: string; year: number | null; venue: string; doi: string }) =>
+      unwrap(api.POST("/api/literature", { body: { url: "", abstract: "", bibtex_key: "", ...body } })),
+    onSuccess: () => invalidateLiterature(qc),
+  });
+}
+
+export function useDeleteLit() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => unwrap(api.DELETE("/api/literature/{entry_id}", { params: { path: { entry_id: id } } })),
+    onSuccess: () => invalidateLiterature(qc),
+  });
+}
+
+export function useImportLit() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ file, source }: { file: File; source: string }) => {
+      const form = new FormData();
+      form.append("file", file);
+      form.append("source", source);
+      return unwrap(api.POST("/api/literature/import", { body: form as never, bodySerializer: (b) => b as unknown as FormData }));
+    },
+    onSuccess: () => invalidateLiterature(qc),
+  });
+}

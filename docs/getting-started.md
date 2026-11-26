@@ -18,6 +18,21 @@ terminal to stop it.
 
 The first `setup.ps1` takes a few minutes; later runs are quick.
 
+## Getting a new version
+
+After a pull request is merged on GitHub, stop the running platform with **Ctrl+C**, then:
+
+```powershell
+git checkout main
+git pull
+.\scripts\start.ps1
+```
+
+`start.ps1` notices that the code changed and rebuilds the interface before starting (this adds about a minute).
+The **Version** row on the Overview page shows the commit the server and the interface were built from, for
+example `173f1fe`. It should match the newest commit on GitHub. If the two values differ, the page shows a warning;
+press **Ctrl+Shift+R** to reload without the browser cache.
+
 ## Try it
 
 1. Open **Algorithm catalogue** and click **Soil-moisture demo signal**. Its badge says *Simulated* and its
@@ -84,4 +99,5 @@ API documentation is generated automatically at <http://127.0.0.1:8000/docs> whi
 | `running scripts is disabled` | `Set-ExecutionPolicy -Scope CurrentUser RemoteSigned` |
 | Port 8000 already in use | Another copy is running. Close it, or run `uv run smartagri-api --port 8010`. |
 | The page says "API offline" | The terminal running `start.ps1` was closed or crashed. Start it again and read its last lines. |
+| The page looks unchanged after an update | Check the Version row on Overview. Run `git log --oneline -1`; if it is old, `git pull` did not run on `main`. |
 | Anything else | Copy the full error text from the terminal and send it to Claude. |

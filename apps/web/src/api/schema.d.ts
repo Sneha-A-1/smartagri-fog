@@ -579,6 +579,134 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/literature/vocabulary": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Vocabulary
+         * @description Suggested values, merged with every value already used, most used first.
+         */
+        get: operations["vocabulary_api_literature_vocabulary_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/literature": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Entries */
+        get: operations["list_entries_api_literature_get"];
+        put?: never;
+        /** Create Entry */
+        post: operations["create_entry_api_literature_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/literature/import": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Import Entries */
+        post: operations["import_entries_api_literature_import_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/literature/prisma": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Prisma */
+        get: operations["prisma_api_literature_prisma_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/literature/matrix": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Matrix
+         * @description Cross-tabulation of two classification dimensions. Empty or sparse cells point to research gaps.
+         */
+        get: operations["matrix_api_literature_matrix_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/literature/export/{fmt}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Export */
+        get: operations["export_api_literature_export__fmt__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/literature/{entry_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Entry */
+        get: operations["get_entry_api_literature__entry_id__get"];
+        put?: never;
+        post?: never;
+        /** Delete Entry */
+        delete: operations["delete_entry_api_literature__entry_id__delete"];
+        options?: never;
+        head?: never;
+        /** Update Entry */
+        patch: operations["update_entry_api_literature__entry_id__patch"];
+        trace?: never;
+    };
     "/api/projects": {
         parameters: {
             query?: never;
@@ -660,6 +788,18 @@ export interface components {
                 [key: string]: unknown;
             };
         };
+        /** Body_import_entries_api_literature_import_post */
+        Body_import_entries_api_literature_import_post: {
+            /** File */
+            file: string;
+            /**
+             * Source
+             * @default
+             */
+            source: string;
+            /** Project Id */
+            project_id?: string | null;
+        };
         /** Body_login_api_auth_login_post */
         Body_login_api_auth_login_post: {
             /** Grant Type */
@@ -702,6 +842,143 @@ export interface components {
             generator_schema: {
                 [key: string]: unknown;
             };
+        };
+        /** EntryIn */
+        EntryIn: {
+            /** Title */
+            title: string;
+            /**
+             * Authors
+             * @default
+             */
+            authors: string;
+            /** Year */
+            year?: number | null;
+            /**
+             * Venue
+             * @default
+             */
+            venue: string;
+            /**
+             * Doi
+             * @default
+             */
+            doi: string;
+            /**
+             * Url
+             * @default
+             */
+            url: string;
+            /**
+             * Abstract
+             * @default
+             */
+            abstract: string;
+            /**
+             * Bibtex Key
+             * @default
+             */
+            bibtex_key: string;
+            /** Project Id */
+            project_id?: string | null;
+        };
+        /** EntryOut */
+        EntryOut: {
+            /** Id */
+            id: string;
+            /** Bibtex Key */
+            bibtex_key: string;
+            /** Entry Type */
+            entry_type: string;
+            /** Title */
+            title: string;
+            /** Authors */
+            authors: string;
+            /** Year */
+            year: number | null;
+            /** Venue */
+            venue: string;
+            /** Doi */
+            doi: string;
+            /** Url */
+            url: string;
+            /** Abstract */
+            abstract: string;
+            /** Keywords */
+            keywords: string;
+            /** Stage */
+            stage: string;
+            /** Exclusion Reason */
+            exclusion_reason: string;
+            /** Relevance */
+            relevance: number;
+            /** Layers */
+            layers: string[];
+            /** Techniques */
+            techniques: string[];
+            /** Metrics */
+            metrics: string[];
+            /** Domains */
+            domains: string[];
+            /** Evaluation */
+            evaluation: string[];
+            /** Datasets */
+            datasets: string[];
+            /** Tags */
+            tags: string[];
+            /** Contribution */
+            contribution: string;
+            /** Limitations */
+            limitations: string;
+            /** Notes */
+            notes: string;
+            /** Project Id */
+            project_id: string | null;
+            /** Updated At */
+            updated_at: string;
+        };
+        /** EntryPatch */
+        EntryPatch: {
+            /** Title */
+            title?: string | null;
+            /** Authors */
+            authors?: string | null;
+            /** Year */
+            year?: number | null;
+            /** Venue */
+            venue?: string | null;
+            /** Doi */
+            doi?: string | null;
+            /** Url */
+            url?: string | null;
+            /** Abstract */
+            abstract?: string | null;
+            /** Stage */
+            stage?: ("identified" | "screened_out" | "full_text" | "excluded" | "included") | null;
+            /** Exclusion Reason */
+            exclusion_reason?: string | null;
+            /** Relevance */
+            relevance?: number | null;
+            /** Layers */
+            layers?: string[] | null;
+            /** Techniques */
+            techniques?: string[] | null;
+            /** Metrics */
+            metrics?: string[] | null;
+            /** Domains */
+            domains?: string[] | null;
+            /** Evaluation */
+            evaluation?: string[] | null;
+            /** Datasets */
+            datasets?: string[] | null;
+            /** Tags */
+            tags?: string[] | null;
+            /** Contribution */
+            contribution?: string | null;
+            /** Limitations */
+            limitations?: string | null;
+            /** Notes */
+            notes?: string | null;
         };
         /** ExperimentCreate */
         ExperimentCreate: {
@@ -879,12 +1156,29 @@ export interface components {
             status: string;
             /** Version */
             version: string;
+            /**
+             * Commit
+             * @description Git commit of the running server
+             * @default unknown
+             */
+            commit: string;
             /** Core Version */
             core_version: string;
             /** Local Mode */
             local_mode: boolean;
             /** Database */
             database: string;
+        };
+        /** ImportOut */
+        ImportOut: {
+            /** Added */
+            added: number;
+            /** Duplicates */
+            duplicates: number;
+            /** Failed */
+            failed: number;
+            /** Duplicate Titles */
+            duplicate_titles: string[];
         };
         /** JobCreate */
         JobCreate: {
@@ -939,6 +1233,24 @@ export interface components {
             started_at: string | null;
             /** Finished At */
             finished_at: string | null;
+        };
+        /** MatrixOut */
+        MatrixOut: {
+            /** Rows */
+            rows: string[];
+            /** Cols */
+            cols: string[];
+            /** Counts */
+            counts: number[][];
+            /**
+             * Papers
+             * @description 'row|col' -> entry ids
+             */
+            papers: {
+                [key: string]: string[];
+            };
+            /** Total */
+            total: number;
         };
         /** ParamsIn */
         ParamsIn: {
@@ -1054,6 +1366,38 @@ export interface components {
             name: string;
             /** Summary */
             summary: string;
+        };
+        /** PrismaOut */
+        PrismaOut: {
+            /**
+             * Identified
+             * @description Records identified across all imports (before de-duplication)
+             */
+            identified: number;
+            /** Duplicates Removed */
+            duplicates_removed: number;
+            /** By Source */
+            by_source: {
+                [key: string]: number;
+            };
+            /** Screened */
+            screened: number;
+            /** Excluded Screening */
+            excluded_screening: number;
+            /** Assessed Full Text */
+            assessed_full_text: number;
+            /** Excluded Full Text */
+            excluded_full_text: number;
+            /** Exclusion Reasons */
+            exclusion_reasons: {
+                [key: string]: number;
+            };
+            /** Awaiting Screening */
+            awaiting_screening: number;
+            /** Awaiting Full Text */
+            awaiting_full_text: number;
+            /** Included */
+            included: number;
         };
         /** ProjectIn */
         ProjectIn: {
@@ -1306,6 +1650,19 @@ export interface components {
             input?: unknown;
             /** Context */
             ctx?: Record<string, never>;
+        };
+        /** Vocabulary */
+        Vocabulary: {
+            /** Dimensions */
+            dimensions: string[];
+            /** Stages */
+            stages: {
+                [key: string]: string;
+            };
+            /** Suggestions */
+            suggestions: {
+                [key: string]: string[];
+            };
         };
         /** WorkloadIn */
         WorkloadIn: {
@@ -2703,6 +3060,305 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["JobOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    vocabulary_api_literature_vocabulary_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Vocabulary"];
+                };
+            };
+        };
+    };
+    list_entries_api_literature_get: {
+        parameters: {
+            query?: {
+                stage?: string | null;
+                project_id?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EntryOut"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_entry_api_literature_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["EntryIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EntryOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    import_entries_api_literature_import_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "multipart/form-data": components["schemas"]["Body_import_entries_api_literature_import_post"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ImportOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    prisma_api_literature_prisma_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PrismaOut"];
+                };
+            };
+        };
+    };
+    matrix_api_literature_matrix_get: {
+        parameters: {
+            query?: {
+                rows?: "layers" | "techniques" | "metrics" | "domains" | "evaluation" | "datasets" | "tags";
+                cols?: "layers" | "techniques" | "metrics" | "domains" | "evaluation" | "datasets" | "tags";
+                stage?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MatrixOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    export_api_literature_export__fmt__get: {
+        parameters: {
+            query?: {
+                stage?: string | null;
+            };
+            header?: never;
+            path: {
+                fmt: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_entry_api_literature__entry_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                entry_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EntryOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    delete_entry_api_literature__entry_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                entry_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_entry_api_literature__entry_id__patch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                entry_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["EntryPatch"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EntryOut"];
                 };
             };
             /** @description Validation Error */

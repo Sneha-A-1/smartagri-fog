@@ -105,10 +105,16 @@ export default function Overview() {
             <Row label="Results folder">
               <span className="break-all">{info?.results_dir ?? "…"}</span>
             </Row>
-            <Row label="Versions">
-              API {health?.version ?? "…"}, core {health?.core_version ?? "…"}
+            <Row label="Version">
+              Server {health?.commit ?? "…"}, interface {__APP_COMMIT__}
             </Row>
           </dl>
+          {health && health.commit !== "unknown" && __APP_COMMIT__ !== "unknown" && health.commit !== __APP_COMMIT__ && (
+            <p className="mt-3 text-sm text-danger">
+              The interface was built from older code than the server is running. Stop the platform (Ctrl+C) and run{" "}
+              <code>.\scripts\start.ps1</code> again, then press Ctrl+Shift+R.
+            </p>
+          )}
           {info && info.plugin_load_errors.length > 0 && (
             <p className="mt-3 text-sm text-danger">
               {info.plugin_load_errors.length} plugin package(s) failed to load. See Settings for details.

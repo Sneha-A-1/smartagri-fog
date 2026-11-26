@@ -143,8 +143,10 @@ export const MODULES: ModuleManifest[] = [
     description: "Compare algorithms with confidence intervals, significance tests, energy and network metrics.",
   },
   {
-    id: "literature", path: "/literature", group: "research", icon: BookMarked, status: "planned", phase: 1,
-    description: "Import BibTeX, tag papers by layer, technique and metric, and build the research-gap matrix.",
+    id: "literature", path: "/literature", group: "research", icon: BookMarked, status: "implemented", phase: 1,
+    permission: "project:read",
+    description: "Import BibTeX, screen with the PRISMA 2020 flow, tag papers and build the research-gap matrix.",
+    component: lazy(() => import("@/pages/Literature")),
   },
   {
     id: "advanced", path: "/advanced", group: "research", icon: Layers, status: "planned", phase: 7,

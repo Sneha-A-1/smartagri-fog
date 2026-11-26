@@ -19,7 +19,7 @@ from smartagri_api.db import init_engine, session_scope
 from smartagri_api.jobs.runner import JobEventHub, JobRunner
 from smartagri_api.migrate import run_migrations
 from smartagri_api.rbac import seed_access_control
-from smartagri_api.routers import auth, designs, experiments, jobs, plugins, projects, system
+from smartagri_api.routers import auth, designs, experiments, jobs, literature, plugins, projects, system
 from smartagri_api.routers import settings as settings_router
 
 log = logging.getLogger("smartagri_api")
@@ -67,7 +67,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         allow_headers=["*"],
     )
 
-    for module in (system, auth, plugins, jobs, experiments, designs, projects, settings_router):
+    for module in (system, auth, plugins, jobs, experiments, designs, literature, projects, settings_router):
         app.include_router(module.router, prefix="/api")
 
     if WEB_DIST.is_dir():  # serve the built web interface when it exists (production / one-command mode)
@@ -78,6 +78,9 @@ def create_app(settings: Settings | None = None) -> FastAPI:
             candidate = (WEB_DIST / path).resolve()
             if path and candidate.is_file() and candidate.is_relative_to(WEB_DIST):
                 return FileResponse(candidate)
-            return FileResponse(WEB_DIST / "index.html")
+            # index.html must never be cached, so a rebuilt interface is picked up on the next reload
+            return FileResponse(
+                WEB_DIST / "index.html", headers={"Cache-Control": "no-cache, no-store, must-revalidate"}
+            )
 
     return app

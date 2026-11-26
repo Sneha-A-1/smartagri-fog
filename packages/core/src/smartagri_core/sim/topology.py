@@ -92,6 +92,28 @@ class Topology(BaseModel):
     def by_layer(self, layer: Layer) -> list[NodeSpec]:
         return [n for n in self.nodes if n.layer == layer]
 
+    def summary(self) -> dict[str, object]:
+        """Counts and capacity per layer, for display and validation."""
+        layers: dict[str, dict[str, float]] = {}
+        for layer in Layer:
+            nodes = self.by_layer(layer)
+            layers[str(layer)] = {
+                "nodes": len(nodes),
+                "cores": sum(n.cores for n in nodes),
+                "capacity_mips": sum(n.cores * n.mips for n in nodes),
+                "ram_mb": sum(n.ram_mb for n in nodes),
+            }
+        kinds: dict[str, int] = {}
+        for link in self.links:
+            kinds[link.kind] = kinds.get(link.kind, 0) + 1
+        return {
+            "nodes": len(self.nodes),
+            "links": len(self.links),
+            "layers": layers,
+            "link_kinds": kinds,
+            "sha256": self.sha256,
+        }
+
     def validation_report(self) -> list[str]:
         """Human-readable problems that make a topology unusable for simulation."""
         problems: list[str] = []
@@ -178,6 +200,7 @@ class Router:
 
 # Illustrative defaults, to be calibrated by profiling real hardware. Sources noted in docs/simulation-model.md.
 DEVICE_PRESETS: dict[str, dict[str, float]] = {
+    "iot": {"cores": 0, "mips": 0, "ram_mb": 0, "p_idle_w": 0.0, "p_max_w": 0.0, "cost_per_core_s": 0.0},
     "edge": {"cores": 4, "mips": 1000, "ram_mb": 4096, "p_idle_w": 2.7, "p_max_w": 6.4, "cost_per_core_s": 0.0},
     "fog": {"cores": 8, "mips": 2800, "ram_mb": 16384, "p_idle_w": 83.4, "p_max_w": 107.3, "cost_per_core_s": 0.0},
     "cloud": {
@@ -188,6 +211,20 @@ DEVICE_PRESETS: dict[str, dict[str, float]] = {
         "p_max_w": 107.3,
         "cost_per_core_s": 1.2e-5,
     },
+}
+
+# Typical values per link technology, used as starting points in the topology designer. Illustrative: real
+# throughput and latency depend on configuration, distance and load, and should be set from measurements.
+LINK_KIND_PRESETS: dict[str, dict[str, float]] = {
+    "ethernet": {"bandwidth_mbps": 100.0, "latency_ms": 1.0},
+    "wifi": {"bandwidth_mbps": 20.0, "latency_ms": 5.0},
+    "4g": {"bandwidth_mbps": 10.0, "latency_ms": 50.0},
+    "5g": {"bandwidth_mbps": 100.0, "latency_ms": 10.0},
+    "lorawan": {"bandwidth_mbps": 0.005, "latency_ms": 100.0},
+    "zigbee": {"bandwidth_mbps": 0.25, "latency_ms": 15.0},
+    "ble": {"bandwidth_mbps": 1.0, "latency_ms": 10.0},
+    "nbiot": {"bandwidth_mbps": 0.06, "latency_ms": 1600.0},
+    "wan": {"bandwidth_mbps": 50.0, "latency_ms": 100.0},
 }
 
 LINK_PRESETS: dict[str, dict[str, float | str]] = {

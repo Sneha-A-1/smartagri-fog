@@ -103,12 +103,14 @@ export const MODULES: ModuleManifest[] = [
     description: "Train, evaluate, version and compare machine-learning models on registered datasets.",
   },
   {
-    id: "topology", path: "/topology", group: "infrastructure", icon: Network, status: "planned", phase: 1,
+    id: "topology", path: "/topology", group: "infrastructure", icon: Network, status: "implemented", phase: 1,
+    permission: "plugin:read",
     description: "Drag-and-drop edge, fog and cloud nodes and links, or generate large topologies from parameters.",
+    component: lazy(() => import("@/pages/Topologies")),
   },
   {
-    id: "resources", path: "/resources", group: "infrastructure", icon: Gauge, status: "planned", phase: 1,
-    description: "CPU, memory, bandwidth, energy and queue length per node during simulations.",
+    id: "resources", path: "/resources", group: "infrastructure", icon: Gauge, status: "planned", phase: 2,
+    description: "Live CPU, memory, bandwidth, energy and queue length per node. Per-node results of each simulation are already shown on its job page.",
   },
   {
     id: "catalogue", path: "/algorithms", group: "research", icon: Library, status: "implemented", phase: 0,
@@ -125,8 +127,10 @@ export const MODULES: ModuleManifest[] = [
     description: "Multi-objective optimisation with convergence curves and Pareto fronts.",
   },
   {
-    id: "simulation", path: "/simulation", group: "research", icon: Play, status: "planned", phase: 1,
-    description: "Configure workloads and failure scenarios and run the discrete-event simulator.",
+    id: "simulation", path: "/simulation", group: "research", icon: Play, status: "implemented", phase: 1,
+    permission: "plugin:read",
+    description: "Define workloads and run the discrete-event simulator on a saved topology.",
+    component: lazy(() => import("@/pages/Simulation")),
   },
   {
     id: "experiments", path: "/experiments", group: "research", icon: TestTubes, status: "implemented", phase: 1,

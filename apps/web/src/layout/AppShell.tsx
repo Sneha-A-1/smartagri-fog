@@ -1,5 +1,5 @@
 import { Suspense, useEffect } from "react";
-import { Outlet } from "react-router-dom";
+import { Outlet, useLocation } from "react-router-dom";
 import { useJobEvents } from "@/api/useJobEvents";
 import i18n from "@/i18n";
 import { applyTheme, useUi } from "@/stores/ui";
@@ -11,6 +11,8 @@ import { useSettingsSync } from "./useSettingsSync";
 export function AppShell() {
   const theme = useUi((s) => s.theme);
   const language = useUi((s) => s.language);
+  const { pathname } = useLocation();
+  const fullBleed = /^\/topology\/.+/.test(pathname); // the designer uses the whole window
   useJobEvents();
   useSettingsSync();
 
@@ -34,8 +36,8 @@ export function AppShell() {
       <div className="flex min-w-0 flex-1 flex-col">
         <TopBar />
         <main className="flex-1 overflow-y-auto">
-          <div className="mx-auto max-w-6xl px-6 py-8 lg:px-10">
-            <Suspense fallback={<p className="text-sm text-ink-3">Loading…</p>}>
+          <div className={fullBleed ? "h-full" : "mx-auto max-w-6xl px-6 py-8 lg:px-10"}>
+            <Suspense fallback={<p className="p-6 text-sm text-ink-3">Loading…</p>}>
               <Outlet />
             </Suspense>
           </div>

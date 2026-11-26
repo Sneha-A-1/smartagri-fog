@@ -15,6 +15,8 @@ applyTheme(useUi.getState().theme);
 const JobDetail = lazy(() => import("./pages/JobDetail"));
 const PluginDetail = lazy(() => import("./pages/PluginDetail"));
 const ExperimentPage = lazy(() => import("./pages/ExperimentPage"));
+const TopologyEditor = lazy(() => import("./pages/TopologyEditor"));
+const WorkloadEditor = lazy(() => import("./pages/WorkloadEditor"));
 
 const queryClient = new QueryClient({ defaultOptions: { queries: { staleTime: 10_000, retry: 1 } } });
 
@@ -29,6 +31,10 @@ const router = createBrowserRouter([
       { path: "/algorithms/:pluginId", element: <PluginDetail /> },
       { path: "/jobs/:jobId", element: <JobDetail /> },
       { path: "/experiments/new", element: <ExperimentPage /> },
+      { path: "/topology/new", element: <TopologyEditor /> },
+      { path: "/topology/:topoId", element: <TopologyEditor /> },
+      { path: "/simulation/workloads/new", element: <WorkloadEditor /> },
+      { path: "/simulation/workloads/:wlId", element: <WorkloadEditor /> },
       { path: "/experiments/:expId", element: <ExperimentPage /> },
       {
         path: "*",

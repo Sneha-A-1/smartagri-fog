@@ -3,6 +3,8 @@ import { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import type { ExperimentSchema } from "@/api/client";
 import {
+  fetchTopology,
+  fetchWorkload,
   useCancelExperiment,
   useCreateExperiment,
   useDeleteExperiment,
@@ -11,7 +13,9 @@ import {
   useExperimentResult,
   useExperimentSchema,
   useRunExperiment,
+  useTopologies,
   useUpdateExperiment,
+  useWorkloads,
 } from "@/api/hooks";
 import { Button } from "@/components/Button";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
@@ -30,6 +34,10 @@ type Spec = {
   algorithms: Algorithm[];
   replications: number;
   base_seed: number;
+  topology?: Record<string, unknown> | null;
+  workload?: Record<string, unknown> | null;
+  topology_name?: string;
+  workload_name?: string;
   [k: string]: unknown;
 };
 
@@ -93,8 +101,14 @@ function Editor({ schema, initial, expId }: { schema: ExperimentSchema; initial:
       </Section>
 
       <Section title="Scenario" lead="The farm network and workload every algorithm is tested on.">
-        <SchemaForm schema={schema.scenario_schema as JsonSchema} values={spec.scenario} onChange={(scenario) => set({ scenario })}
-          showAdvanced={mode === "researcher"} />
+        <ScenarioSource spec={spec} set={set} />
+        {spec.topology ? (
+          <SchemaForm schema={onlyFields(schema.scenario_schema as JsonSchema, ["window_s"])} values={spec.scenario}
+            onChange={(scenario) => set({ scenario })} showAdvanced />
+        ) : (
+          <SchemaForm schema={schema.scenario_schema as JsonSchema} values={spec.scenario} onChange={(scenario) => set({ scenario })}
+            showAdvanced={mode === "researcher"} />
+        )}
       </Section>
 
       <Section title="Algorithms to compare" lead="Each algorithm is a placement policy (which node runs a task) plus a queue discipline (in what order a node runs its tasks).">
@@ -234,6 +248,72 @@ function Detail({ expId }: { expId: string }) {
         confirmLabel="Delete experiment" onCancel={() => setConfirmDelete(false)}
         onConfirm={() => del.mutate(expId, { onSuccess: () => navigate("/experiments") })} />
     </article>
+  );
+}
+
+function onlyFields(schema: JsonSchema, keep: string[]): JsonSchema {
+  return { ...schema, properties: Object.fromEntries(Object.entries(schema.properties ?? {}).filter(([k]) => keep.includes(k))) };
+}
+
+/** Choose between the generated farm network and a saved topology + workload (copied into the experiment). */
+function ScenarioSource({ spec, set }: { spec: Spec; set: (p: Partial<Spec>) => void }) {
+  const { data: topologies } = useTopologies();
+  const { data: workloads } = useWorkloads();
+  const [busy, setBusy] = useState(false);
+  const saved = Boolean(spec.topology);
+  const canUseSaved = Boolean(topologies?.length && workloads?.length);
+
+  const choose = async (topologyId: string | undefined, workloadId: string | undefined) => {
+    if (!topologyId || !workloadId) return;
+    setBusy(true);
+    try {
+      const [t, w] = await Promise.all([fetchTopology(topologyId), fetchWorkload(workloadId)]);
+      set({ topology: t.topology, workload: w.spec, topology_name: t.name, workload_name: w.name });
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  return (
+    <div className="mb-6 space-y-3 text-sm">
+      <div className="flex flex-wrap gap-2" role="radiogroup" aria-label="Scenario source">
+        {[
+          { key: false, label: "Generated farm network" },
+          { key: true, label: "My saved network and workload" },
+        ].map((o) => (
+          <button key={String(o.key)} type="button" role="radio" aria-checked={saved === o.key}
+            disabled={o.key && !canUseSaved}
+            onClick={() => (o.key ? void choose(topologies?.[0]?.id, workloads?.[0]?.id) : set({ topology: null, workload: null, topology_name: "", workload_name: "" }))}
+            className={`rounded-lg border px-3 py-1.5 ${saved === o.key ? "border-accent bg-accent-soft font-medium text-accent" : "border-line bg-surface hover:bg-surface-2"} disabled:opacity-50`}>
+            {o.label}
+          </button>
+        ))}
+      </div>
+      {!canUseSaved && <p className="text-xs text-ink-3">Save a topology (Topology designer) and a workload (Simulation) to use your own network.</p>}
+      {saved && (
+        <div className="grid gap-3 sm:grid-cols-2">
+          <label><span className="mb-1.5 block font-medium">Topology</span>
+            <select disabled={busy} className="w-full rounded-lg border border-line bg-surface px-3 py-2"
+              value={topologies?.find((t) => t.name === spec.topology_name)?.id ?? ""}
+              onChange={(e) => void choose(e.target.value, workloads?.find((w) => w.name === spec.workload_name)?.id ?? workloads?.[0]?.id)}>
+              {!topologies?.some((t) => t.name === spec.topology_name) && <option value="">{spec.topology_name || "Choose"} (copy in this experiment)</option>}
+              {topologies?.map((t) => <option key={t.id} value={t.id}>{t.name}</option>)}
+            </select>
+          </label>
+          <label><span className="mb-1.5 block font-medium">Workload</span>
+            <select disabled={busy} className="w-full rounded-lg border border-line bg-surface px-3 py-2"
+              value={workloads?.find((w) => w.name === spec.workload_name)?.id ?? ""}
+              onChange={(e) => void choose(topologies?.find((t) => t.name === spec.topology_name)?.id ?? topologies?.[0]?.id, e.target.value)}>
+              {!workloads?.some((w) => w.name === spec.workload_name) && <option value="">{spec.workload_name || "Choose"} (copy in this experiment)</option>}
+              {workloads?.map((w) => <option key={w.id} value={w.id}>{w.name}</option>)}
+            </select>
+          </label>
+          <p className="text-xs text-ink-3 sm:col-span-2">
+            The experiment stores its own copy of both, so later edits to the saved versions won't change its results.
+          </p>
+        </div>
+      )}
+    </div>
   );
 }
 

@@ -176,3 +176,107 @@ export function useDeleteExperiment() {
     onSuccess: () => qc.invalidateQueries({ queryKey: ["experiments"] }),
   });
 }
+
+// --- designed topologies and workloads ---------------------------------------------------------
+
+export const useDesignPresets = () =>
+  useQuery({ queryKey: ["design-presets"], queryFn: () => unwrap(api.GET("/api/topologies/presets")), staleTime: Infinity });
+
+export const useTopologies = () => useQuery({ queryKey: ["topologies"], queryFn: () => unwrap(api.GET("/api/topologies")) });
+
+export const useTopology = (id: string) =>
+  useQuery({
+    queryKey: ["topology", id],
+    enabled: Boolean(id),
+    queryFn: () => unwrap(api.GET("/api/topologies/{topo_id}", { params: { path: { topo_id: id } } })),
+  });
+
+type TopologyBody = { name: string; description: string; topology: Record<string, unknown>; layout: Record<string, unknown>; project_id?: string | null };
+
+export function useSaveTopology() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, body }: { id?: string; body: TopologyBody }) =>
+      id
+        ? unwrap(api.PUT("/api/topologies/{topo_id}", { params: { path: { topo_id: id } }, body }))
+        : unwrap(api.POST("/api/topologies", { body })),
+    onSuccess: (row) => {
+      qc.setQueryData(["topology", row.id], row);
+      qc.invalidateQueries({ queryKey: ["topologies"] });
+    },
+  });
+}
+
+export function useDuplicateTopology() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => unwrap(api.POST("/api/topologies/{topo_id}/duplicate", { params: { path: { topo_id: id } } })),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["topologies"] }),
+  });
+}
+
+export function useDeleteTopology() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => unwrap(api.DELETE("/api/topologies/{topo_id}", { params: { path: { topo_id: id } } })),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["topologies"] }),
+  });
+}
+
+export const generateTopology = (params: Record<string, unknown>) =>
+  unwrap(api.POST("/api/topologies/generate", { body: params as never }));
+
+export const validateTopology = (topology: Record<string, unknown>) =>
+  unwrap(api.POST("/api/topologies/validate", { body: { topology } }));
+
+export const useWorkloadTemplate = () =>
+  useQuery({ queryKey: ["workload-template"], queryFn: () => unwrap(api.GET("/api/workloads/template")), staleTime: Infinity });
+
+export const useWorkloads = () => useQuery({ queryKey: ["workloads"], queryFn: () => unwrap(api.GET("/api/workloads")) });
+
+export const useWorkload = (id: string) =>
+  useQuery({
+    queryKey: ["workload", id],
+    enabled: Boolean(id),
+    queryFn: () => unwrap(api.GET("/api/workloads/{wl_id}", { params: { path: { wl_id: id } } })),
+  });
+
+type WorkloadBody = { name: string; description: string; spec: Record<string, unknown>; project_id?: string | null };
+
+export function useSaveWorkload() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, body }: { id?: string; body: WorkloadBody }) =>
+      id
+        ? unwrap(api.PUT("/api/workloads/{wl_id}", { params: { path: { wl_id: id } }, body }))
+        : unwrap(api.POST("/api/workloads", { body })),
+    onSuccess: (row) => {
+      qc.setQueryData(["workload", row.id], row);
+      qc.invalidateQueries({ queryKey: ["workloads"] });
+    },
+  });
+}
+
+export function useDeleteWorkload() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => unwrap(api.DELETE("/api/workloads/{wl_id}", { params: { path: { wl_id: id } } })),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["workloads"] }),
+  });
+}
+
+export const previewWorkload = (spec: Record<string, unknown>, topology?: Record<string, unknown> | null) =>
+  unwrap(api.POST("/api/workloads/preview", { body: { spec, topology: topology ?? null } }));
+
+export function useStartSimulation() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (body: { topology_id: string; workload_id: string; placement: string; discipline: string; seed: number; settings: Record<string, unknown>; project_id?: string | null }) =>
+      unwrap(api.POST("/api/simulations", { body: body as never })),
+    onSuccess: (job: Job) => qc.setQueryData<Job[]>(["jobs"], (old) => [job, ...(old ?? [])]),
+  });
+}
+
+export const fetchTopology = (id: string) =>
+  unwrap(api.GET("/api/topologies/{topo_id}", { params: { path: { topo_id: id } } }));
+export const fetchWorkload = (id: string) => unwrap(api.GET("/api/workloads/{wl_id}", { params: { path: { wl_id: id } } }));

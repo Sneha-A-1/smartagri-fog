@@ -366,6 +366,219 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/topologies/presets": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Design Presets */
+        get: operations["design_presets_api_topologies_presets_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/topologies/generate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Generate Topology */
+        post: operations["generate_topology_api_topologies_generate_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/topologies/validate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Validate Topology */
+        post: operations["validate_topology_api_topologies_validate_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/topologies": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Topologies */
+        get: operations["list_topologies_api_topologies_get"];
+        put?: never;
+        /** Create Topology */
+        post: operations["create_topology_api_topologies_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/topologies/{topo_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Topology */
+        get: operations["get_topology_api_topologies__topo_id__get"];
+        /** Update Topology */
+        put: operations["update_topology_api_topologies__topo_id__put"];
+        post?: never;
+        /** Delete Topology */
+        delete: operations["delete_topology_api_topologies__topo_id__delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/topologies/{topo_id}/duplicate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Duplicate Topology */
+        post: operations["duplicate_topology_api_topologies__topo_id__duplicate_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/workloads/template": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Workload Template */
+        get: operations["workload_template_api_workloads_template_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/workloads/preview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Preview Workload
+         * @description Expected load before running anything: arrivals and compute demand versus capacity.
+         */
+        post: operations["preview_workload_api_workloads_preview_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/workloads": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Workloads */
+        get: operations["list_workloads_api_workloads_get"];
+        put?: never;
+        /** Create Workload */
+        post: operations["create_workload_api_workloads_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/workloads/{wl_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Workload */
+        get: operations["get_workload_api_workloads__wl_id__get"];
+        /** Update Workload */
+        put: operations["update_workload_api_workloads__wl_id__put"];
+        post?: never;
+        /** Delete Workload */
+        delete: operations["delete_workload_api_workloads__wl_id__delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/workloads/{wl_id}/duplicate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Duplicate Workload */
+        post: operations["duplicate_workload_api_workloads__wl_id__duplicate_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/simulations": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Start Simulation */
+        post: operations["start_simulation_api_simulations_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/projects": {
         parameters: {
             query?: never;
@@ -471,6 +684,25 @@ export interface components {
              */
             client_secret?: string | null;
         };
+        /** DesignPresets */
+        DesignPresets: {
+            /** Devices */
+            devices: {
+                [key: string]: {
+                    [key: string]: number;
+                };
+            };
+            /** Link Kinds */
+            link_kinds: {
+                [key: string]: {
+                    [key: string]: number;
+                };
+            };
+            /** Generator Schema */
+            generator_schema: {
+                [key: string]: unknown;
+            };
+        };
         /** ExperimentCreate */
         ExperimentCreate: {
             /**
@@ -552,6 +784,87 @@ export interface components {
         ExperimentUpdate: {
             /** Spec */
             spec: {
+                [key: string]: unknown;
+            };
+        };
+        /**
+         * FarmTopologyParams
+         * @description Parameters for :func:`farm_topology`. Exposed as a form in the GUI.
+         */
+        FarmTopologyParams: {
+            /**
+             * Farms
+             * @description Number of farms (each with its own gateways and edge nodes).
+             * @default 4
+             */
+            farms: number;
+            /**
+             * Gateways Per Farm
+             * @description IoT gateways per farm; tasks originate here.
+             * @default 2
+             */
+            gateways_per_farm: number;
+            /**
+             * Edge Per Farm
+             * @description Edge computing devices per farm.
+             * @default 1
+             */
+            edge_per_farm: number;
+            /**
+             * Fog Nodes
+             * @description Regional fog servers shared by the farms.
+             * @default 2
+             */
+            fog_nodes: number;
+            /**
+             * Cloud Nodes
+             * @description Cloud servers.
+             * @default 1
+             */
+            cloud_nodes: number;
+            /**
+             * Mtbf Edge S
+             * @description Mean time between edge failures (0 = never fail).
+             * @default 0
+             */
+            mtbf_edge_s: number;
+            /**
+             * Mtbf Fog S
+             * @description Mean time between fog failures (0 = never fail).
+             * @default 0
+             */
+            mtbf_fog_s: number;
+            /**
+             * Mttr S
+             * @description Mean time to repair a failed node.
+             * @default 300
+             */
+            mttr_s: number;
+            /**
+             * Wan Bandwidth Mbps
+             * @description Fog-to-cloud link bandwidth.
+             * @default 50
+             */
+            wan_bandwidth_mbps: number;
+            /**
+             * Wan Latency Ms
+             * @description Fog-to-cloud one-way latency.
+             * @default 100
+             */
+            wan_latency_ms: number;
+        };
+        /** GeneratedTopology */
+        GeneratedTopology: {
+            /** Topology */
+            topology: {
+                [key: string]: unknown;
+            };
+            /** Layout */
+            layout: {
+                [key: string]: unknown;
+            };
+            /** Summary */
+            summary: {
                 [key: string]: unknown;
             };
         };
@@ -787,6 +1100,36 @@ export interface components {
             /** Default Seed */
             default_seed?: number | null;
         };
+        /** SimulationIn */
+        SimulationIn: {
+            /** Topology Id */
+            topology_id: string;
+            /** Workload Id */
+            workload_id: string;
+            /**
+             * Placement
+             * @default mct
+             * @enum {string}
+             */
+            placement: "random" | "round_robin" | "least_loaded" | "mct" | "cloud_only" | "edge_ward" | "min_min" | "max_min";
+            /**
+             * Discipline
+             * @default edf
+             * @enum {string}
+             */
+            discipline: "fcfs" | "edf" | "priority" | "sjf";
+            /**
+             * Seed
+             * @default 1
+             */
+            seed: number;
+            /** Settings */
+            settings?: {
+                [key: string]: unknown;
+            };
+            /** Project Id */
+            project_id?: string | null;
+        };
         /** SystemInfo */
         SystemInfo: {
             /** Version */
@@ -822,6 +1165,96 @@ export interface components {
              * @default bearer
              */
             token_type: string;
+        };
+        /** TopologyCheck */
+        TopologyCheck: {
+            /** Topology */
+            topology: {
+                [key: string]: unknown;
+            };
+        };
+        /** TopologyCheckOut */
+        TopologyCheckOut: {
+            /** Valid */
+            valid: boolean;
+            /** Problems */
+            problems: string[];
+            /** Summary */
+            summary: {
+                [key: string]: unknown;
+            } | null;
+        };
+        /** TopologyIn */
+        TopologyIn: {
+            /** Name */
+            name: string;
+            /**
+             * Description
+             * @default
+             */
+            description: string;
+            /** Topology */
+            topology: {
+                [key: string]: unknown;
+            };
+            /** Layout */
+            layout?: {
+                [key: string]: unknown;
+            };
+            /** Project Id */
+            project_id?: string | null;
+        };
+        /** TopologyListItem */
+        TopologyListItem: {
+            /** Id */
+            id: string;
+            /** Name */
+            name: string;
+            /** Description */
+            description: string;
+            /** Nodes */
+            nodes: number;
+            /** Links */
+            links: number;
+            /** Sha256 */
+            sha256: string;
+            /** Project Id */
+            project_id: string | null;
+            /** Updated At */
+            updated_at: string;
+        };
+        /** TopologyOut */
+        TopologyOut: {
+            /** Id */
+            id: string;
+            /** Name */
+            name: string;
+            /** Description */
+            description: string;
+            /** Nodes */
+            nodes: number;
+            /** Links */
+            links: number;
+            /** Sha256 */
+            sha256: string;
+            /** Project Id */
+            project_id: string | null;
+            /** Updated At */
+            updated_at: string;
+            /** Topology */
+            topology: {
+                [key: string]: unknown;
+            };
+            /** Layout */
+            layout: {
+                [key: string]: unknown;
+            };
+            /** Summary */
+            summary: {
+                [key: string]: unknown;
+            };
+            /** Problems */
+            problems: string[];
         };
         /** UserCreate */
         UserCreate: {
@@ -873,6 +1306,109 @@ export interface components {
             input?: unknown;
             /** Context */
             ctx?: Record<string, never>;
+        };
+        /** WorkloadIn */
+        WorkloadIn: {
+            /** Name */
+            name: string;
+            /**
+             * Description
+             * @default
+             */
+            description: string;
+            /** Spec */
+            spec: {
+                [key: string]: unknown;
+            };
+            /** Project Id */
+            project_id?: string | null;
+        };
+        /** WorkloadListItem */
+        WorkloadListItem: {
+            /** Id */
+            id: string;
+            /** Name */
+            name: string;
+            /** Description */
+            description: string;
+            /** Classes */
+            classes: number;
+            /** Duration S */
+            duration_s: number;
+            /** Intensity */
+            intensity: number;
+            /** Sha256 */
+            sha256: string;
+            /** Project Id */
+            project_id: string | null;
+            /** Updated At */
+            updated_at: string;
+        };
+        /** WorkloadOut */
+        WorkloadOut: {
+            /** Id */
+            id: string;
+            /** Name */
+            name: string;
+            /** Description */
+            description: string;
+            /** Classes */
+            classes: number;
+            /** Duration S */
+            duration_s: number;
+            /** Intensity */
+            intensity: number;
+            /** Sha256 */
+            sha256: string;
+            /** Project Id */
+            project_id: string | null;
+            /** Updated At */
+            updated_at: string;
+            /** Spec */
+            spec: {
+                [key: string]: unknown;
+            };
+        };
+        /** WorkloadPreviewIn */
+        WorkloadPreviewIn: {
+            /** Spec */
+            spec: {
+                [key: string]: unknown;
+            };
+            /** Topology */
+            topology?: {
+                [key: string]: unknown;
+            } | null;
+        };
+        /** WorkloadPreviewOut */
+        WorkloadPreviewOut: {
+            /** Sources */
+            sources: number;
+            /** Classes */
+            classes: {
+                [key: string]: unknown;
+            }[];
+            /** Tasks Per Hour */
+            tasks_per_hour: number;
+            /** Expected Tasks */
+            expected_tasks: number;
+            /** Demand Mips */
+            demand_mips: number;
+            /** Capacity Mips */
+            capacity_mips: number | null;
+            /** Load Ratio */
+            load_ratio: number | null;
+        };
+        /** WorkloadTemplate */
+        WorkloadTemplate: {
+            /** Spec */
+            spec: {
+                [key: string]: unknown;
+            };
+            /** Task Class Schema */
+            task_class_schema: {
+                [key: string]: unknown;
+            };
         };
     };
     responses: never;
@@ -1637,6 +2173,536 @@ export interface operations {
                 };
                 content: {
                     "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    design_presets_api_topologies_presets_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DesignPresets"];
+                };
+            };
+        };
+    };
+    generate_topology_api_topologies_generate_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["FarmTopologyParams"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GeneratedTopology"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    validate_topology_api_topologies_validate_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["TopologyCheck"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TopologyCheckOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_topologies_api_topologies_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TopologyListItem"][];
+                };
+            };
+        };
+    };
+    create_topology_api_topologies_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["TopologyIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TopologyOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_topology_api_topologies__topo_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                topo_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TopologyOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_topology_api_topologies__topo_id__put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                topo_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["TopologyIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TopologyOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    delete_topology_api_topologies__topo_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                topo_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    duplicate_topology_api_topologies__topo_id__duplicate_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                topo_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TopologyOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    workload_template_api_workloads_template_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["WorkloadTemplate"];
+                };
+            };
+        };
+    };
+    preview_workload_api_workloads_preview_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["WorkloadPreviewIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["WorkloadPreviewOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_workloads_api_workloads_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["WorkloadListItem"][];
+                };
+            };
+        };
+    };
+    create_workload_api_workloads_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["WorkloadIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["WorkloadOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_workload_api_workloads__wl_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                wl_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["WorkloadOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_workload_api_workloads__wl_id__put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                wl_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["WorkloadIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["WorkloadOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    delete_workload_api_workloads__wl_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                wl_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    duplicate_workload_api_workloads__wl_id__duplicate_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                wl_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["WorkloadOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    start_simulation_api_simulations_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SimulationIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["JobOut"];
                 };
             };
             /** @description Validation Error */

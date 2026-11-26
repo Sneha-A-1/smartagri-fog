@@ -102,6 +102,41 @@ def _cmd_experiment_run(args: argparse.Namespace) -> int:
     return 0
 
 
+def _cmd_plugins_run(args: argparse.Namespace) -> int:
+    from pathlib import Path
+
+    params: dict = {}
+    if args.params:
+        params = json.loads(Path(args.params).read_text(encoding="utf-8"))
+    for item in args.set or []:
+        key, _, value = item.partition("=")
+        try:
+            params[key] = json.loads(value)
+        except json.JSONDecodeError:
+            params[key] = value
+    reg = get_registry()
+    reg.ensure_loaded()
+    try:
+        plugin = reg.create(args.plugin_id, params)
+    except (PluginError, ValueError) as exc:
+        print(f"Error: {exc}", file=sys.stderr)
+        return 2
+
+    def progress(fraction: float, message: str = "") -> None:
+        print(f"\r[{fraction:6.1%}] {message:<70}", end="", flush=True)
+
+    result = plugin.run(progress)
+    print()
+    out = Path(args.out)
+    out.mkdir(parents=True, exist_ok=True)
+    (out / "result.json").write_text(json.dumps(result, ensure_ascii=False, indent=1), encoding="utf-8")
+    (out / "params.json").write_text(json.dumps(params, indent=1), encoding="utf-8")
+    for check in result.get("checks", []):
+        print(f"- {'reproduced' if check['holds'] else 'NOT reproduced'}: {check['claim']}")
+    print(f"Wrote result.json and params.json to {out}")
+    return 0
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="smartagri", description="SmartAgri-Fog command line")
     parser.add_argument("--version", action="version", version=f"smartagri-core {__version__}")
@@ -115,6 +150,12 @@ def build_parser() -> argparse.ArgumentParser:
     p_show = psub.add_parser("show", help="Show one plugin with its parameter schema")
     p_show.add_argument("plugin_id", help="e.g. data_generator:soil_moisture_demo")
     p_show.set_defaults(func=_cmd_plugins_show)
+    p_run = psub.add_parser("run", help="Run an implemented plugin and save its result")
+    p_run.add_argument("plugin_id", help="e.g. simulation:ifogsim_eeg")
+    p_run.add_argument("--params", help="JSON file with parameters")
+    p_run.add_argument("--set", action="append", metavar="KEY=VALUE", help="Override one parameter (JSON value)")
+    p_run.add_argument("--out", required=True, help="Output folder")
+    p_run.set_defaults(func=_cmd_plugins_run)
 
     exp = sub.add_parser("experiment", help="Run reproducible experiments from YAML files")
     esub = exp.add_subparsers(dest="action", required=True)

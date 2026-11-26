@@ -9,9 +9,7 @@ from smartagri_core.registry import PluginKind, declare
 
 E, F, C = "edge", "fog", "cloud"
 
-_SCHEDULERS = [
-    ("heft", "HEFT", 4, "Heterogeneous Earliest Finish Time list scheduling for task DAGs."),
-]
+_SCHEDULERS: list[tuple[str, str, int, str]] = []  # HEFT and CPOP are implemented in smartagri_core.sched
 
 _OPTIMIZERS = [
     ("ga", "Genetic Algorithm", 4, "Evolves task-to-node mappings by selection, crossover and mutation."),

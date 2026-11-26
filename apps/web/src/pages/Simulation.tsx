@@ -107,6 +107,15 @@ export default function Simulation() {
               </li>
             ))}
           </ul>
+
+          <h2 className="mt-10 text-lg font-semibold">Validation case study</h2>
+          <p className="mt-1 text-sm text-ink-2">
+            Reproduces the EEG game case study from the iFogSim paper (Gupta et al., 2017) and shows the results next to
+            the published figures, including where they differ.
+          </p>
+          <Link to="/algorithms/simulation:ifogsim_eeg" className="mt-3 inline-block text-sm text-accent hover:underline">
+            Open the iFogSim reproduction
+          </Link>
         </section>
       </div>
       <ConfirmDialog open={toDelete !== null} title={`Delete "${toDelete?.name}"?`}

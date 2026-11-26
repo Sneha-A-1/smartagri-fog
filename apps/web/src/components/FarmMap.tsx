@@ -4,7 +4,7 @@ import { useEffect } from "react";
 import { CircleMarker, LayersControl, MapContainer, Polygon, Polyline, TileLayer, Tooltip, useMap, useMapEvents } from "react-leaflet";
 
 export type MapField = { id: string; name: string; boundary: number[][]; color?: string; label?: string };
-export type MapPoint = { id: string; name: string; lat: number; lon: number; label?: string };
+export type MapPoint = { id: string; name: string; lat: number; lon: number; label?: string; color?: string; radius?: number };
 
 type Props = {
   center: [number, number];
@@ -57,7 +57,7 @@ export function FarmMap({
           </Polygon>
         ))}
         {points.map((p) => (
-          <CircleMarker key={p.id} center={[p.lat, p.lon]} radius={8} pathOptions={{ color: "#ffffff", weight: 2, fillColor: "#3b4fa8", fillOpacity: 1 }}
+          <CircleMarker key={p.id} center={[p.lat, p.lon]} radius={p.radius ?? 8} pathOptions={{ color: "#ffffff", weight: 2, fillColor: p.color ?? "#3b4fa8", fillOpacity: 1 }}
             eventHandlers={{ click: () => onPointClick?.(p.id) }}>
             <Tooltip direction="top" offset={[0, -6]}>{p.label ?? p.name}</Tooltip>
           </CircleMarker>

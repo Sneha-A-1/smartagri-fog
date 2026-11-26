@@ -447,15 +447,92 @@ export function useImportWeatherCsv() {
   });
 }
 
-export const useWaterBalance = (fieldId: string, source: WeatherSource, trigger?: number) =>
+export const useWaterBalance = (fieldId: string, source: WeatherSource, useSensors = false, trigger?: number) =>
   useQuery({
-    queryKey: ["water-balance", fieldId, source, trigger],
+    queryKey: ["water-balance", fieldId, source, useSensors, trigger],
     enabled: Boolean(fieldId),
     retry: false,
     queryFn: () =>
-      unwrap(api.GET("/api/fields/{field_id}/water-balance", { params: { path: { field_id: fieldId }, query: { source, trigger } } })),
+      unwrap(
+        api.GET("/api/fields/{field_id}/water-balance", {
+          params: { path: { field_id: fieldId }, query: { source, trigger, use_sensors: useSensors } },
+        }),
+      ),
   });
 
 export const placeSearch = (q: string) => unwrap(api.GET("/api/geo/search", { params: { query: { q } } }));
 export const elevationAt = (latitude: number, longitude: number) =>
   unwrap(api.GET("/api/geo/elevation", { params: { query: { latitude, longitude } } }));
+
+// --- devices and digital twin --------------------------------------------------------------------
+
+export const useDeviceKinds = () =>
+  useQuery({ queryKey: ["device-kinds"], staleTime: Infinity, queryFn: () => unwrap(api.GET("/api/devices/kinds")) });
+
+export const useDevices = (farmId?: string) =>
+  useQuery({
+    queryKey: ["devices", farmId],
+    refetchInterval: 60_000,
+    retry: false,
+    queryFn: () => unwrap(api.GET("/api/devices", { params: { query: { farm_id: farmId } } })),
+  });
+
+function invalidateDevices(qc: ReturnType<typeof useQueryClient>) {
+  for (const key of ["devices", "readings", "twin", "water-balance"]) qc.invalidateQueries({ queryKey: [key] });
+}
+
+export function useCreateDevice() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ farmId, body }: { farmId: string; body: Record<string, unknown> }) =>
+      unwrap(api.POST("/api/farms/{farm_id}/devices", { params: { path: { farm_id: farmId } }, body: body as never })),
+    onSuccess: () => invalidateDevices(qc),
+  });
+}
+
+export function useUpdateDevice() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, patch }: { id: string; patch: Record<string, unknown> }) =>
+      unwrap(api.PATCH("/api/devices/{device_id}", { params: { path: { device_id: id } }, body: patch as never })),
+    onSuccess: () => invalidateDevices(qc),
+  });
+}
+
+export function useDeleteDevice() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => unwrap(api.DELETE("/api/devices/{device_id}", { params: { path: { device_id: id } } })),
+    onSuccess: () => invalidateDevices(qc),
+  });
+}
+
+export function useResetDeviceToken() {
+  return useMutation({
+    mutationFn: (id: string) => unwrap(api.POST("/api/devices/{device_id}/token", { params: { path: { device_id: id } } })),
+  });
+}
+
+export const useReadings = (deviceId: string, metric: string, days = 14) =>
+  useQuery({
+    queryKey: ["readings", deviceId, metric, days],
+    enabled: Boolean(deviceId && metric),
+    refetchInterval: 60_000,
+    queryFn: () =>
+      unwrap(
+        api.GET("/api/devices/{device_id}/readings", {
+          params: {
+            path: { device_id: deviceId },
+            query: { metric, start: new Date(Date.now() - days * 864e5).toISOString(), max_points: 600 },
+          },
+        }),
+      ),
+  });
+
+export const useTwin = (source: WeatherSource, useSensors: boolean) =>
+  useQuery({
+    queryKey: ["twin", source, useSensors],
+    refetchInterval: 60_000,
+    retry: false,
+    queryFn: () => unwrap(api.GET("/api/twin", { params: { query: { source, use_sensors: useSensors } } })),
+  });

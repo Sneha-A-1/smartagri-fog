@@ -17,6 +17,8 @@ from sqlalchemy import (
     DateTime,
     Float,
     ForeignKey,
+    Index,
+    Integer,
     String,
     Table,
     Text,
@@ -263,3 +265,36 @@ class WeatherRecord(Base):
     forecast: Mapped[bool] = mapped_column(Boolean, default=False)
     data: Mapped[dict[str, Any]] = mapped_column(JSON)
     fetched_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
+
+
+class Device(TimestampMixin, Base):
+    """A field device: soil-moisture sensor, weather station, valve or gateway. Simulated or real."""
+
+    __tablename__ = "devices"
+    farm_id: Mapped[str] = mapped_column(ForeignKey("farms.id", ondelete="CASCADE"), index=True)
+    field_id: Mapped[str | None] = mapped_column(ForeignKey("fields.id", ondelete="SET NULL"), nullable=True)
+    name: Mapped[str] = mapped_column(String(200))
+    kind: Mapped[str] = mapped_column(String(40))  # soil_moisture | weather_station | valve | gateway
+    latitude: Mapped[float] = mapped_column(Float)
+    longitude: Mapped[float] = mapped_column(Float)
+    simulated: Mapped[bool] = mapped_column(Boolean, default=True)
+    interval_min: Mapped[int] = mapped_column(Integer, default=30)
+    config: Mapped[dict[str, Any]] = mapped_column(JSON, default=dict)
+    token_hash: Mapped[str] = mapped_column(String(64), default="")
+    last_seen: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+
+
+class Reading(Base):
+    """One measurement from a device."""
+
+    __tablename__ = "readings"
+    __table_args__ = (
+        UniqueConstraint("device_id", "metric", "ts", name="uq_reading_device_metric_ts"),
+        Index("ix_readings_device_metric_ts", "device_id", "metric", "ts"),
+    )
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    device_id: Mapped[str] = mapped_column(ForeignKey("devices.id", ondelete="CASCADE"))
+    ts: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    metric: Mapped[str] = mapped_column(String(40))
+    value: Mapped[float] = mapped_column(Float)
+    origin: Mapped[str] = mapped_column(String(12))  # real | synthetic | derived

@@ -37,6 +37,7 @@ Full instructions: [docs/getting-started.md](docs/getting-started.md).
 | iFogSim reproduction (Phase 1e) | Module-based simulator following iFogSim's model; the paper's EEG game case study with results next to the published figures, including the parts that don't match. See [docs/ifogsim-reproduction.md](docs/ifogsim-reproduction.md) |
 | Task-graph scheduling | HEFT and CPOP, validated against the published example (schedule lengths 80 and 86); seeded random-graph experiments with significance tests. See [docs/dag-scheduling.md](docs/dag-scheduling.md) |
 | Farms and irrigation (Phase 2a) | Farms and fields drawn on a satellite map; daily weather from Open-Meteo, station CSV or a synthetic generator; FAO-56 ET₀ and soil-water balance with irrigation advice, validated against FAO-56 worked examples. See [docs/farms-and-irrigation.md](docs/farms-and-irrigation.md) |
+| Devices and digital twin (Phase 2b) | Simulated and real soil-moisture sensors, weather stations, valves and gateways; token-based HTTP ingestion; sensor-corrected FAO-56 balance; a digital-twin map of field water status; a closed-loop experiment comparing model-only, sensor and Kalman-filter irrigation. See [docs/devices-and-twin.md](docs/devices-and-twin.md) |
 | Command line | `uv run smartagri plugins list`, `uv run smartagri experiment run experiments/rural-baseline.yaml --out results/x`, `uv run smartagri plugins run simulation:ifogsim_eeg --out results/eeg` |
 
 ## Architecture

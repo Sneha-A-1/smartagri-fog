@@ -208,6 +208,8 @@ class BalanceDayOut(BaseModel):
     raw: float
     p: float
     forecast: bool
+    model_depletion: float | None = None
+    correction: float = 0.0
 
 
 class WaterBalanceOut(BaseModel):
@@ -227,6 +229,7 @@ class WaterBalanceOut(BaseModel):
     summary: dict[str, float | int | None]
     recommendation: dict[str, Any]
     assumptions: list[str]
+    sensors_used: int = Field(0, description="Soil-moisture sensors whose readings corrected the model")
 
 
 # --- helpers ----------------------------------------------------------------------------------------
@@ -471,17 +474,19 @@ async def import_weather_csv(
     return {"imported": len(days), "errors": errors[:50]}
 
 
-@router.get("/fields/{field_id}/water-balance", response_model=WaterBalanceOut)
-def field_water_balance(
-    field_id: str,
-    source: Source = "open_meteo",
-    seed: int = Query(1, ge=0),
-    trigger: float | None = Query(None, gt=0, lt=1, description="Depletion fraction that triggers irrigation"),
-    session: Session = Depends(get_session),
-    _: User = Depends(require("project:read")),
+def compute_field_balance(
+    session: Session,
+    f: FarmField,
+    farm: Farm,
+    source: Source,
+    *,
+    seed: int = 1,
+    trigger: float | None = None,
+    use_sensors: bool = False,
 ) -> dict[str, Any]:
-    f = _get_field(session, field_id)
-    farm = _get_farm(session, f.farm_id)
+    """The FAO-56 water balance of a field for its season to date plus the forecast (shared with the twin)."""
+    from smartagri_api.device_service import field_observations
+
     if f.sowing_date is None:
         raise HTTPException(422, "Set the field's sowing date to compute its water balance")
     crop = CROPS[f.crop]
@@ -496,6 +501,12 @@ def field_water_balance(
     end = min(season_end, today + timedelta(days=7))
     days = _weather(session, farm, start, end, source, seed)
     days = [dataclasses.replace(d, forecast=d.forecast or d.day > today) for d in days]
+    observations, sensors = ({}, 0)
+    if use_sensors:
+        try:
+            observations, sensors = field_observations(session, f, farm)
+        except WeatherUnavailable as exc:
+            raise HTTPException(502, f"Couldn't simulate the field's sensors: {exc}") from None
     policy = IrrigationPolicy(rainfed=f.rainfed, trigger=trigger, efficiency=f.efficiency)
     result = water_balance(
         to_balance_weather(days, farm.latitude, farm.elevation_m),
@@ -504,8 +515,23 @@ def field_water_balance(
         start,
         root_depth_m=f.root_depth_m,
         policy=policy,
+        observations=observations or None,
     )
     origin, description = SOURCE_INFO[source]
+    assumptions = [
+        "FAO-56 single crop coefficient; ET0 by FAO Penman-Monteith from the weather data.",
+        "The soil starts the season at field capacity (after a pre-sowing irrigation).",
+        "Fixed root depth; no capillary rise; rain below 20% of ET0 is lost to interception; water above "
+        "field capacity drains the same day.",
+        "Irrigation refills the root zone to field capacity when depletion reaches the trigger "
+        "(by default the crop's p, the onset of water stress).",
+        "Relative yield uses the FAO-33 seasonal yield response factor Ky where one is published.",
+    ]
+    if sensors:
+        assumptions.append(
+            "Sensor correction: on each day with readings, the modelled depletion is replaced by the one derived from "
+            "the mean soil moisture after 21:00 (all of the field's sensors), using field capacity and root depth."
+        )
     return {
         "field_id": f.id,
         "field_name": f.name,
@@ -522,13 +548,21 @@ def field_water_balance(
         "days": [dataclasses.asdict(d) for d in result.days],
         "summary": result.summary(crop),
         "recommendation": recommendation(result, policy),
-        "assumptions": [
-            "FAO-56 single crop coefficient; ET0 by FAO Penman-Monteith from the weather data.",
-            "The soil starts the season at field capacity (after a pre-sowing irrigation).",
-            "Fixed root depth; no capillary rise; rain below 20% of ET0 is lost to interception; water above "
-            "field capacity drains the same day.",
-            "Irrigation refills the root zone to field capacity when depletion reaches the trigger "
-            "(by default the crop's p, the onset of water stress).",
-            "Relative yield uses the FAO-33 seasonal yield response factor Ky where one is published.",
-        ],
+        "assumptions": assumptions,
+        "sensors_used": sensors,
     }
+
+
+@router.get("/fields/{field_id}/water-balance", response_model=WaterBalanceOut)
+def field_water_balance(
+    field_id: str,
+    source: Source = "open_meteo",
+    seed: int = Query(1, ge=0),
+    trigger: float | None = Query(None, gt=0, lt=1, description="Depletion fraction that triggers irrigation"),
+    use_sensors: bool = Query(False, description="Correct the model with the field's soil-moisture sensors"),
+    session: Session = Depends(get_session),
+    _: User = Depends(require("project:read")),
+) -> dict[str, Any]:
+    f = _get_field(session, field_id)
+    farm = _get_farm(session, f.farm_id)
+    return compute_field_balance(session, f, farm, source, seed=seed, trigger=trigger, use_sensors=use_sensors)

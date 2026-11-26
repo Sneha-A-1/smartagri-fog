@@ -881,6 +881,146 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/devices/kinds": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Device Kinds */
+        get: operations["device_kinds_api_devices_kinds_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/devices": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Devices */
+        get: operations["list_devices_api_devices_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/farms/{farm_id}/devices": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Create Device */
+        post: operations["create_device_api_farms__farm_id__devices_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/devices/{device_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Delete Device */
+        delete: operations["delete_device_api_devices__device_id__delete"];
+        options?: never;
+        head?: never;
+        /** Update Device */
+        patch: operations["update_device_api_devices__device_id__patch"];
+        trace?: never;
+    };
+    "/api/devices/{device_id}/token": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Reset Token */
+        post: operations["reset_token_api_devices__device_id__token_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/devices/{device_id}/readings": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Device Readings */
+        get: operations["device_readings_api_devices__device_id__readings_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/ingest": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Ingest
+         * @description For real devices: store readings authenticated by the device token (no user login).
+         */
+        post: operations["ingest_api_ingest_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/twin": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Digital Twin */
+        get: operations["digital_twin_api_twin_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/projects": {
         parameters: {
             query?: never;
@@ -1020,6 +1160,13 @@ export interface components {
             p: number;
             /** Forecast */
             forecast: boolean;
+            /** Model Depletion */
+            model_depletion?: number | null;
+            /**
+             * Correction
+             * @default 0
+             */
+            correction: number;
         };
         /** Body_import_entries_api_literature_import_post */
         Body_import_entries_api_literature_import_post: {
@@ -1108,6 +1255,143 @@ export interface components {
             generator_schema: {
                 [key: string]: unknown;
             };
+        };
+        /** DeviceConfig */
+        DeviceConfig: {
+            /**
+             * Weather Source
+             * @default open_meteo
+             * @enum {string}
+             */
+            weather_source: "open_meteo" | "csv" | "synthetic";
+            /**
+             * Et Multiplier
+             * @description True field water use relative to the FAO-56 model
+             * @default 1.15
+             */
+            et_multiplier: number;
+            /**
+             * Noise Sd
+             * @default 0.01
+             */
+            noise_sd: number;
+            /**
+             * Bias
+             * @default 0
+             */
+            bias: number;
+            /**
+             * Dropout
+             * @default 0.02
+             */
+            dropout: number;
+            /**
+             * Application Mm Per H
+             * @default 5
+             */
+            application_mm_per_h: number;
+        };
+        /** DeviceIn */
+        DeviceIn: {
+            /** Name */
+            name: string;
+            /**
+             * Kind
+             * @enum {string}
+             */
+            kind: "soil_moisture" | "weather_station" | "valve" | "gateway";
+            /** Field Id */
+            field_id?: string | null;
+            /** Latitude */
+            latitude: number;
+            /** Longitude */
+            longitude: number;
+            /**
+             * Simulated
+             * @default true
+             */
+            simulated: boolean;
+            /**
+             * Interval Min
+             * @default 30
+             */
+            interval_min: number;
+            config?: components["schemas"]["DeviceConfig"];
+        };
+        /** DeviceKinds */
+        DeviceKinds: {
+            /** Kinds */
+            kinds: {
+                [key: string]: {
+                    [key: string]: unknown;
+                };
+            };
+            /** Metrics */
+            metrics: {
+                [key: string]: string[];
+            };
+            /** Default Config */
+            default_config: {
+                [key: string]: unknown;
+            };
+        };
+        /** DeviceOut */
+        DeviceOut: {
+            /** Id */
+            id: string;
+            /** Farm Id */
+            farm_id: string;
+            /** Field Id */
+            field_id: string | null;
+            /** Name */
+            name: string;
+            /** Kind */
+            kind: string;
+            /** Kind Label */
+            kind_label: string;
+            /** Metrics */
+            metrics: string[];
+            /** Latitude */
+            latitude: number;
+            /** Longitude */
+            longitude: number;
+            /** Simulated */
+            simulated: boolean;
+            /** Interval Min */
+            interval_min: number;
+            /** Config */
+            config: {
+                [key: string]: unknown;
+            };
+            /** Last Seen */
+            last_seen: string | null;
+            /** Online */
+            online: boolean;
+            /** Latest */
+            latest: {
+                [key: string]: components["schemas"]["LatestValue"];
+            };
+            /**
+             * Token
+             * @description Only returned when created or reset; store it on the device
+             */
+            token?: string | null;
+            /** Note */
+            note?: string | null;
+        };
+        /** DevicePatch */
+        DevicePatch: {
+            /** Name */
+            name?: string | null;
+            /** Field Id */
+            field_id?: string | null;
+            /** Latitude */
+            latitude?: number | null;
+            /** Longitude */
+            longitude?: number | null;
+            /** Interval Min */
+            interval_min?: number | null;
+            config?: components["schemas"]["DeviceConfig"] | null;
         };
         /** Elevation */
         Elevation: {
@@ -1621,6 +1905,32 @@ export interface components {
             /** Duplicate Titles */
             duplicate_titles: string[];
         };
+        /** IngestIn */
+        IngestIn: {
+            /** Device Id */
+            device_id: string;
+            /** Readings */
+            readings: components["schemas"]["IngestReading"][];
+        };
+        /** IngestOut */
+        IngestOut: {
+            /** Stored */
+            stored: number;
+            /** Duplicates */
+            duplicates: number;
+        };
+        /** IngestReading */
+        IngestReading: {
+            /** Metric */
+            metric: string;
+            /** Value */
+            value: number;
+            /**
+             * Ts
+             * @description ISO time; defaults to the time of receipt
+             */
+            ts?: string | null;
+        };
         /** JobCreate */
         JobCreate: {
             /**
@@ -1674,6 +1984,18 @@ export interface components {
             started_at: string | null;
             /** Finished At */
             finished_at: string | null;
+        };
+        /** LatestValue */
+        LatestValue: {
+            /** Value */
+            value: number;
+            /**
+             * Ts
+             * Format: date-time
+             */
+            ts: string;
+            /** Origin */
+            origin: string;
         };
         /** MatrixOut */
         MatrixOut: {
@@ -1896,6 +2218,39 @@ export interface components {
             /** Default Seed */
             default_seed?: number | null;
         };
+        /** ReadingPoint */
+        ReadingPoint: {
+            /**
+             * Ts
+             * Format: date-time
+             */
+            ts: string;
+            /** Value */
+            value: number;
+            /** Min */
+            min: number;
+            /** Max */
+            max: number;
+            /** Count */
+            count: number;
+        };
+        /** ReadingsOut */
+        ReadingsOut: {
+            /** Device Id */
+            device_id: string;
+            /** Metric */
+            metric: string;
+            /** Label */
+            label: string;
+            /** Unit */
+            unit: string;
+            /** Origin */
+            origin: string | null;
+            /** Points */
+            points: components["schemas"]["ReadingPoint"][];
+            /** Total */
+            total: number;
+        };
         /** SimulationIn */
         SimulationIn: {
             /** Topology Id */
@@ -2065,6 +2420,60 @@ export interface components {
             /** Problems */
             problems: string[];
         };
+        /** TwinFarm */
+        TwinFarm: {
+            /** Id */
+            id: string;
+            /** Name */
+            name: string;
+            /** Latitude */
+            latitude: number;
+            /** Longitude */
+            longitude: number;
+            /** Fields */
+            fields: components["schemas"]["TwinField"][];
+            /** Devices */
+            devices: components["schemas"]["DeviceOut"][];
+        };
+        /** TwinField */
+        TwinField: {
+            /** Id */
+            id: string;
+            /** Name */
+            name: string;
+            /** Boundary */
+            boundary: number[][];
+            /** Area Ha */
+            area_ha: number;
+            /** Crop */
+            crop: string;
+            /** Sowing Date */
+            sowing_date: string | null;
+            /** Available Fraction */
+            available_fraction: number | null;
+            /** Action */
+            action: string | null;
+            /** Advice */
+            advice: string | null;
+            /** Stress */
+            stress: boolean | null;
+            /** Sensors */
+            sensors: number;
+            /** Error */
+            error: string | null;
+        };
+        /** TwinOut */
+        TwinOut: {
+            /** Source */
+            source: string;
+            /** Farms */
+            farms: components["schemas"]["TwinFarm"][];
+            /**
+             * Generated At
+             * Format: date-time
+             */
+            generated_at: string;
+        };
         /** UserCreate */
         UserCreate: {
             /** Email */
@@ -2171,6 +2580,12 @@ export interface components {
             };
             /** Assumptions */
             assumptions: string[];
+            /**
+             * Sensors Used
+             * @description Soil-moisture sensors whose readings corrected the model
+             * @default 0
+             */
+            sensors_used: number;
         };
         /** WeatherDayOut */
         WeatherDayOut: {
@@ -4275,6 +4690,8 @@ export interface operations {
                 seed?: number;
                 /** @description Depletion fraction that triggers irrigation */
                 trigger?: number | null;
+                /** @description Correct the model with the field's soil-moisture sensors */
+                use_sensors?: boolean;
             };
             header?: never;
             path: {
@@ -4354,6 +4771,291 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["Elevation"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    device_kinds_api_devices_kinds_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceKinds"];
+                };
+            };
+        };
+    };
+    list_devices_api_devices_get: {
+        parameters: {
+            query?: {
+                farm_id?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceOut"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_device_api_farms__farm_id__devices_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                farm_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DeviceIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    delete_device_api_devices__device_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                device_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_device_api_devices__device_id__patch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                device_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DevicePatch"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    reset_token_api_devices__device_id__token_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                device_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    device_readings_api_devices__device_id__readings_get: {
+        parameters: {
+            query: {
+                metric: string;
+                start?: string | null;
+                end?: string | null;
+                max_points?: number;
+            };
+            header?: never;
+            path: {
+                device_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ReadingsOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    ingest_api_ingest_post: {
+        parameters: {
+            query?: never;
+            header: {
+                /** @description The device's token */
+                "x-device-token": string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["IngestIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["IngestOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    digital_twin_api_twin_get: {
+        parameters: {
+            query?: {
+                source?: "open_meteo" | "csv" | "synthetic";
+                use_sensors?: boolean;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TwinOut"];
                 };
             };
             /** @description Validation Error */

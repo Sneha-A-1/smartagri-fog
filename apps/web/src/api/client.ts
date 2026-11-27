@@ -44,6 +44,7 @@ export type WeatherData = components["schemas"]["WeatherOut"];
 export type AgroPresets = components["schemas"]["AgroPresets"];
 export type DeviceT = components["schemas"]["DeviceOut"];
 export type Twin = components["schemas"]["TwinOut"];
+export type RetrievalRun = components["schemas"]["RunOut"];
 
 /** Turns an API error body into one readable sentence. */
 export function errorMessage(error: unknown): string {

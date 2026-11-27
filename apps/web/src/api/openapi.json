@@ -3720,6 +3720,82 @@
         }
       }
     },
+    "/api/retrieval/architectures": {
+      "get": {
+        "tags": [
+          "retrieval"
+        ],
+        "summary": "Architectures",
+        "operationId": "architectures_api_retrieval_architectures_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": {
+                    "type": "string"
+                  },
+                  "type": "object",
+                  "title": "Response Architectures Api Retrieval Architectures Get"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ]
+      }
+    },
+    "/api/retrieval/run": {
+      "post": {
+        "tags": [
+          "retrieval"
+        ],
+        "summary": "Run",
+        "operationId": "run_api_retrieval_run_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RunIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RunOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ]
+      }
+    },
     "/api/projects": {
       "get": {
         "tags": [
@@ -5324,6 +5400,75 @@
         "type": "object",
         "title": "EntryPatch"
       },
+      "EventOut": {
+        "properties": {
+          "stream": {
+            "type": "string",
+            "title": "Stream"
+          },
+          "t": {
+            "type": "number",
+            "title": "T"
+          },
+          "kind": {
+            "type": "string",
+            "title": "Kind"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "task_class": {
+            "type": "string",
+            "title": "Task Class"
+          },
+          "value": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Value"
+          },
+          "eta_min": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Eta Min"
+          },
+          "detected_at": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Detected At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "stream",
+          "t",
+          "kind",
+          "name",
+          "task_class",
+          "value",
+          "eta_min",
+          "detected_at"
+        ],
+        "title": "EventOut"
+      },
       "ExperimentCreate": {
         "properties": {
           "spec": {
@@ -6209,6 +6354,80 @@
         },
         "type": "object",
         "title": "FieldPatch"
+      },
+      "FrameworkSettings": {
+        "properties": {
+          "validate_range": {
+            "type": "boolean",
+            "title": "Validate Range",
+            "default": true
+          },
+          "validate_spikes": {
+            "type": "boolean",
+            "title": "Validate Spikes",
+            "default": true
+          },
+          "validate_stuck": {
+            "type": "boolean",
+            "title": "Validate Stuck",
+            "default": true
+          },
+          "persistence": {
+            "type": "integer",
+            "maximum": 20.0,
+            "minimum": 1.0,
+            "title": "Persistence",
+            "default": 2
+          },
+          "soil_smoothing_min": {
+            "type": "number",
+            "maximum": 1440.0,
+            "minimum": 0.0,
+            "title": "Soil Smoothing Min",
+            "default": 60
+          },
+          "predict": {
+            "type": "boolean",
+            "title": "Predict",
+            "default": true
+          },
+          "horizon_min": {
+            "type": "number",
+            "maximum": 4320.0,
+            "exclusiveMinimum": 0.0,
+            "title": "Horizon Min",
+            "default": 360
+          },
+          "send_on_delta": {
+            "type": "boolean",
+            "title": "Send On Delta",
+            "default": true
+          },
+          "soil_deadband": {
+            "type": "number",
+            "maximum": 0.2,
+            "minimum": 0.0,
+            "title": "Soil Deadband",
+            "default": 0.01
+          },
+          "temperature_deadband": {
+            "type": "number",
+            "maximum": 10.0,
+            "minimum": 0.0,
+            "title": "Temperature Deadband",
+            "default": 0.5
+          },
+          "heartbeat_min": {
+            "type": "number",
+            "maximum": 1440.0,
+            "exclusiveMinimum": 0.0,
+            "title": "Heartbeat Min",
+            "default": 120
+          }
+        },
+        "type": "object",
+        "title": "FrameworkSettings",
+        "description": "The settings the page exposes; everything else keeps the framework's defaults."
       },
       "GeneratedTopology": {
         "properties": {
@@ -7260,6 +7479,279 @@
         ],
         "title": "ReadingsOut"
       },
+      "RunIn": {
+        "properties": {
+          "source": {
+            "type": "string",
+            "enum": [
+              "scenario",
+              "devices"
+            ],
+            "title": "Source",
+            "default": "scenario"
+          },
+          "scenario": {
+            "$ref": "#/components/schemas/ScenarioParams"
+          },
+          "farm_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Farm Id"
+          },
+          "days": {
+            "type": "integer",
+            "maximum": 60.0,
+            "minimum": 1.0,
+            "title": "Days",
+            "description": "Devices: how many past days of readings",
+            "default": 7
+          },
+          "architecture": {
+            "type": "string",
+            "enum": [
+              "cloud_raw",
+              "cloud_periodic",
+              "edge_sod",
+              "edge_drf"
+            ],
+            "title": "Architecture",
+            "default": "edge_drf"
+          },
+          "settings": {
+            "$ref": "#/components/schemas/FrameworkSettings"
+          }
+        },
+        "type": "object",
+        "title": "RunIn"
+      },
+      "RunOut": {
+        "properties": {
+          "source": {
+            "type": "string",
+            "title": "Source"
+          },
+          "architecture": {
+            "type": "string",
+            "title": "Architecture"
+          },
+          "architecture_label": {
+            "type": "string",
+            "title": "Architecture Label"
+          },
+          "data_origin": {
+            "type": "string",
+            "title": "Data Origin"
+          },
+          "start": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Start"
+          },
+          "horizon_min": {
+            "type": "number",
+            "title": "Horizon Min"
+          },
+          "streams": {
+            "items": {
+              "$ref": "#/components/schemas/StreamOut"
+            },
+            "type": "array",
+            "title": "Streams"
+          },
+          "events": {
+            "items": {
+              "$ref": "#/components/schemas/EventOut"
+            },
+            "type": "array",
+            "title": "Events"
+          },
+          "tasks": {
+            "items": {
+              "$ref": "#/components/schemas/TaskOut"
+            },
+            "type": "array",
+            "title": "Tasks"
+          },
+          "summary": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Summary"
+          },
+          "evaluation": {
+            "anyOf": [
+              {
+                "additionalProperties": {
+                  "anyOf": [
+                    {
+                      "type": "number"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Evaluation"
+          },
+          "true_events": {
+            "anyOf": [
+              {
+                "items": {
+                  "additionalProperties": true,
+                  "type": "object"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "True Events"
+          },
+          "notes": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Notes"
+          }
+        },
+        "type": "object",
+        "required": [
+          "source",
+          "architecture",
+          "architecture_label",
+          "data_origin",
+          "start",
+          "horizon_min",
+          "streams",
+          "events",
+          "tasks",
+          "summary",
+          "evaluation",
+          "true_events",
+          "notes"
+        ],
+        "title": "RunOut"
+      },
+      "ScenarioParams": {
+        "properties": {
+          "fields": {
+            "type": "integer",
+            "maximum": 200.0,
+            "minimum": 1.0,
+            "title": "Fields",
+            "description": "Fields, each with one soil-moisture probe.",
+            "default": 10
+          },
+          "days": {
+            "type": "integer",
+            "maximum": 120.0,
+            "minimum": 1.0,
+            "title": "Days",
+            "description": "Length of the scenario.",
+            "default": 20
+          },
+          "interval_min": {
+            "type": "integer",
+            "maximum": 240.0,
+            "minimum": 1.0,
+            "title": "Sampling interval (minutes)",
+            "default": 15
+          },
+          "latitude": {
+            "type": "number",
+            "maximum": 60.0,
+            "minimum": -60.0,
+            "title": "Latitude",
+            "default": 28.6
+          },
+          "start": {
+            "type": "string",
+            "format": "date",
+            "title": "Start",
+            "description": "First day (wheat is past mid-season then in north India).",
+            "default": "2026-02-10"
+          },
+          "crop": {
+            "type": "string",
+            "title": "Crop",
+            "default": "wheat"
+          },
+          "soil_noise": {
+            "type": "number",
+            "maximum": 0.1,
+            "minimum": 0.0,
+            "title": "Soil probe noise (m3/m3)",
+            "default": 0.01
+          },
+          "temp_noise": {
+            "type": "number",
+            "maximum": 5.0,
+            "minimum": 0.0,
+            "title": "Thermometer noise (deg C)",
+            "default": 0.3
+          },
+          "spike_prob": {
+            "type": "number",
+            "maximum": 0.2,
+            "minimum": 0.0,
+            "title": "Spike probability per reading",
+            "default": 0.005
+          },
+          "stuck_episodes": {
+            "type": "number",
+            "maximum": 10.0,
+            "minimum": 0.0,
+            "title": "Stuck episodes per stream",
+            "description": "Expected number of 6-hour stuck-sensor episodes per stream.",
+            "default": 0.3
+          },
+          "dropout": {
+            "type": "number",
+            "maximum": 0.5,
+            "minimum": 0.0,
+            "title": "Missing readings",
+            "default": 0.02
+          },
+          "frost_nights": {
+            "type": "integer",
+            "maximum": 30.0,
+            "minimum": 0.0,
+            "title": "Frost Nights",
+            "description": "Nights pushed below 2 deg C.",
+            "default": 2
+          },
+          "heat_days": {
+            "type": "integer",
+            "maximum": 30.0,
+            "minimum": 0.0,
+            "title": "Heat Days",
+            "description": "Days pushed above 40 deg C.",
+            "default": 1
+          },
+          "seed": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Seed",
+            "default": 1
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "title": "ScenarioParams"
+      },
       "SimulationIn": {
         "properties": {
           "topology_id": {
@@ -7359,6 +7851,111 @@
         ],
         "title": "SoilOut"
       },
+      "StreamOut": {
+        "properties": {
+          "key": {
+            "type": "string",
+            "title": "Key"
+          },
+          "source": {
+            "type": "string",
+            "title": "Source"
+          },
+          "metric": {
+            "type": "string",
+            "title": "Metric"
+          },
+          "label": {
+            "type": "string",
+            "title": "Label"
+          },
+          "unit": {
+            "type": "string",
+            "title": "Unit"
+          },
+          "group": {
+            "type": "string",
+            "title": "Group"
+          },
+          "threshold": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Threshold"
+          },
+          "raw": {
+            "items": {
+              "items": {
+                "anyOf": [
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "type": "array"
+            },
+            "type": "array",
+            "title": "Raw"
+          },
+          "status": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Status"
+          },
+          "transmitted": {
+            "items": {
+              "items": {
+                "type": "number"
+              },
+              "type": "array"
+            },
+            "type": "array",
+            "title": "Transmitted"
+          },
+          "truth": {
+            "anyOf": [
+              {
+                "items": {
+                  "items": {
+                    "type": "number"
+                  },
+                  "type": "array"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Truth"
+          }
+        },
+        "type": "object",
+        "required": [
+          "key",
+          "source",
+          "metric",
+          "label",
+          "unit",
+          "group",
+          "threshold",
+          "raw",
+          "status",
+          "transmitted",
+          "truth"
+        ],
+        "title": "StreamOut"
+      },
       "SystemInfo": {
         "properties": {
           "version": {
@@ -7418,6 +8015,74 @@
           "plugin_load_errors"
         ],
         "title": "SystemInfo"
+      },
+      "TaskOut": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "stream": {
+            "type": "string",
+            "title": "Stream"
+          },
+          "group": {
+            "type": "string",
+            "title": "Group"
+          },
+          "task_type": {
+            "type": "string",
+            "title": "Task Type"
+          },
+          "task_class": {
+            "type": "string",
+            "title": "Task Class"
+          },
+          "arrival": {
+            "type": "number",
+            "title": "Arrival"
+          },
+          "data_time": {
+            "type": "number",
+            "title": "Data Time"
+          },
+          "deadline": {
+            "type": "number",
+            "title": "Deadline"
+          },
+          "freshness_bound": {
+            "type": "number",
+            "title": "Freshness Bound"
+          },
+          "length_mi": {
+            "type": "number",
+            "title": "Length Mi"
+          },
+          "input_bytes": {
+            "type": "number",
+            "title": "Input Bytes"
+          },
+          "output_bytes": {
+            "type": "number",
+            "title": "Output Bytes"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "stream",
+          "group",
+          "task_type",
+          "task_class",
+          "arrival",
+          "data_time",
+          "deadline",
+          "freshness_bound",
+          "length_mi",
+          "input_bytes",
+          "output_bytes"
+        ],
+        "title": "TaskOut"
       },
       "TokenOut": {
         "properties": {

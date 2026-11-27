@@ -433,3 +433,84 @@ export function DagComparisonView({ result }: { result: DagComparisonResult }) {
     </section>
   );
 }
+
+// --- generic strategy comparison (sensor irrigation, retrieval architectures, ...) -----------------
+
+export type StrategyComparisonResult = {
+  kind: "simulation.strategy_comparison";
+  data_origin: string;
+  title: string;
+  description: string;
+  labels: Record<string, string>;
+  metric_info: Record<string, [string, "lower" | "higher", string]>;
+  summary: Record<string, Record<string, Summary>>;
+  tests: Record<string, ExperimentResult["analysis"][string]>;
+  highlight?: string[];
+};
+
+export function StrategyComparisonView({ result }: { result: StrategyComparisonResult }) {
+  const metrics = Object.keys(result.metric_info);
+  const [open, setOpen] = useState<string | null>(metrics[0] ?? null);
+  const strategies = Object.keys(result.labels);
+  const highlight = (result.highlight ?? metrics.slice(0, 2)).filter((m) => result.summary[m]);
+  return (
+    <section className="mt-10 space-y-8">
+      <div>
+        <div className="flex flex-wrap items-baseline justify-between gap-3">
+          <h2 className="text-lg font-semibold">{result.title}</h2>
+          <OriginBadge origin={result.data_origin} />
+        </div>
+        <p className="mt-1 max-w-3xl text-sm text-ink-2">{result.description} Means with 95% confidence intervals; Friedman test with Holm-corrected Wilcoxon pairs.</p>
+        <ul className="mt-3 grid gap-x-6 gap-y-1 text-sm sm:grid-cols-2">
+          {strategies.map((s) => <li key={s}><span className="font-medium">{s}</span>: <span className="text-ink-2">{result.labels[s]}</span></li>)}
+        </ul>
+      </div>
+      <div className="overflow-x-auto">
+        <table className="w-full min-w-[44rem] text-sm">
+          <thead className="text-left text-ink-3">
+            <tr className="border-b border-line align-bottom">
+              <th className="py-2 pr-4 font-normal">Metric</th>
+              {strategies.map((s) => <th key={s} className="py-2 pr-4 text-right font-normal">{s}</th>)}
+              <th className="py-2 text-right font-normal">Test</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-line">
+            {metrics.map((m) => {
+              const [label, better, desc] = result.metric_info[m];
+              const an = result.tests[m];
+              return (
+                <tr key={m} className="align-top">
+                  <td className="py-2.5 pr-4">
+                    <button type="button" onClick={() => setOpen(open === m ? null : m)} className="text-left hover:text-accent" aria-expanded={open === m}>
+                      <span className="font-medium">{label}</span>
+                      <span className="block text-xs text-ink-3">{better} is better. {desc}</span>
+                    </button>
+                  </td>
+                  {strategies.map((s) => {
+                    const v = result.summary[m][s];
+                    return (
+                      <td key={s} className="py-2.5 pr-4 text-right whitespace-nowrap tabular-nums">
+                        {fmt(v.mean)}
+                        {v.half_width !== null && <span className="text-xs text-ink-3"> ± {fmt(v.half_width)}</span>}
+                        {an?.mean_ranks && <span className={cn("block text-xs", an.significant ? "font-semibold text-ink" : "text-ink-3")}>rank {fmt(an.mean_ranks[s])}</span>}
+                      </td>
+                    );
+                  })}
+                  <td className="py-2.5 text-right text-xs whitespace-nowrap">
+                    {an ? <span className={an.significant ? "font-medium text-[var(--st-implemented)]" : "text-ink-3"}>{an.significant ? "Significant" : "Not significant"}</span> : "–"}
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+      {open && result.tests[open] && <AnalysisDetail label={result.metric_info[open][0]} an={result.tests[open]} />}
+      <div className="grid gap-8 md:grid-cols-2">
+        {highlight.map((m) => (
+          <DotWhisker key={m} title={result.metric_info[m][0]} unit="" rows={strategies.map((s) => ({ label: s, summary: result.summary[m][s] }))} />
+        ))}
+      </div>
+    </section>
+  );
+}

@@ -85,8 +85,10 @@ export const MODULES: ModuleManifest[] = [
     description: "Register data sources, upload CSV, Excel or JSON datasets, preview and validate them.",
   },
   {
-    id: "retrieval", path: "/data/retrieval", group: "data", icon: Funnel, status: "planned", phase: 3,
-    description: "Configure the retrieval pipeline and urgency rules; see which records become urgent tasks.",
+    id: "retrieval", path: "/data/retrieval", group: "data", icon: Funnel, status: "implemented", phase: 3,
+    permission: "project:read",
+    description: "Validate, detect, predict and reduce sensor streams at the edge, and see which readings become urgent tasks.",
+    component: lazy(() => import("@/pages/Retrieval")),
   },
   {
     id: "processing", path: "/data/processing", group: "data", icon: FlaskConical, status: "planned", phase: 6,

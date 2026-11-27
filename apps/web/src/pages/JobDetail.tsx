@@ -16,6 +16,8 @@ import {
   DagScheduleView,
   type EEGResult,
   EEGCaseStudyView,
+  type StrategyComparisonResult,
+  StrategyComparisonView,
 } from "@/components/CaseStudyResults";
 import { OriginBadge } from "@/components/StatusBadge";
 import { formatDuration, formatTime } from "@/lib/format";
@@ -138,6 +140,7 @@ export default function JobDetail() {
       {kind === "simulation.case_study.ifogsim_eeg" && <EEGCaseStudyView result={result as EEGResult} />}
       {kind === "scheduler.dag_schedule" && <DagScheduleView result={result as DagScheduleResult} />}
       {kind === "simulation.dag_comparison" && <DagComparisonView result={result as DagComparisonResult} />}
+      {kind === "simulation.strategy_comparison" && <StrategyComparisonView result={result as StrategyComparisonResult} />}
 
       <ParamsSection params={job.params} />
     </article>

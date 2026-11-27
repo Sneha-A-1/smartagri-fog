@@ -1021,6 +1021,40 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/retrieval/architectures": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Architectures */
+        get: operations["architectures_api_retrieval_architectures_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/retrieval/run": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Run */
+        post: operations["run_api_retrieval_run_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/projects": {
         parameters: {
             query?: never;
@@ -1537,6 +1571,25 @@ export interface components {
             /** Notes */
             notes?: string | null;
         };
+        /** EventOut */
+        EventOut: {
+            /** Stream */
+            stream: string;
+            /** T */
+            t: number;
+            /** Kind */
+            kind: string;
+            /** Name */
+            name: string;
+            /** Task Class */
+            task_class: string;
+            /** Value */
+            value: number | null;
+            /** Eta Min */
+            eta_min: number | null;
+            /** Detected At */
+            detected_at: number | null;
+        };
         /** ExperimentCreate */
         ExperimentCreate: {
             /**
@@ -1854,6 +1907,67 @@ export interface components {
             rainfed?: boolean | null;
             /** Notes */
             notes?: string | null;
+        };
+        /**
+         * FrameworkSettings
+         * @description The settings the page exposes; everything else keeps the framework's defaults.
+         */
+        FrameworkSettings: {
+            /**
+             * Validate Range
+             * @default true
+             */
+            validate_range: boolean;
+            /**
+             * Validate Spikes
+             * @default true
+             */
+            validate_spikes: boolean;
+            /**
+             * Validate Stuck
+             * @default true
+             */
+            validate_stuck: boolean;
+            /**
+             * Persistence
+             * @default 2
+             */
+            persistence: number;
+            /**
+             * Soil Smoothing Min
+             * @default 60
+             */
+            soil_smoothing_min: number;
+            /**
+             * Predict
+             * @default true
+             */
+            predict: boolean;
+            /**
+             * Horizon Min
+             * @default 360
+             */
+            horizon_min: number;
+            /**
+             * Send On Delta
+             * @default true
+             */
+            send_on_delta: boolean;
+            /**
+             * Soil Deadband
+             * @default 0.01
+             */
+            soil_deadband: number;
+            /**
+             * Temperature Deadband
+             * @default 0.5
+             */
+            temperature_deadband: number;
+            /**
+             * Heartbeat Min
+             * @default 120
+             */
+            heartbeat_min: number;
         };
         /** GeneratedTopology */
         GeneratedTopology: {
@@ -2251,6 +2365,149 @@ export interface components {
             /** Total */
             total: number;
         };
+        /** RunIn */
+        RunIn: {
+            /**
+             * Source
+             * @default scenario
+             * @enum {string}
+             */
+            source: "scenario" | "devices";
+            scenario?: components["schemas"]["ScenarioParams"];
+            /** Farm Id */
+            farm_id?: string | null;
+            /**
+             * Days
+             * @description Devices: how many past days of readings
+             * @default 7
+             */
+            days: number;
+            /**
+             * Architecture
+             * @default edge_drf
+             * @enum {string}
+             */
+            architecture: "cloud_raw" | "cloud_periodic" | "edge_sod" | "edge_drf";
+            settings?: components["schemas"]["FrameworkSettings"];
+        };
+        /** RunOut */
+        RunOut: {
+            /** Source */
+            source: string;
+            /** Architecture */
+            architecture: string;
+            /** Architecture Label */
+            architecture_label: string;
+            /** Data Origin */
+            data_origin: string;
+            /**
+             * Start
+             * Format: date-time
+             */
+            start: string;
+            /** Horizon Min */
+            horizon_min: number;
+            /** Streams */
+            streams: components["schemas"]["StreamOut"][];
+            /** Events */
+            events: components["schemas"]["EventOut"][];
+            /** Tasks */
+            tasks: components["schemas"]["TaskOut"][];
+            /** Summary */
+            summary: {
+                [key: string]: unknown;
+            };
+            /** Evaluation */
+            evaluation: {
+                [key: string]: number | null;
+            } | null;
+            /** True Events */
+            true_events: {
+                [key: string]: unknown;
+            }[] | null;
+            /** Notes */
+            notes: string[];
+        };
+        /** ScenarioParams */
+        ScenarioParams: {
+            /**
+             * Fields
+             * @description Fields, each with one soil-moisture probe.
+             * @default 10
+             */
+            fields: number;
+            /**
+             * Days
+             * @description Length of the scenario.
+             * @default 20
+             */
+            days: number;
+            /**
+             * Sampling interval (minutes)
+             * @default 15
+             */
+            interval_min: number;
+            /**
+             * Latitude
+             * @default 28.6
+             */
+            latitude: number;
+            /**
+             * Start
+             * Format: date
+             * @description First day (wheat is past mid-season then in north India).
+             * @default 2026-02-10
+             */
+            start: string;
+            /**
+             * Crop
+             * @default wheat
+             */
+            crop: string;
+            /**
+             * Soil probe noise (m3/m3)
+             * @default 0.01
+             */
+            soil_noise: number;
+            /**
+             * Thermometer noise (deg C)
+             * @default 0.3
+             */
+            temp_noise: number;
+            /**
+             * Spike probability per reading
+             * @default 0.005
+             */
+            spike_prob: number;
+            /**
+             * Stuck episodes per stream
+             * @description Expected number of 6-hour stuck-sensor episodes per stream.
+             * @default 0.3
+             */
+            stuck_episodes: number;
+            /**
+             * Missing readings
+             * @default 0.02
+             */
+            dropout: number;
+            /**
+             * Frost Nights
+             * @description Nights pushed below 2 deg C.
+             * @default 2
+             */
+            frost_nights: number;
+            /**
+             * Heat Days
+             * @description Days pushed above 40 deg C.
+             * @default 1
+             */
+            heat_days: number;
+            /**
+             * Seed
+             * @default 1
+             */
+            seed: number;
+        };
         /** SimulationIn */
         SimulationIn: {
             /** Topology Id */
@@ -2294,6 +2551,31 @@ export interface components {
             /** Taw Per M */
             taw_per_m: number;
         };
+        /** StreamOut */
+        StreamOut: {
+            /** Key */
+            key: string;
+            /** Source */
+            source: string;
+            /** Metric */
+            metric: string;
+            /** Label */
+            label: string;
+            /** Unit */
+            unit: string;
+            /** Group */
+            group: string;
+            /** Threshold */
+            threshold: number | null;
+            /** Raw */
+            raw: (number | null)[][];
+            /** Status */
+            status: string[];
+            /** Transmitted */
+            transmitted: number[][];
+            /** Truth */
+            truth: number[][] | null;
+        };
         /** SystemInfo */
         SystemInfo: {
             /** Version */
@@ -2319,6 +2601,33 @@ export interface components {
             };
             /** Plugin Load Errors */
             plugin_load_errors: string[];
+        };
+        /** TaskOut */
+        TaskOut: {
+            /** Id */
+            id: string;
+            /** Stream */
+            stream: string;
+            /** Group */
+            group: string;
+            /** Task Type */
+            task_type: string;
+            /** Task Class */
+            task_class: string;
+            /** Arrival */
+            arrival: number;
+            /** Data Time */
+            data_time: number;
+            /** Deadline */
+            deadline: number;
+            /** Freshness Bound */
+            freshness_bound: number;
+            /** Length Mi */
+            length_mi: number;
+            /** Input Bytes */
+            input_bytes: number;
+            /** Output Bytes */
+            output_bytes: number;
         };
         /** TokenOut */
         TokenOut: {
@@ -5056,6 +5365,61 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["TwinOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    architectures_api_retrieval_architectures_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: string;
+                    };
+                };
+            };
+        };
+    };
+    run_api_retrieval_run_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RunIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RunOut"];
                 };
             };
             /** @description Validation Error */

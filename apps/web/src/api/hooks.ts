@@ -536,3 +536,11 @@ export const useTwin = (source: WeatherSource, useSensors: boolean) =>
     retry: false,
     queryFn: () => unwrap(api.GET("/api/twin", { params: { query: { source, use_sensors: useSensors } } })),
   });
+
+// --- data retrieval framework --------------------------------------------------------------------
+
+export function useRunRetrieval() {
+  return useMutation({
+    mutationFn: (body: Record<string, unknown>) => unwrap(api.POST("/api/retrieval/run", { body: body as never })),
+  });
+}

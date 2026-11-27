@@ -30,6 +30,7 @@ from smartagri_api.routers import (
     literature,
     plugins,
     projects,
+    retrieval,
     system,
 )
 from smartagri_api.routers import settings as settings_router
@@ -90,6 +91,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         agro,
         geo,
         devices,
+        retrieval,
         projects,
         settings_router,
     ):

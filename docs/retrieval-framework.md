@@ -25,7 +25,8 @@ freshness bounds follow AURA's task model.
 
 ## The page
 
-Choose **Synthetic scenario** or **My devices**, adjust the framework, and click **Run the framework**. For each
+Choose **Synthetic scenario**, **My devices** or an uploaded **Dataset** (see
+[data-acquisition.md](data-acquisition.md)), adjust the framework, and click **Run the framework**. For each
 stream the chart shows:
 - valid readings (grey) and rejected readings (red);
 - what was sent upstream (blue step line) and the true signal (dashed, scenarios only);
@@ -68,6 +69,7 @@ runs (latency, data volume, freshness) from what it does (the edge send-on-delta
 | False alarms per day | Alerts outside every event window |
 | Time to detect frost and heat | Decision time (sample time plus upload delay) minus true onset |
 | Early warnings | Share of events with a prediction before onset |
+| Early warnings that came true | Share of predictions followed by a real event of that kind on that stream, within the horizon plus the matching tolerance |
 | Stuck sensors detected | Share of stuck episodes flagged |
 | Age of data at the scheduler | For urgent tasks: arrival minus the time of the newest reading used |
 | Readings transmitted | Share of raw readings sent upstream |
@@ -88,6 +90,7 @@ recall).
 | False alarms per day | 0.73 | 0.47 | 15.6 | 0.73 |
 | Time to detect frost and heat (min) | 34 | 115 | 8.5 | 19 |
 | Events with early warning | 60% | 0% | 0% | 60% |
+| Early warnings that came true | 39% | not applicable | not applicable | 39% |
 | Stuck sensors detected | 100% | 100% | 0% | 100% |
 | Age of data at the scheduler (min) | 15.3 | 15.3 | 0.02 | 0.02 |
 | Readings transmitted | 98% | 25% | 48% | 19% |
@@ -100,6 +103,10 @@ How to read it:
   per day and catch every stuck sensor. Persistence costs about 10 minutes of detection delay.
 - **Duty cycling** has the best F1, because fewer readings give noise fewer chances to cause false alarms. But it
   detects frost and heat about 2 hours late, gives no early warnings, and its data is 15 minutes old.
+- **Early warnings are unreliable:** only 39% come true. A straight-line trend over the last 4 hours misreads
+  the nightly fall in temperature as heading for frost, and noisy soil readings as heading for stress. For AURA,
+  every false warning reserves capacity that is not used. A predictor that knows the daily cycle, or uses the
+  weather forecast, is a clear next step and a fair point to discuss in a paper.
 - **Soil-stress alerts** come on average about a day before the true onset in every architecture: probe noise
   crosses a slow-moving threshold early. For irrigation that is useful, but it means time to detect is not a
   meaningful measure for slow processes.

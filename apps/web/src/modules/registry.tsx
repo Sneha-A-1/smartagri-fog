@@ -81,8 +81,10 @@ export const MODULES: ModuleManifest[] = [
     component: lazy(() => import("@/pages/Devices")),
   },
   {
-    id: "acquisition", path: "/data/acquisition", group: "data", icon: Database, status: "planned", phase: 3,
-    description: "Register data sources, upload CSV, Excel or JSON datasets, preview and validate them.",
+    id: "acquisition", path: "/data/acquisition", group: "data", icon: Database, status: "implemented", phase: 3,
+    permission: "project:read",
+    description: "Upload CSV, Excel or JSON datasets, profile and validate them, map columns to sensor metrics.",
+    component: lazy(() => import("@/pages/DataAcquisition")),
   },
   {
     id: "retrieval", path: "/data/retrieval", group: "data", icon: Funnel, status: "implemented", phase: 3,

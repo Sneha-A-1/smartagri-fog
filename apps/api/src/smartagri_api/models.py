@@ -298,3 +298,24 @@ class Reading(Base):
     metric: Mapped[str] = mapped_column(String(40))
     value: Mapped[float] = mapped_column(Float)
     origin: Mapped[str] = mapped_column(String(12))  # real | synthetic | derived
+
+
+class Dataset(TimestampMixin, Base):
+    """An uploaded data file (CSV, Excel or JSON), its column profile and its mapping to sensor streams."""
+
+    __tablename__ = "datasets"
+    name: Mapped[str] = mapped_column(String(200))
+    description: Mapped[str] = mapped_column(Text, default="")
+    filename: Mapped[str] = mapped_column(String(255))
+    format: Mapped[str] = mapped_column(String(10))
+    sheet: Mapped[str | None] = mapped_column(String(100), nullable=True)
+    size_bytes: Mapped[int] = mapped_column(Integer, default=0)
+    rows: Mapped[int] = mapped_column(Integer, default=0)
+    columns: Mapped[list[Any]] = mapped_column(JSON, default=list)  # column profile
+    warnings: Mapped[list[Any]] = mapped_column(JSON, default=list)
+    origin: Mapped[str] = mapped_column(String(12), default="real")  # declared by the uploader
+    source_note: Mapped[str] = mapped_column(Text, default="")  # where the data comes from, licence, citation
+    mapping: Mapped[dict[str, Any]] = mapped_column(JSON, default=dict)
+    sha256: Mapped[str] = mapped_column(String(64), default="")
+    project_id: Mapped[str | None] = mapped_column(ForeignKey("projects.id", ondelete="SET NULL"), nullable=True)
+    created_by: Mapped[str | None] = mapped_column(ForeignKey("users.id", ondelete="SET NULL"), nullable=True)

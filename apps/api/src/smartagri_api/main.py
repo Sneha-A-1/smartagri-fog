@@ -22,6 +22,7 @@ from smartagri_api.rbac import seed_access_control
 from smartagri_api.routers import (
     agro,
     auth,
+    datasets,
     designs,
     devices,
     experiments,
@@ -92,6 +93,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         geo,
         devices,
         retrieval,
+        datasets,
         projects,
         settings_router,
     ):

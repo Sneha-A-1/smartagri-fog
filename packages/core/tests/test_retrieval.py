@@ -113,3 +113,12 @@ def test_evaluation_plugin() -> None:
     out = reg.create("simulation:retrieval_evaluation", {"replications": 3, "fields": 4, "days": 8}).run()
     assert out["kind"] == "simulation.strategy_comparison" and set(out["labels"]) == set(ARCHITECTURES)
     assert out["tests"]["transmitted_share"]["omnibus"]["test"] == "friedman"
+
+
+def test_partially_defined_metrics_are_kept() -> None:
+    reg = get_registry()
+    reg.ensure_loaded()
+    out = reg.create("simulation:retrieval_evaluation", {"replications": 3, "fields": 4, "days": 8}).run()
+    warn = out["summary"]["early_warning_precision"]
+    assert warn["edge_sod"]["mean"] is None and warn["edge_drf"]["mean"] is not None  # no predictions, no precision
+    assert set(out["samples"]["early_warning_precision"]) == {"cloud_raw", "edge_drf"}

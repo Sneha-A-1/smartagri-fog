@@ -12,9 +12,9 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import type { RetrievalRun } from "@/api/client";
-import { useFarms, useRunRetrieval } from "@/api/hooks";
+import { useDatasets, useFarms, useRunRetrieval } from "@/api/hooks";
 import { Button } from "@/components/Button";
 import { PageHeader } from "@/components/PageHeader";
 import { OriginBadge } from "@/components/StatusBadge";
@@ -37,8 +37,12 @@ const DEFAULT_SETTINGS: Settings = { validate_range: true, validate_spikes: true
 
 export default function Retrieval() {
   const { data: farms } = useFarms();
+  const { data: datasets } = useDatasets();
+  const [params] = useSearchParams();
   const run = useRunRetrieval();
-  const [source, setSource] = useState<"scenario" | "devices">("scenario");
+  const [source, setSource] = useState<"scenario" | "devices" | "dataset">(params.get("dataset") ? "dataset" : "scenario");
+  const [datasetId, setDatasetId] = useState(params.get("dataset") ?? "");
+  const dataset = datasetId || datasets?.[0]?.id || "";
   const [scenario, setScenario] = useState(DEFAULT_SCENARIO);
   const [settings, setSettings] = useState(DEFAULT_SETTINGS);
   const [architecture, setArchitecture] = useState("edge_drf");
@@ -46,7 +50,7 @@ export default function Retrieval() {
   const [days, setDays] = useState(7);
   const farm = farmId || farms?.[0]?.id || "";
 
-  const go = () => run.mutate({ source, scenario, settings, architecture, farm_id: farm || null, days });
+  const go = () => run.mutate({ source, scenario, settings, architecture, farm_id: farm || null, days, dataset_id: dataset || null });
 
   const num = (label: string, value: number, onChange: (v: number) => void, step = "any", hint?: string) => (
     <label className="block text-sm">
@@ -72,11 +76,25 @@ export default function Retrieval() {
         <aside className="space-y-5 xl:sticky xl:top-4 xl:self-start">
           <fieldset className="space-y-3 rounded-xl border border-line bg-surface p-4">
             <legend className="px-1 text-sm font-medium">Input</legend>
-            <div className="flex gap-4 text-sm">
+            <div className="flex flex-wrap gap-x-4 gap-y-1 text-sm">
               <label className="flex items-center gap-2"><input type="radio" checked={source === "scenario"} onChange={() => setSource("scenario")} />Synthetic scenario</label>
               <label className="flex items-center gap-2"><input type="radio" checked={source === "devices"} onChange={() => setSource("devices")} />My devices</label>
+              <label className="flex items-center gap-2"><input type="radio" checked={source === "dataset"} onChange={() => setSource("dataset")} />Dataset</label>
             </div>
-            {source === "scenario" ? (
+            {source === "dataset" ? (
+              datasets?.length === 0 ? (
+                <p className="text-sm text-ink-2">No datasets yet. <Link to="/data/acquisition" className="text-accent hover:underline">Upload one</Link>.</p>
+              ) : (
+                <>
+                  <label className="block text-sm"><span className="mb-1 block text-xs text-ink-3">Dataset</span>
+                    <select className="w-full rounded-lg border border-line bg-surface px-2.5 py-1.5 text-sm" value={dataset} onChange={(e) => setDatasetId(e.target.value)}>
+                      {datasets?.map((d) => <option key={d.id} value={d.id}>{d.name}</option>)}
+                    </select>
+                  </label>
+                  <p className="text-xs text-ink-3">Uses the column mapping saved on the <Link to={`/data/acquisition?dataset=${dataset}`} className="text-accent hover:underline">Data acquisition</Link> page.</p>
+                </>
+              )
+            ) : source === "scenario" ? (
               <>
                 <p className="text-xs text-ink-3">Soil probes and a weather station with known events and injected sensor faults, so every alert can be checked.</p>
                 <div className="grid grid-cols-2 gap-3">
@@ -136,7 +154,7 @@ export default function Retrieval() {
             )}
             <button type="button" className="text-xs text-accent hover:underline" onClick={() => setSettings(DEFAULT_SETTINGS)}>Reset to defaults</button>
           </fieldset>
-          <Button variant="primary" className="w-full" disabled={run.isPending || (source === "devices" && !farm)} onClick={go}>
+          <Button variant="primary" className="w-full" disabled={run.isPending || (source === "devices" && !farm) || (source === "dataset" && !dataset)} onClick={go}>
             {run.isPending ? "Running…" : "Run the framework"}
           </Button>
           <p className="text-xs text-ink-3">

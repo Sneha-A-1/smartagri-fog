@@ -544,3 +544,69 @@ export function useRunRetrieval() {
     mutationFn: (body: Record<string, unknown>) => unwrap(api.POST("/api/retrieval/run", { body: body as never })),
   });
 }
+
+// --- datasets ------------------------------------------------------------------------------------
+
+export const useDatasets = () => useQuery({ queryKey: ["datasets"], queryFn: () => unwrap(api.GET("/api/datasets")) });
+
+export const useDataset = (id: string) =>
+  useQuery({
+    queryKey: ["dataset", id],
+    enabled: Boolean(id),
+    queryFn: () => unwrap(api.GET("/api/datasets/{dataset_id}", { params: { path: { dataset_id: id } } })),
+  });
+
+export const useDatasetMetrics = () =>
+  useQuery({ queryKey: ["dataset-metrics"], staleTime: Infinity, queryFn: () => unwrap(api.GET("/api/datasets/metrics")) });
+
+export const useDatasetPreview = (id: string, offset: number) =>
+  useQuery({
+    queryKey: ["dataset-preview", id, offset],
+    enabled: Boolean(id),
+    queryFn: () =>
+      unwrap(api.GET("/api/datasets/{dataset_id}/preview", { params: { path: { dataset_id: id }, query: { offset, limit: 25 } } })),
+  });
+
+export const useDatasetValidation = (id: string, version: string) =>
+  useQuery({
+    queryKey: ["dataset-validation", id, version],
+    enabled: Boolean(id),
+    retry: false,
+    queryFn: () => unwrap(api.GET("/api/datasets/{dataset_id}/validation", { params: { path: { dataset_id: id } } })),
+  });
+
+function invalidateDatasets(qc: ReturnType<typeof useQueryClient>) {
+  for (const key of ["datasets", "dataset", "dataset-preview", "dataset-validation"]) qc.invalidateQueries({ queryKey: [key] });
+}
+
+export function useUploadDataset() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ file, origin, name, source_note }: { file: File; origin: string; name: string; source_note: string }) => {
+      const form = new FormData();
+      form.append("file", file);
+      form.append("origin", origin);
+      form.append("name", name);
+      form.append("source_note", source_note);
+      return unwrap(api.POST("/api/datasets", { body: form as never, bodySerializer: (b) => b as unknown as FormData }));
+    },
+    onSuccess: () => invalidateDatasets(qc),
+  });
+}
+
+export function useUpdateDataset() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, patch }: { id: string; patch: Record<string, unknown> }) =>
+      unwrap(api.PATCH("/api/datasets/{dataset_id}", { params: { path: { dataset_id: id } }, body: patch as never })),
+    onSuccess: () => invalidateDatasets(qc),
+  });
+}
+
+export function useDeleteDataset() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => unwrap(api.DELETE("/api/datasets/{dataset_id}", { params: { path: { dataset_id: id } } })),
+    onSuccess: () => invalidateDatasets(qc),
+  });
+}

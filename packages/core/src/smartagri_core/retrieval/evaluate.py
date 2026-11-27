@@ -136,6 +136,20 @@ def evaluate(scn: Scenario, results: list[StreamResult], tasks: list[Any], s: Ar
         ]
         if warns:
             lead.append(ev.onset - min(p.detected_at or p.t for p in warns))
+    # early warnings that came true: a real event of the same kind on the same stream starts within the horizon
+    # (plus the matching tolerance) after the warning
+    horizon = max((e.eta_min or 0.0) for e in predicted) if predicted else 0.0
+    useful = sum(
+        1
+        for p in predicted
+        if any(
+            ev.stream == p.stream
+            and ev.name == p.name
+            and p.t <= ev.onset + s.lead_for(ev.name)
+            and ev.onset <= p.t + max(horizon, p.eta_min or 0.0) + s.lead_for(ev.name)
+            for ev in true_events
+        )
+    )
     precision = len(matched) / len(alerts) if alerts else math.nan
     recall = detected / len(true_events) if true_events else math.nan
     f1 = (
@@ -164,6 +178,7 @@ def evaluate(scn: Scenario, results: list[StreamResult], tasks: list[Any], s: Ar
         "soil_alert_offset_h": sum(soil_offset) / len(soil_offset) / 60 if soil_offset else math.nan,
         "early_warning_lead_min": sum(lead) / len(lead) if lead else 0.0,
         "early_warning_share": len(lead) / len(true_events) if true_events else math.nan,
+        "early_warning_precision": useful / len(predicted) if predicted else math.nan,
         "fault_recall": fault_hits / len(true_faults) if true_faults else math.nan,
         "urgent_aoi_min": sum(aoi) / len(aoi) if aoi else math.nan,
         "freshness_violations": len(stale) / len(urgent) if urgent else 0.0,

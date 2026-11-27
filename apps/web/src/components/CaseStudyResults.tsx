@@ -488,6 +488,7 @@ export function StrategyComparisonView({ result }: { result: StrategyComparisonR
                   </td>
                   {strategies.map((s) => {
                     const v = result.summary[m][s];
+                    if (v.mean === null) return <td key={s} className="py-2.5 pr-4 text-right text-xs text-ink-3">not applicable</td>;
                     return (
                       <td key={s} className="py-2.5 pr-4 text-right whitespace-nowrap tabular-nums">
                         {fmt(v.mean)}

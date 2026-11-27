@@ -18,7 +18,7 @@ from sqlalchemy.orm import Session
 from smartagri_api.db import get_session
 from smartagri_api.deps import require
 from smartagri_api.device_service import field_model, top_up
-from smartagri_api.models import Device, Farm, FarmField, Reading, User
+from smartagri_api.models import Dataset, Device, Farm, FarmField, Reading, User
 from smartagri_api.weather_service import WeatherUnavailable
 
 router = APIRouter(tags=["retrieval"])
@@ -65,7 +65,8 @@ class FrameworkSettings(BaseModel):
 
 
 class RunIn(BaseModel):
-    source: Literal["scenario", "devices"] = "scenario"
+    source: Literal["scenario", "devices", "dataset"] = "scenario"
+    dataset_id: str | None = None
     scenario: ScenarioParams = Field(default_factory=ScenarioParams)
     farm_id: str | None = None
     days: int = Field(7, ge=1, le=60, description="Devices: how many past days of readings")
@@ -212,6 +213,37 @@ def run(
         true_events = [dataclasses.asdict(e) for e in scn.events]
         streams_meta, start, horizon, origin = scn.streams, scn.start, scn.horizon, "synthetic"
         raw_samples = scn.samples
+    elif body.source == "dataset":
+        from smartagri_core.data.tables import Mapping, TableError, to_streams
+
+        from smartagri_api.routers.datasets import load_table
+
+        ds = session.get(Dataset, body.dataset_id) if body.dataset_id else None
+        if ds is None:
+            raise HTTPException(404, "Dataset not found")
+        try:
+            streams_meta, raw_samples, start = to_streams(load_table(ds), Mapping(**ds.mapping))
+        except TableError as exc:
+            raise HTTPException(
+                422, f"Check the dataset's column mapping on the Data acquisition page: {exc}"
+            ) from None
+        horizon = max((pts[-1][0] for pts in raw_samples.values() if pts), default=0.0) + 1
+        results = []
+        for s in streams_meta:
+            res = process_stream(s, raw_samples[s.key], cfg)
+            for e in res.events:
+                e.detected_at = e.t + settings.edge_latency_min
+            results.append(res)
+        tasks = make_tasks(results, cfg, horizon)
+        origin = ds.origin
+        if any(st.metric == "soil_moisture_m3m3" and "stress_theta" not in st.refs for st in streams_meta):
+            notes.append("No soil stress threshold is set in the dataset's mapping, so soil-moisture alerts are off.")
+        unknown = sorted({st.metric for st in streams_meta} - set(METRIC_LABELS) - {"rain_mm"})
+        if unknown:
+            notes.append(
+                f"No rules or validation bounds exist for: {', '.join(unknown)}. They are reduced and "
+                "sent, but not checked."
+            )
     else:
         if not body.farm_id:
             raise HTTPException(422, "Choose a farm")
@@ -229,7 +261,7 @@ def run(
         tasks = make_tasks(results, cfg, horizon)
         devices = session.scalars(select(Device).where(Device.farm_id == farm.id)).all()
         origin = "real" if any(not d.simulated for d in devices) else "synthetic"
-        if body.architecture != "edge_drf":
+        if body.architecture != "edge_drf":  # devices
             notes.append(
                 "Device readings are always processed with the framework at the edge; the architecture "
                 "choice applies to synthetic scenarios."

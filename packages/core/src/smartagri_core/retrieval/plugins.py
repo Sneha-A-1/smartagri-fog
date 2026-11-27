@@ -22,6 +22,11 @@ METRICS = {
     "false_alarms_per_day": ("False alarms per day", "lower", "Alerts with no real event nearby"),
     "time_to_detect_min": ("Time to detect frost and heat (min)", "lower", "Decision time minus true onset"),
     "early_warning_share": ("Events with an early warning", "higher", "Share of events predicted before onset"),
+    "early_warning_precision": (
+        "Early warnings that came true",
+        "higher",
+        "Share of warnings followed by a real event",
+    ),
     "fault_recall": ("Stuck sensors detected", "higher", "Share of stuck-sensor episodes flagged"),
     "urgent_aoi_min": ("Age of data at the scheduler (min)", "lower", "Urgent tasks: arrival minus newest sample time"),
     "transmitted_share": ("Readings transmitted", "lower", "Share of raw readings sent upstream"),
@@ -100,8 +105,21 @@ class RetrievalEvaluation:
                 for key in METRICS:
                     samples[key][a].append(m[key])
             progress((k + 1) / p.replications, f"Scenario {k + 1} of {p.replications}")
-        usable = {m: v for m, v in METRICS.items() if not any(math.isnan(x) for xs in samples[m].values() for x in xs)}
+        # A metric can be undefined for an architecture (e.g. warning precision without predictions): keep it,
+        # leave those cells empty, and test only the architectures where it is defined in every scenario.
+        defined = {m: [a for a in p.architectures if not any(math.isnan(x) for x in samples[m][a])] for m in METRICS}
+        usable = {m: v for m, v in METRICS.items() if defined[m]}
         clean = lambda d: {k: (None if isinstance(v, float) and math.isnan(v) else v) for k, v in d.items()}  # noqa: E731
+        empty = {"n": 0, "mean": None, "std": None, "ci_low": None, "ci_high": None, "half_width": None}
+        summary = {
+            m: {a: clean(summarize(samples[m][a])) if a in defined[m] else empty for a in p.architectures}
+            for m in usable
+        }
+        tests = {
+            m: compare({a: samples[m][a] for a in defined[m]}, higher_is_better=METRICS[m][1] == "higher")
+            for m in usable
+            if len(defined[m]) >= 2
+        }
         return {
             "data_origin": str(DataOrigin.SYNTHETIC),
             "kind": "simulation.strategy_comparison",
@@ -116,8 +134,8 @@ class RetrievalEvaluation:
             "params": p.model_dump(mode="json"),
             "labels": {a: ARCHITECTURES[a] for a in p.architectures},
             "metric_info": {k: list(v) for k, v in usable.items()},
-            "summary": {m: {a: clean(summarize(v)) for a, v in samples[m].items()} for m in usable},
-            "tests": {m: compare(samples[m], higher_is_better=METRICS[m][1] == "higher") for m in usable},
+            "summary": summary,
+            "tests": tests,
             "highlight": ["f1", "transmitted_share"],
-            "samples": {m: samples[m] for m in usable},
+            "samples": {m: {a: samples[m][a] for a in defined[m]} for m in usable},
         }

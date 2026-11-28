@@ -24,7 +24,7 @@ import numpy as np
 from pydantic import BaseModel, ConfigDict, Field
 
 from smartagri_core.progress import ProgressReporter, null_progress
-from smartagri_core.sim.policies import ClusterView, Discipline, Placement
+from smartagri_core.sim.policies import DEFER, ClusterView, Discipline, Placement
 from smartagri_core.sim.topology import Router, Topology
 from smartagri_core.sim.workload import Task, Trace
 
@@ -78,6 +78,8 @@ class TaskRecord:
     tx_out_s: float = 0.0
     status: str = "pending"  # pending | completed | failed
     reason: str = ""
+    replica_of: int | None = None  # set on a replica copy: the id of the task it duplicates
+    cancelled: bool = False  # a twin copy already delivered; this copy's remaining events are ignored
 
     @property
     def response_s(self) -> float | None:
@@ -107,6 +109,7 @@ class NodeState:
     tasks_done: int = 0
     failures: int = 0
     outage_until: float = -1.0  # end of a scheduled outage in progress
+    committed_urgent_mi: float = 0.0  # the urgent (critical/high) part of committed_mi
     fail_pending: bool = False  # a random (MTBF) failure event is waiting in the event queue
 
     def advance(self, t: float) -> None:
@@ -147,6 +150,8 @@ class Simulator:
         self._seq = itertools.count()
         self.nodes = {n.id: NodeState(spec=n) for n in topology.nodes}
         self.records = {t.id: TaskRecord(task=t) for t in trace.tasks}
+        self._replica_seq = 0  # replica records get negative ids
+        self._replicas_of: dict[int, list[int]] = {}
         self.pending_batch: list[int] = []
         self.overhead_ns: list[int] = []
         self.bytes_total = 0.0
@@ -163,7 +168,7 @@ class Simulator:
         self.placement.reset(self.view, self.rng_policy)
         for task in self.trace.tasks:
             self._push(task.arrival_s, ARRIVE, (task.id,))
-        if self.placement.batch and self.trace.tasks:
+        if self._windows and self.trace.tasks:
             self._schedule_window(self.trace.tasks[0].arrival_s + self.settings.window_s)
         if self.settings.failures:
             for ns in self.nodes.values():
@@ -215,9 +220,13 @@ class Simulator:
 
     # --- event handlers -----------------------------------------------------------------------------
 
+    @property
+    def _windows(self) -> bool:
+        return self.placement.batch or getattr(self.placement, "hybrid", False)
+
     def _on_arrive(self, task_id: int) -> None:
         self._arrivals_left -= 1
-        if self.placement.batch:
+        if self.placement.defer(self.records[task_id].task):
             self.pending_batch.append(task_id)
         else:
             self._dispatch_online(task_id)
@@ -225,9 +234,25 @@ class Simulator:
     def _dispatch_online(self, task_id: int) -> None:
         task = self.records[task_id].task
         t0 = time.perf_counter_ns()
-        node = self.placement.place(task, self.view)
+        decision = self.placement.place(task, self.view)
         self._account_overhead(t0)
-        self._send(task_id, node)
+        if isinstance(decision, (list, tuple)):
+            primary, *replicas = decision if decision else [None]
+            self._send(task_id, primary)
+            for node in replicas:
+                self._send_replica(task_id, node)
+        else:
+            self._send(task_id, decision)
+
+    def _send_replica(self, task_id: int, node_id: str | None) -> None:
+        """A second copy of a task on another node; whichever copy delivers first counts."""
+        self._replica_seq -= 1
+        rid = self._replica_seq
+        self.records[rid] = TaskRecord(task=self.records[task_id].task, replica_of=task_id)
+        self._replicas_of.setdefault(task_id, []).append(rid)
+        self._send(rid, node_id)
+        if self.records[rid].status == "failed":
+            self.records[rid].status = "replica_failed"
 
     def _on_window(self) -> None:
         self._window_scheduled = False
@@ -238,7 +263,11 @@ class Simulator:
             mapping = self.placement.place_batch(batch, self.view)
             self._account_overhead(t0)
             for task in batch:
-                self._send(task.id, mapping.get(task.id))
+                node = mapping.get(task.id)
+                if node == DEFER:
+                    self.pending_batch.append(task.id)  # e.g. store-and-forward until the cloud link returns
+                else:
+                    self._send(task.id, node)
         if self.pending_batch or self._arrivals_left > 0:
             self._schedule_window(self.now + self.settings.window_s)
 
@@ -259,15 +288,18 @@ class Simulator:
             return
         self._account_transfer(rec.task.source, node_id, rec.task.input_bytes)
         rec.node, rec.dispatched_s, rec.tx_in_s = node_id, self.now + self._extra_delay(), delay
-        self.nodes[node_id].committed_mi += rec.task.length_mi
+        self._commit(self.nodes[node_id], rec, +1)
         self._push(rec.dispatched_s + delay, AT_NODE, (task_id, node_id))
 
     def _on_at_node(self, task_id: int, node_id: str) -> None:
         rec, ns = self.records[task_id], self.nodes[node_id]
+        if rec.cancelled:
+            self._commit(ns, rec, -1)  # its twin already delivered
+            return
         if rec.status != "pending" or rec.node != node_id:
             return
         if not ns.up:
-            ns.committed_mi -= rec.task.length_mi
+            self._commit(ns, rec, -1)
             self._lost(task_id, "node down on arrival")
             return
         rec.at_node_s = self.now
@@ -278,6 +310,9 @@ class Simulator:
         while ns.up and ns.queue and ns.busy < ns.spec.cores:
             _, _, task_id = heapq.heappop(ns.queue)
             rec = self.records[task_id]
+            if rec.cancelled:
+                self._commit(ns, rec, -1)
+                continue
             ns.advance(self.now)
             ns.busy += 1
             rec.start_s = self.now
@@ -292,23 +327,61 @@ class Simulator:
         ns.advance(self.now)
         del ns.running[task_id]
         ns.busy -= 1
-        ns.committed_mi -= rec.task.length_mi
+        self._commit(ns, rec, -1)
         ns.tasks_done += 1
-        rec.finish_s = self.now
         self._try_start(ns)
+        if rec.cancelled:
+            return 0  # its twin already delivered; the work was spent but the result is not needed
+        rec.finish_s = self.now
         if rec.task.result_to_source:
             delay = self.router.transfer_time(node_id, rec.task.source, rec.task.output_bytes)
             self._account_transfer(node_id, rec.task.source, rec.task.output_bytes)
             rec.tx_out_s = delay
             self._push(self.now + delay, DELIVER, (task_id,))
             return 0
-        rec.delivered_s, rec.status = self.now, "completed"
-        return 1
+        return self._complete(task_id)
 
     def _on_deliver(self, task_id: int) -> int:
+        if self.records[task_id].cancelled:
+            return 0
+        return self._complete(task_id)
+
+    def _complete(self, task_id: int) -> int:
+        """A copy delivered its result. Returns 1 when this completes an original task."""
         rec = self.records[task_id]
-        rec.delivered_s, rec.status = self.now, "completed"
+        rec.delivered_s = self.now
+        if rec.replica_of is None:
+            rec.status = "completed"
+            for rid in self._twins(task_id):
+                self.records[rid].cancelled = True
+            return 1
+        rec.status = "replica_done"
+        orig = self.records[rec.replica_of]
+        if orig.status != "pending":
+            return 0
+        # The replica won: the task's result is the replica's. The original copy is cancelled.
+        orig.cancelled = True
+        orig.status, orig.reason = "completed", "delivered by its replica"
+        orig.node, orig.delivered_s = rec.node, self.now
+        orig.dispatched_s, orig.at_node_s, orig.start_s, orig.finish_s = (
+            rec.dispatched_s,
+            rec.at_node_s,
+            rec.start_s,
+            rec.finish_s,
+        )
+        orig.tx_in_s, orig.tx_out_s = rec.tx_in_s, rec.tx_out_s
+        for rid in self._twins(rec.replica_of):
+            if rid != task_id:
+                self.records[rid].cancelled = True
         return 1
+
+    def _twins(self, task_id: int) -> list[int]:
+        return self._replicas_of.get(task_id, [])
+
+    def _commit(self, ns: NodeState, rec: TaskRecord, sign: int) -> None:
+        ns.committed_mi += sign * rec.task.length_mi
+        if rec.task.urgent:
+            ns.committed_urgent_mi += sign * rec.task.length_mi
 
     def _on_fail(self, node_id: str, scheduled_end: float | None = None) -> None:
         """A random failure (MTBF), or the start of a scheduled outage that ends at ``scheduled_end``."""
@@ -330,7 +403,7 @@ class Simulator:
         ns.queue.clear()
         ns.busy = 0
         for tid in lost:
-            ns.committed_mi -= self.records[tid].task.length_mi
+            self._commit(ns, self.records[tid], -1)
             self._lost(tid, f"{node_id} failed")
         if scheduled_end is None:
             self._push(self.now + self.rng_failures.exponential(max(ns.spec.mttr_s, 1e-9)), REPAIR, (node_id,))
@@ -341,6 +414,7 @@ class Simulator:
             return  # a scheduled outage is still in force, or the node is already back
         ns.advance(self.now)
         ns.up, ns.committed_mi = True, max(ns.committed_mi, 0.0)
+        ns.committed_urgent_mi = max(ns.committed_urgent_mi, 0.0)
         if ns.spec.mtbf_s > 0 and self.settings.failures and not ns.fail_pending:
             self._push(self.now + self.rng_failures.exponential(ns.spec.mtbf_s), FAIL, (node_id,))
             ns.fail_pending = True
@@ -348,9 +422,14 @@ class Simulator:
     def _lost(self, task_id: int, reason: str) -> None:
         rec = self.records[task_id]
         rec.start_s = rec.at_node_s = None
+        if rec.cancelled:
+            return
+        if rec.replica_of is not None:
+            rec.status, rec.reason = "replica_failed", reason  # replicas are not retried
+            return
         if self.settings.retry_on_failure and rec.attempts < self.settings.max_attempts:
             rec.node = None
-            if self.placement.batch:
+            if self.placement.defer(rec.task):
                 self.pending_batch.append(task_id)
                 self._schedule_window(self.now + self.settings.window_s)
             else:

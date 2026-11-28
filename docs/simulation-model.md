@@ -85,6 +85,7 @@ running and in transit) / (*k μ*), and the estimated delivery time *T_in + W + 
 | Cloud-only | The least-loaded cloud node (iFogSim baseline) |
 | Edge-ward | First node on the route from the source to the nearest cloud with *W* ≤ threshold; the cloud otherwise. iFogSim places application modules this way at deployment time; here the rule is applied to each task. |
 | Min-Min / Max-Min | Batch: every window, repeatedly assign the task whose best estimated completion is smallest (Min-Min) or largest (Max-Min), updating node backlogs as tasks are assigned |
+| GA, PSO, ACO, GWO, WOA, NSGA-II, random search | Batch: every window, search for the assignment with the best estimated fitness under a fixed evaluation budget. See [optimisation.md](optimisation.md) |
 
 Eligible nodes are up, can compute, have enough RAM and are reachable from the source.
 

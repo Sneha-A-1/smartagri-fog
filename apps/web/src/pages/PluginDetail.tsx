@@ -24,7 +24,7 @@ export default function PluginDetail() {
 
   // Live validation against the backend's own rules, so the form never disagrees with the API.
   useEffect(() => {
-    if (!plugin?.runnable) return;
+    if (!plugin?.startable) return;
     const timer = setTimeout(async () => {
       const { data } = await api.POST("/api/plugins/{plugin_id}/validate", {
         params: { path: { plugin_id: plugin.id } },
@@ -89,7 +89,15 @@ export default function PluginDetail() {
 
       <div className="grid gap-10 lg:grid-cols-[1fr_18rem]">
         <section>
-          {plugin.runnable ? (
+          {plugin.runnable && !plugin.startable ? (
+            <div className="rounded-xl border border-line p-6">
+              <h2 className="font-semibold">Implemented building block</h2>
+              <p className="mt-1 text-sm text-ink-2">
+                This algorithm runs inside simulations and experiments rather than as a job on its own. Choose it in
+                a simulation, in Experiments or in the Optimization lab.
+              </p>
+            </div>
+          ) : plugin.runnable ? (
             <>
               <h2 className="mb-4 text-lg font-semibold">Parameters</h2>
               <SchemaForm

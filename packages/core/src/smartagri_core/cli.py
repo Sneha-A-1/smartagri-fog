@@ -117,6 +117,12 @@ def _cmd_plugins_run(args: argparse.Namespace) -> int:
     reg = get_registry()
     reg.ensure_loaded()
     try:
+        if not reg.get(args.plugin_id).startable and reg.get(args.plugin_id).runnable:
+            print(
+                f"Error: {args.plugin_id} is a building block used inside simulations, not a job on its own",
+                file=sys.stderr,
+            )
+            return 2
         plugin = reg.create(args.plugin_id, params)
     except (PluginError, ValueError) as exc:
         print(f"Error: {exc}", file=sys.stderr)

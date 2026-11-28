@@ -2419,6 +2419,11 @@ export interface components {
             status: string;
             /** Runnable */
             runnable: boolean;
+            /**
+             * Startable
+             * @default false
+             */
+            startable: boolean;
             /** Summary */
             summary: string;
             /** Description */
@@ -2466,6 +2471,11 @@ export interface components {
             status: string;
             /** Runnable */
             runnable: boolean;
+            /**
+             * Startable
+             * @default false
+             */
+            startable: boolean;
             /** Summary */
             summary: string;
             /** Description */
@@ -2775,7 +2785,7 @@ export interface components {
              * @default mct
              * @enum {string}
              */
-            placement: "random" | "round_robin" | "least_loaded" | "mct" | "cloud_only" | "edge_ward" | "min_min" | "max_min";
+            placement: "random" | "round_robin" | "least_loaded" | "mct" | "cloud_only" | "edge_ward" | "min_min" | "max_min" | "ga" | "pso" | "aco" | "gwo" | "woa" | "nsga2" | "random_search";
             /**
              * Discipline
              * @default edf

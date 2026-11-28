@@ -19,6 +19,7 @@ import {
   type StrategyComparisonResult,
   StrategyComparisonView,
 } from "@/components/CaseStudyResults";
+import { type OptimizerBenchmarkResult, OptimizerBenchmarkView } from "@/components/OptimizationResults";
 import { OriginBadge } from "@/components/StatusBadge";
 import { formatDuration, formatTime } from "@/lib/format";
 
@@ -141,6 +142,7 @@ export default function JobDetail() {
       {kind === "scheduler.dag_schedule" && <DagScheduleView result={result as DagScheduleResult} />}
       {kind === "simulation.dag_comparison" && <DagComparisonView result={result as DagComparisonResult} />}
       {kind === "simulation.strategy_comparison" && <StrategyComparisonView result={result as StrategyComparisonResult} />}
+      {kind === "simulation.optimizer_benchmark" && <OptimizerBenchmarkView result={result as OptimizerBenchmarkResult} />}
 
       <ParamsSection params={job.params} />
     </article>

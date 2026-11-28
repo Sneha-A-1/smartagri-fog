@@ -59,6 +59,7 @@ class PluginSummary(BaseModel):
     version: str
     status: str
     runnable: bool
+    startable: bool = False
     summary: str
     description: str
     layers: list[str]

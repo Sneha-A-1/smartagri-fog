@@ -137,8 +137,10 @@ export const MODULES: ModuleManifest[] = [
     description: "Task queues, allocations and the decision trace explaining why each task went to its node.",
   },
   {
-    id: "optimization", path: "/optimization", group: "research", icon: Crosshair, status: "planned", phase: 4,
-    description: "Multi-objective optimisation with convergence curves and Pareto fronts.",
+    id: "optimization", path: "/optimization", group: "research", icon: Crosshair, status: "implemented", phase: 4,
+    permission: "job:read",
+    description: "Benchmark GA, PSO, ACO, GWO, WOA and NSGA-II on identical scheduling windows: convergence, Pareto front, statistics.",
+    component: lazy(() => import("@/pages/Optimization")),
   },
   {
     id: "simulation", path: "/simulation", group: "research", icon: Play, status: "implemented", phase: 1,

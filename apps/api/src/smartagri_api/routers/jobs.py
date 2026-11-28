@@ -43,6 +43,10 @@ def create_job(
             f"{spec.name} is '{spec.status}' and cannot be run"
             + (f" (scheduled for Phase {spec.phase})" if spec.phase is not None else ""),
         )
+    if not spec.startable:
+        raise HTTPException(
+            409, f"{spec.name} is a building block used inside simulations and experiments, not a job on its own"
+        )
     try:
         params = spec.validate_params(body.params).model_dump(mode="json")
     except ValidationError as exc:

@@ -12,12 +12,6 @@ E, F, C = "edge", "fog", "cloud"
 _SCHEDULERS: list[tuple[str, str, int, str]] = []  # HEFT and CPOP are implemented in smartagri_core.sched
 
 _OPTIMIZERS = [
-    ("ga", "Genetic Algorithm", 4, "Evolves task-to-node mappings by selection, crossover and mutation."),
-    ("pso", "Particle Swarm Optimization", 4, "Moves candidate mappings toward personal and global bests."),
-    ("aco", "Ant Colony Optimization", 4, "Builds mappings guided by pheromone trails reinforced by good solutions."),
-    ("gwo", "Grey Wolf Optimizer", 4, "Population metaheuristic led by the three best solutions."),
-    ("woa", "Whale Optimization Algorithm", 4, "Population metaheuristic with encircling and spiral update moves."),
-    ("nsga2", "NSGA-II", 4, "Multi-objective evolutionary algorithm returning a Pareto front (via pymoo)."),
     ("dqn", "Deep Q-Network", 4, "Learned scheduling policy trained in a Gymnasium environment around the simulator."),
     ("ppo", "Proximal Policy Optimization", 4, "Policy-gradient learned scheduling policy (Stable-Baselines3)."),
 ]

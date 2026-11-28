@@ -6,7 +6,7 @@ the platform's simulator on synthetic workloads (`DataOrigin.SYNTHETIC`). The de
 from the project document (tab "Proposed algorithm: AURA").
 
 Code: `packages/proposed/src/smartagri_proposed/aura.py` (algorithm) and `evaluation.py` (experiment).
-Results file: [results/aura-evaluation-phase4d.json](results/aura-evaluation-phase4d.json).
+Results file: [data/aura-evaluation-phase4d.json](data/aura-evaluation-phase4d.json).
 
 ## What AURA does
 

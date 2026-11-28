@@ -23,7 +23,8 @@ def test_plugin_catalogue_and_schema(client: TestClient) -> None:
     plugins = client.get("/api/plugins").json()
     ids = {p["id"]: p for p in plugins}
     assert ids[DEMO]["status"] == "simulated" and ids[DEMO]["runnable"]
-    assert ids["scheduler:aura"]["status"] == "planned"
+    assert ids["scheduler:aura"]["status"] == "implemented"
+    assert ids["optimizer:ppo"]["status"] == "planned"
     planned = client.get("/api/plugins", params={"status": "planned"}).json()
     assert planned and all(p["status"] == "planned" for p in planned)
     detail = client.get(f"/api/plugins/{DEMO}").json()

@@ -8622,7 +8622,13 @@
               "woa",
               "nsga2",
               "random_search",
-              "dqn"
+              "dqn",
+              "aura",
+              "aura_noaoi",
+              "aura_noreserve",
+              "aura_staticreserve",
+              "aura_noreliability",
+              "aura_singletier"
             ],
             "title": "Placement",
             "default": "mct"
@@ -8633,7 +8639,9 @@
               "fcfs",
               "edf",
               "priority",
-              "sjf"
+              "sjf",
+              "aura",
+              "urgent_edf"
             ],
             "title": "Discipline",
             "default": "edf"

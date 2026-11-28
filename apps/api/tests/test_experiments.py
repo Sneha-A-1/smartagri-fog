@@ -20,7 +20,7 @@ def test_schema_endpoint(client: TestClient) -> None:
     s = client.get("/api/experiments/schema").json()
     assert "wan_latency_ms" in s["scenario_schema"]["properties"]
     assert {p["key"] for p in s["placements"]} >= {"cloud_only", "edge_ward", "mct", "min_min"}
-    assert {d["key"] for d in s["disciplines"]} == {"fcfs", "edf", "priority", "sjf"}
+    assert {d["key"] for d in s["disciplines"]} == {"fcfs", "edf", "priority", "sjf", "aura", "urgent_edf"}
     assert len(s["default_spec"]["algorithms"]) == 3
 
 

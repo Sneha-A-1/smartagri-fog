@@ -2785,13 +2785,13 @@ export interface components {
              * @default mct
              * @enum {string}
              */
-            placement: "random" | "round_robin" | "least_loaded" | "mct" | "cloud_only" | "edge_ward" | "min_min" | "max_min" | "ga" | "pso" | "aco" | "gwo" | "woa" | "nsga2" | "random_search" | "dqn";
+            placement: "random" | "round_robin" | "least_loaded" | "mct" | "cloud_only" | "edge_ward" | "min_min" | "max_min" | "ga" | "pso" | "aco" | "gwo" | "woa" | "nsga2" | "random_search" | "dqn" | "aura" | "aura_noaoi" | "aura_noreserve" | "aura_staticreserve" | "aura_noreliability" | "aura_singletier";
             /**
              * Discipline
              * @default edf
              * @enum {string}
              */
-            discipline: "fcfs" | "edf" | "priority" | "sjf";
+            discipline: "fcfs" | "edf" | "priority" | "sjf" | "aura" | "urgent_edf";
             /**
              * Seed
              * @default 1

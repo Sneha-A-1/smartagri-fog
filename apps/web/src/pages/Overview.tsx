@@ -30,8 +30,8 @@ export default function Overview() {
           SmartAgri-Fog is in Phase {CURRENT_PHASE}: {PHASES[CURRENT_PHASE].name.toLowerCase()}
         </h1>
         <p className="mt-2 max-w-2xl text-ink-2">
-          Farms, simulated devices, irrigation advice, data retrieval, the fog simulator, baseline schedulers and
-          metaheuristic optimisers run now. Pages and algorithms that don't exist yet are listed with the phase they
+          Farms, simulated devices, irrigation advice, data retrieval, the fog simulator, stress scenarios, baseline,
+          metaheuristic and learned schedulers, and the proposed AURA scheduler with its evaluation run now. Pages and algorithms that don't exist yet are listed with the phase they
           arrive in, and none of them produce results.
         </p>
 

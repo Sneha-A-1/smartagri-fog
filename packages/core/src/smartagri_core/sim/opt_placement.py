@@ -30,8 +30,16 @@ from smartagri_core.status import CapabilityStatus
 IMPL = CapabilityStatus.IMPLEMENTED
 
 
-def problem_from_view(tasks: Sequence[Task], view: ClusterView, weights: Weights | None = None) -> BatchProblem | None:
-    """Freeze one batch decision. Tasks with no eligible node are left out (the caller maps them to None)."""
+def problem_from_view(
+    tasks: Sequence[Task],
+    view: ClusterView,
+    weights: Weights | None = None,
+    capacity_scale: dict[str, float] | None = None,
+) -> BatchProblem | None:
+    """Freeze one batch decision. Tasks with no eligible node are left out (the caller maps them to None).
+
+    ``capacity_scale`` shrinks a node's usable capacity in the planner's model (AURA leaves the share it has
+    reserved for urgent work out of the strategic tier's plan)."""
     specs = {n.id: n for n in view.nodes}
     node_ids = sorted(specs)
     index = {nid: j for j, nid in enumerate(node_ids)}
@@ -53,6 +61,8 @@ def problem_from_view(tasks: Sequence[Task], view: ClusterView, weights: Weights
             cost[i, k] = spec.cost_per_core_s * exe[i, k]
     capacity = np.array([specs[nid].mips * specs[nid].cores for nid in node_ids], dtype=float)
     backlog = np.array([view.backlog_s(nid) for nid in node_ids]) * capacity
+    if capacity_scale:
+        capacity = capacity * np.array([max(capacity_scale.get(nid, 1.0), 1e-3) for nid in node_ids])
     ts = [t for t, _ in rows]
     return BatchProblem(
         task_ids=[t.id for t in ts],

@@ -87,6 +87,7 @@ running and in transit) / (*k μ*), and the estimated delivery time *T_in + W + 
 | Min-Min / Max-Min | Batch: every window, repeatedly assign the task whose best estimated completion is smallest (Min-Min) or largest (Max-Min), updating node backlogs as tasks are assigned |
 | GA, PSO, ACO, GWO, WOA, NSGA-II, random search | Batch: every window, search for the assignment with the best estimated fitness under a fixed evaluation budget. See [optimisation.md](optimisation.md) |
 | DQN (learned) | Online: a Q-network trained in the simulator on fresh workloads scores each eligible node. See [optimisation.md](optimisation.md) |
+| AURA (proposed) and ablations | Hybrid: urgent tasks online by AoI-aware decision value, strategic tasks every window with NSGA-II on unreserved capacity. See [aura.md](aura.md) |
 
 Eligible nodes are up, can compute, have enough RAM and are reachable from the source.
 

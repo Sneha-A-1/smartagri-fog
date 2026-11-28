@@ -44,4 +44,4 @@ def test_invalid_ranges_rejected() -> None:
 def test_cli_lists_plugins(capsys) -> None:
     assert cli_main(["plugins", "list", "--kind", "scheduler"]) == 0
     out = capsys.readouterr().out
-    assert "scheduler:heft" in out and "implemented" in out and "scheduler:aura" in out and "planned" in out
+    assert "scheduler:heft" in out and "implemented" in out and "scheduler:aura" in out

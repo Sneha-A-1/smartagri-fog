@@ -4,4 +4,4 @@ Kept in its own package so the proposed algorithm can be changed, versioned and 
 touching the rest of the platform. The core discovers it through the ``smartagri.plugins`` entry point.
 """
 
-from smartagri_proposed import aura  # noqa: F401
+from smartagri_proposed import aura, evaluation  # noqa: F401

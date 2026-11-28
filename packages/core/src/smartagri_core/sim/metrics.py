@@ -47,6 +47,7 @@ METRIC_INFO: dict[str, tuple[str, str, bool]] = {
     "urgent_aoi_violation_rate": ("Urgent stale decisions", "%", False),
     "decision_value_pct": ("Decision value delivered", "%", True),
     "autonomy_ratio": ("Urgent tasks completed locally (edge or fog)", "%", True),
+    "replicated_tasks": ("Tasks replicated on a second node", "", False),
 }
 
 # Decision value (AURA design): full weight by the effective deadline, then exponential decay with a half-life
@@ -90,7 +91,8 @@ STRESS_METRICS = [
 
 
 def compute_metrics(sim: Simulator) -> dict[str, float]:
-    records = list(sim.records.values())
+    records = [r for r in sim.records.values() if r.replica_of is None]  # replica copies are not tasks
+    replicas = len(sim.records) - len(records)
     n = len(records)
     done = [r for r in records if r.status == "completed"]
     urgent = [r for r in records if r.task.urgent]
@@ -184,6 +186,7 @@ def compute_metrics(sim: Simulator) -> dict[str, float]:
         "urgent_aoi_violation_rate": stale_share(urgent_fresh),
         "decision_value_pct": pct(value_total / weight_total) if weight_total else float("nan"),
         "autonomy_ratio": pct(local_urgent / len(urgent)) if urgent else float("nan"),
+        "replicated_tasks": replicas,
     }
 
 

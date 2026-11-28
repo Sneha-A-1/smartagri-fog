@@ -187,3 +187,34 @@ def _nan_to_none(d: dict[str, Any]) -> dict[str, Any]:
 
 def _clean(values: Sequence[float]) -> np.ndarray:
     return np.asarray([v for v in values if v is not None and not math.isnan(v)], dtype=float)
+
+
+def compare_to_reference(
+    samples: dict[str, Sequence[float]], reference: str, higher_is_better: bool, alpha: float = ALPHA
+) -> dict[str, Any]:
+    """Many-to-one comparison: the reference algorithm against each other one.
+
+    Paired Wilcoxon signed-rank tests (replications are paired by seed), Holm-corrected over the k - 1
+    comparisons only, with Vargha-Delaney A12 (probability that a reference run is better). This is the usual
+    design when one proposed method is tested against baselines; it has more power than all-pairs tests.
+    """
+    ref = samples[reference]
+    others = [k for k in samples if k != reference]
+    raw = [wilcoxon_paired(ref, samples[k]) for k in others]
+    adjusted = holm(raw) if raw else []
+    rows = []
+    for k, p, ph in zip(others, raw, adjusted, strict=True):
+        effect = a12(ref, samples[k], higher_is_better)
+        sig = ph < alpha
+        rows.append(
+            {
+                "other": k,
+                "p_value": p,
+                "p_holm": ph,
+                "a12": effect,
+                "magnitude": a12_magnitude(effect),
+                "significant": sig,
+                "outcome": ("better" if effect > 0.5 else "worse") if sig else "no significant difference",
+            }
+        )
+    return {"reference": reference, "higher_is_better": higher_is_better, "n": len(ref), "rows": rows}

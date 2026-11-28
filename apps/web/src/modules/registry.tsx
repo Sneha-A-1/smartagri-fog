@@ -155,8 +155,10 @@ export const MODULES: ModuleManifest[] = [
     component: lazy(() => import("@/pages/Experiments")),
   },
   {
-    id: "evaluation", path: "/evaluation", group: "research", icon: ChartColumn, status: "planned", phase: 1,
-    description: "Compare algorithms with confidence intervals, significance tests, energy and network metrics.",
+    id: "evaluation", path: "/evaluation", group: "research", icon: ChartColumn, status: "implemented", phase: 4,
+    permission: "job:read",
+    description: "Evaluate AURA against its ablations and the baselines on stress scenarios, with significance tests and hypothesis checks.",
+    component: lazy(() => import("@/pages/Evaluation")),
   },
   {
     id: "literature", path: "/literature", group: "research", icon: BookMarked, status: "implemented", phase: 1,

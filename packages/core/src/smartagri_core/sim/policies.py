@@ -74,6 +74,22 @@ class ClusterView:
         ns = self._sim.nodes[node_id]
         return max(ns.committed_mi, 0.0) / (ns.spec.mips * ns.spec.cores)
 
+    def urgent_backlog_s(self, node_id: str) -> float:
+        """Committed urgent (critical/high) work divided by the node's total capacity."""
+        ns = self._sim.nodes[node_id]
+        return max(ns.committed_urgent_mi, 0.0) / (ns.spec.mips * ns.spec.cores)
+
+    def core_free_in(self, node_id: str) -> float:
+        """Seconds until a core is free: 0 if one is idle now, else until the earliest running task ends."""
+        ns = self._sim.nodes[node_id]
+        if ns.busy < ns.spec.cores or not ns.running:
+            return 0.0
+        return max(min(ns.running.values()) - self.now, 0.0)
+
+    def failures_seen(self, node_id: str) -> int:
+        """Failures and outages of the node observed so far."""
+        return self._sim.nodes[node_id].failures
+
     def free_cores(self, node_id: str) -> int:
         ns = self._sim.nodes[node_id]
         return ns.spec.cores - ns.busy if ns.up else 0
@@ -188,11 +204,24 @@ class SJF(Discipline):
 # --- placement policies -----------------------------------------------------------------------------
 
 
+DEFER = "__defer__"  # returned by place_batch to keep a task waiting for the next window
+
+
 class Placement:
+    """Base class. Online policies implement ``place``; batch policies set ``batch`` and implement
+    ``place_batch``. A hybrid policy sets ``hybrid`` and decides per task with ``defer`` which tasks wait for
+    the next window. ``place`` may return several node ids: the first is the primary copy, the others are
+    replicas, and whichever copy delivers first counts."""
+
     batch: bool = False
+    hybrid: bool = False
 
     def reset(self, view: ClusterView, rng: np.random.Generator) -> None:
         self.rng = rng
+
+    def defer(self, task: Task) -> bool:
+        """True if the task should wait for the next batch window instead of being placed now."""
+        return self.batch
 
     def place(self, task: Task, view: ClusterView) -> str | None:
         raise NotImplementedError
@@ -424,5 +453,12 @@ PLACEMENT_KEYS = Literal[
     "nsga2",
     "random_search",
     "dqn",
+    # Implemented in the smartagri-proposed package (discovered through entry points).
+    "aura",
+    "aura_noaoi",
+    "aura_noreserve",
+    "aura_staticreserve",
+    "aura_noreliability",
+    "aura_singletier",
 ]
-DISCIPLINE_KEYS = Literal["fcfs", "edf", "priority", "sjf"]
+DISCIPLINE_KEYS = Literal["fcfs", "edf", "priority", "sjf", "aura", "urgent_edf"]

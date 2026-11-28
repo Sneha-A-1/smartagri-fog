@@ -240,6 +240,20 @@ const OPTION_LABELS: Record<string, string> = {
   edf: "Earliest Deadline First",
   priority: "Priority",
   sjf: "Shortest Job First",
+  ga: "Genetic Algorithm (batch)",
+  pso: "Particle Swarm (batch)",
+  aco: "Ant Colony (batch)",
+  gwo: "Grey Wolf (batch)",
+  woa: "Whale Optimization (batch)",
+  nsga2: "NSGA-II (batch)",
+  random_search: "Random search (batch)",
+  dqn: "Deep Q-Network (learned)",
+  none: "Original workload",
+  normal: "Normal load with data freshness",
+  monsoon_burst: "Monsoon burst",
+  heat_wave: "Heat wave",
+  cloud_disconnection: "Cloud disconnection",
+  fog_failure: "Fog server failure",
 };
 
 export function optionLabel(value: string): string {

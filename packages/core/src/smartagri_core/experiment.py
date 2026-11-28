@@ -24,8 +24,9 @@ from smartagri_core.sim.engine import SimSettings, simulate
 from smartagri_core.sim.metrics import HEADLINE_METRICS, METRIC_INFO, compute_metrics
 from smartagri_core.sim.policies import DISCIPLINE_KEYS, PLACEMENT_KEYS
 from smartagri_core.sim.runner import ScenarioParams
+from smartagri_core.sim.scenarios import apply_stress
 from smartagri_core.sim.topology import Topology
-from smartagri_core.sim.workload import WorkloadSpec, generate_trace
+from smartagri_core.sim.workload import WorkloadSpec, agri_workload, generate_trace
 from smartagri_core.stats import ALPHA, compare
 from smartagri_core.status import CapabilityStatus, DataOrigin
 
@@ -84,7 +85,15 @@ class ExperimentSpec(BaseModel):
     def build(self) -> tuple[Topology, WorkloadSpec, SimSettings]:
         """The simulated system: saved topology/workload when given, otherwise the generated scenario."""
         topo, workload, settings = self.scenario.build()
-        return self.topology or topo, self.workload or workload, settings
+        if self.topology is None and self.workload is None:
+            return topo, workload, settings
+        # A saved topology or workload: apply the stress scenario to them rather than to the generated ones.
+        topo = self.topology or topo
+        base = self.workload or agri_workload(self.scenario.duration_s, self.scenario.intensity)
+        workload, settings, _ = apply_stress(
+            self.scenario.stress, topo, base, SimSettings(window_s=self.scenario.window_s)
+        )
+        return topo, workload, settings
 
     @property
     def total_runs(self) -> int:

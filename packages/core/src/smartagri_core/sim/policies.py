@@ -9,6 +9,7 @@ see the system only through :class:`ClusterView`, never the simulator internals.
 
 from __future__ import annotations
 
+import bisect
 from typing import TYPE_CHECKING, Literal
 
 import numpy as np
@@ -54,6 +55,15 @@ class ClusterView:
             and ns.spec.ram_mb >= task.ram_mb
             and router.reachable(task.source, ns.spec.id)
         ]
+
+    def signals_until_now(self) -> list:
+        """Early warnings issued so far (never future ones). Ground truth is in the objects but must not be used."""
+        sig = self._sim.trace.signals
+        if not sig:
+            return []
+        if getattr(self, "_signal_times", None) is None:
+            self._signal_times = [x.time_s for x in sig]
+        return list(sig[: bisect.bisect_right(self._signal_times, self.now)])
 
     def training_context(self):
         """(topology, workload spec or None, settings) of the running simulation, for policies that learn."""

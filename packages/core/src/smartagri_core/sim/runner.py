@@ -16,8 +16,9 @@ from smartagri_core import __version__
 from smartagri_core.progress import ProgressReporter, null_progress
 from smartagri_core.registry import PluginKind, get_registry, register
 from smartagri_core.sim.engine import SimSettings, Simulator, simulate
-from smartagri_core.sim.metrics import HEADLINE_METRICS, METRIC_INFO, compute_metrics, node_stats
+from smartagri_core.sim.metrics import HEADLINE_METRICS, METRIC_INFO, STRESS_METRICS, compute_metrics, node_stats
 from smartagri_core.sim.policies import DISCIPLINE_KEYS, PLACEMENT_KEYS
+from smartagri_core.sim.scenarios import StressKey, apply_stress
 from smartagri_core.sim.topology import FarmTopologyParams, Topology, farm_topology
 from smartagri_core.sim.workload import WorkloadSpec, agri_workload, generate_trace
 from smartagri_core.stats import summarize
@@ -29,6 +30,12 @@ class ScenarioParams(BaseModel):
 
     model_config = ConfigDict(extra="forbid")
 
+    stress: StressKey = Field(
+        "none",
+        title="Scenario",
+        description="The original workload, normal load with data-freshness bounds, or a stress event. "
+        "See docs/scenarios.md.",
+    )
     farms: int = Field(4, ge=1, le=200, description="Number of farms.")
     gateways_per_farm: int = Field(2, ge=1, le=50, description="IoT gateways per farm (task sources).")
     edge_per_farm: int = Field(1, title="Edge devices per farm", ge=1, le=20, description="Edge devices per farm.")
@@ -106,7 +113,17 @@ class ScenarioParams(BaseModel):
                 wan_latency_ms=self.wan_latency_ms,
             )
         )
-        return topo, agri_workload(self.duration_s, self.intensity), SimSettings(window_s=self.window_s)
+        spec, settings, _ = apply_stress(
+            self.stress, topo, agri_workload(self.duration_s, self.intensity), SimSettings(window_s=self.window_s)
+        )
+        return topo, spec, settings
+
+    def scenario_events(self) -> list[dict[str, Any]]:
+        """Timeline of the stress scenario's events (empty for none and normal)."""
+        topo, _, _ = self.build()
+        return apply_stress(
+            self.stress, topo, agri_workload(self.duration_s, self.intensity), SimSettings(window_s=self.window_s)
+        )[2]
 
 
 def _make_policies(placement: str, discipline: str) -> tuple[Any, Any]:
@@ -186,6 +203,27 @@ def single_run_result(
         "provenance": {"topology_sha256": topo.sha256, "trace_sha256": trace.sha256, **_environment()},
         "metric_info": {k: list(v) for k, v in METRIC_INFO.items()},
         "metrics": metrics,
+        "scenario_events": [
+            {
+                "kind": "outage",
+                "label": o.label or f"{o.target} outage",
+                "start_s": o.start_s,
+                "end_s": o.start_s + o.duration_s,
+                "detail": f"{o.target} unavailable",
+            }
+            for o in settings.outages
+        ]
+        + [
+            {
+                "kind": "surge",
+                "label": su.name,
+                "start_s": su.start_s,
+                "end_s": su.start_s + su.duration_s,
+                "detail": f"{su.factor:g}× urgent arrivals on {round(100 * su.source_share)}% of gateways",
+            }
+            for su in workload.surges
+        ],
+        "warnings": {"issued": len(trace.signals), "true": sum(1 for x in trace.signals if x.true)},
         "nodes": node_stats(sim),
         "summary": {
             k: metrics[k] for k in ["tasks_total", "deadline_success_rate", "mean_response_s", "energy_dynamic_j"]
@@ -270,7 +308,7 @@ class ComparisonParams(ScenarioParams):
     summary="Runs several placement policies on identical workloads, repeated with different seeds, with 95% CIs.",
     description=(
         "Common random numbers: each replication generates one workload trace and replays it for every "
-        "policy. Reports mean and 95% confidence interval per metric. Significance tests arrive in Phase 1b."
+        "policy. Reports mean and 95% confidence interval per metric. For significance tests, use Experiments."
     ),
     params=ComparisonParams,
     layers=["edge", "fog", "cloud"],
@@ -318,7 +356,8 @@ class Comparison:
             "params": self.p.model_dump(mode="json"),
             "provenance": {"topology_sha256": topo.sha256, "trace_sha256": trace_hashes, **_environment()},
             "metric_info": {k: list(v) for k, v in METRIC_INFO.items()},
-            "headline_metrics": HEADLINE_METRICS,
+            "headline_metrics": HEADLINE_METRICS + (STRESS_METRICS if self.p.stress != "none" else []),
+            "scenario_events": self.p.scenario_events(),
             "comparison": table,
             "runs": runs,
             "summary": {

@@ -19,7 +19,12 @@ import {
   type StrategyComparisonResult,
   StrategyComparisonView,
 } from "@/components/CaseStudyResults";
-import { type OptimizerBenchmarkResult, OptimizerBenchmarkView } from "@/components/OptimizationResults";
+import {
+  type DQNTrainingResult,
+  DQNTrainingView,
+  type OptimizerBenchmarkResult,
+  OptimizerBenchmarkView,
+} from "@/components/OptimizationResults";
 import { OriginBadge } from "@/components/StatusBadge";
 import { formatDuration, formatTime } from "@/lib/format";
 
@@ -143,6 +148,7 @@ export default function JobDetail() {
       {kind === "simulation.dag_comparison" && <DagComparisonView result={result as DagComparisonResult} />}
       {kind === "simulation.strategy_comparison" && <StrategyComparisonView result={result as StrategyComparisonResult} />}
       {kind === "simulation.optimizer_benchmark" && <OptimizerBenchmarkView result={result as OptimizerBenchmarkResult} />}
+      {kind === "simulation.dqn_training" && <DQNTrainingView result={result as DQNTrainingResult} />}
 
       <ParamsSection params={job.params} />
     </article>

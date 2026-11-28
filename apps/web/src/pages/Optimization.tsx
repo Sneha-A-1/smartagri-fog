@@ -2,9 +2,16 @@ import { useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { useJob, useJobResult, useJobs, useStartJob } from "@/api/hooks";
 import { Button } from "@/components/Button";
-import { OPT_COLORS, type OptimizerBenchmarkResult, OptimizerBenchmarkView } from "@/components/OptimizationResults";
+import {
+  type DQNTrainingResult,
+  DQNTrainingView,
+  OPT_COLORS,
+  type OptimizerBenchmarkResult,
+  OptimizerBenchmarkView,
+} from "@/components/OptimizationResults";
 import { PageHeader } from "@/components/PageHeader";
 import { ProgressBar } from "@/components/ProgressBar";
+import { cn } from "@/lib/cn";
 import { formatTime } from "@/lib/format";
 
 const PLUGIN = "simulation:optimizer_benchmark";
@@ -47,7 +54,7 @@ const DEFAULTS: Form = {
   base_seed: 1,
 };
 
-export default function Optimization() {
+function BenchmarkPanel() {
   const [search, setSearch] = useSearchParams();
   const { data: jobs } = useJobs();
   const start = useStartJob();
@@ -75,11 +82,6 @@ export default function Optimization() {
 
   return (
     <div>
-      <PageHeader
-        title="Optimization lab"
-        lead="Compare metaheuristic schedulers on identical, frozen scheduling decisions from a simulated farm network, with the same evaluation budget for each."
-      />
-
       <div className="grid gap-10 lg:grid-cols-[20rem_1fr]">
         <aside className="space-y-6">
           <section className="rounded-xl border border-line bg-surface p-5">
@@ -179,6 +181,146 @@ export default function Optimization() {
           )}
         </section>
       </div>
+    </div>
+  );
+}
+
+const DQN_PLUGIN = "simulation:dqn_training";
+
+type DQNForm = {
+  farms: number;
+  intensity: number;
+  duration_s: number;
+  episodes: number;
+  episode_s: number;
+  gamma: number;
+  lambda_energy: number;
+  lambda_cost: number;
+  evaluation_replications: number;
+  base_seed: number;
+};
+
+const DQN_DEFAULTS: DQNForm = {
+  farms: 4,
+  intensity: 20,
+  duration_s: 3600,
+  episodes: 30,
+  episode_s: 600,
+  gamma: 0.5,
+  lambda_energy: 0.1,
+  lambda_cost: 0.1,
+  evaluation_replications: 10,
+  base_seed: 1,
+};
+
+function DQNPanel() {
+  const [search, setSearch] = useSearchParams();
+  const { data: jobs } = useJobs();
+  const start = useStartJob();
+  const [form, setForm] = useState(DQN_DEFAULTS);
+  const mine = (jobs ?? []).filter((j) => j.plugin_id === DQN_PLUGIN);
+  const jobId = search.get("job") ?? mine[0]?.id ?? "";
+  const { data: job } = useJob(jobId);
+  const { data: result } = useJobResult(jobId, job?.status === "succeeded" && !!job.has_result);
+  const active = job?.status === "running" || job?.status === "queued";
+  const go = () =>
+    start.mutate({ plugin_id: DQN_PLUGIN, params: { ...form } }, { onSuccess: (j) => setSearch({ tab: "dqn", job: j.id }) });
+  const num = (label: string, k: keyof DQNForm, step = "any", hint?: string) => (
+    <label className="block text-sm">
+      <span className="mb-1 block text-xs text-ink-3">{label}</span>
+      <input type="number" step={step} value={form[k]} onChange={(e) => setForm((f) => ({ ...f, [k]: Number(e.target.value) }))}
+        className="w-full rounded-lg border border-line bg-surface px-2.5 py-1.5 text-sm" />
+      {hint && <span className="mt-0.5 block text-[11px] text-ink-3">{hint}</span>}
+    </label>
+  );
+
+  return (
+    <div className="grid gap-10 lg:grid-cols-[20rem_1fr]">
+      <aside className="space-y-6">
+        <section className="rounded-xl border border-line bg-surface p-5">
+          <h2 className="font-semibold">Train and evaluate</h2>
+          <p className="mt-1 text-xs text-ink-3">
+            The DQN learns to place each task as it arrives. It trains on fresh simulated workloads, then is tested against MCT,
+            edge-ward, least-loaded and random placement on workloads it has never seen.
+          </p>
+          <div className="mt-4 grid grid-cols-2 gap-3">
+            {num("Farms", "farms", "1")}
+            {num("Workload intensity", "intensity")}
+            {num("Training episodes", "episodes", "1")}
+            {num("Episode length (s)", "episode_s", "60", "Under heavy load, as long as the test")}
+            {num("Discount (gamma)", "gamma", "0.05")}
+            {num("Energy penalty", "lambda_energy", "0.05")}
+            {num("Cost penalty", "lambda_cost", "0.05")}
+            {num("Test length (s)", "duration_s", "60")}
+            {num("Test workloads", "evaluation_replications", "1", "30 for a paper")}
+            {num("Seed", "base_seed", "1")}
+          </div>
+          {start.error && <p className="mt-3 text-sm text-danger">{start.error.message}</p>}
+          <Button variant="primary" className="mt-5 w-full" disabled={start.isPending || active} onClick={go}>
+            {active ? "Training…" : "Train and evaluate"}
+          </Button>
+        </section>
+        <p className="text-xs text-ink-3">
+          The trained policy is also the <Link to="/algorithms/placement:dqn" className="text-accent hover:underline">DQN placement</Link>,
+          which you can choose in Experiments. It trains once per network and settings, then reuses what it learned.
+        </p>
+      </aside>
+      <section className="min-w-0">
+        {mine.length > 1 && (
+          <label className="mb-6 flex items-center gap-2 text-sm text-ink-2">
+            Training run
+            <select value={jobId} onChange={(e) => setSearch({ tab: "dqn", job: e.target.value })}
+              className="rounded-lg border border-line bg-surface px-2 py-1 text-sm">
+              {mine.map((j) => (
+                <option key={j.id} value={j.id}>{formatTime(j.created_at)}, {j.status}</option>
+              ))}
+            </select>
+          </label>
+        )}
+        {!jobId && (
+          <div className="rounded-xl border border-dashed border-line p-8">
+            <h2 className="font-semibold">No training run yet</h2>
+            <p className="mt-1 max-w-xl text-sm text-ink-2">
+              With the defaults it trains for 30 short episodes and tests on 10 one-hour workloads. It takes about one to three
+              minutes on a laptop and needs no graphics card.
+            </p>
+          </div>
+        )}
+        {job && active && (
+          <div className="max-w-xl">
+            <ProgressBar value={job.progress} status={job.status} />
+            <p className="mt-2 text-sm text-ink-2">{job.message}</p>
+          </div>
+        )}
+        {job?.error ? <p className="text-sm text-danger">{String(job.error)}</p> : null}
+        {result ? <DQNTrainingView result={result as DQNTrainingResult} /> : null}
+      </section>
+    </div>
+  );
+}
+
+export default function Optimization() {
+  const [search, setSearch] = useSearchParams();
+  const tab = search.get("tab") === "dqn" ? "dqn" : "benchmark";
+  const tabs: [string, string][] = [
+    ["benchmark", "Metaheuristic benchmark"],
+    ["dqn", "Learned scheduler (DQN)"],
+  ];
+  return (
+    <div>
+      <PageHeader
+        title="Optimization lab"
+        lead="Compare metaheuristic and learned schedulers on identical simulated workloads, with equal budgets and held-out tests."
+      />
+      <div className="mb-8 flex gap-1 border-b border-line" role="tablist">
+        {tabs.map(([k, label]) => (
+          <button key={k} role="tab" aria-selected={tab === k} onClick={() => setSearch(k === "dqn" ? { tab: k } : {})}
+            className={cn("-mb-px border-b-2 px-3 py-2 text-sm", tab === k ? "border-accent text-ink" : "border-transparent text-ink-2 hover:text-ink")}>
+            {label}
+          </button>
+        ))}
+      </div>
+      {tab === "dqn" ? <DQNPanel /> : <BenchmarkPanel />}
     </div>
   );
 }

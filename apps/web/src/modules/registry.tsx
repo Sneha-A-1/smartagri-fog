@@ -139,7 +139,7 @@ export const MODULES: ModuleManifest[] = [
   {
     id: "optimization", path: "/optimization", group: "research", icon: Crosshair, status: "implemented", phase: 4,
     permission: "job:read",
-    description: "Benchmark GA, PSO, ACO, GWO, WOA and NSGA-II on identical scheduling windows: convergence, Pareto front, statistics.",
+    description: "Benchmark GA, PSO, ACO, GWO, WOA and NSGA-II on identical scheduling windows, and train and test a DQN scheduler.",
     component: lazy(() => import("@/pages/Optimization")),
   },
   {

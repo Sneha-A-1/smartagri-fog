@@ -328,3 +328,139 @@ function ParetoView({ result, pareto }: { result: OptimizerBenchmarkResult; pare
     </section>
   );
 }
+
+export type DQNTrainingResult = {
+  kind: "simulation.dqn_training";
+  data_origin: string;
+  params: Record<string, number | boolean | string>;
+  history: { episode: number; epsilon: number; mean_reward: number | null; deadline_success_rate: number; energy_dynamic_j: number; loss: number | null }[];
+  training_seconds: number;
+  policies: string[];
+  metrics: string[];
+  table: Record<string, Record<string, Summary>>;
+  stats: Record<string, Analysis>;
+  summary: { episodes: number; evaluation_replications: number; dqn_deadline_rate: number; verdict: string };
+};
+
+const POLICY_NAMES: Record<string, string> = {
+  dqn: "DQN (learned)",
+  mct: "MCT",
+  edge_ward: "Edge-ward",
+  least_loaded: "Least loaded",
+  random: "Random",
+};
+const DQN_METRIC_INFO: Record<string, [string, string]> = {
+  deadline_success_rate: ["Deadlines met", "%"],
+  urgent_deadline_success_rate: ["Urgent deadlines met", "%"],
+  mean_response_s: ["Mean response", "s"],
+  p95_response_s: ["95th percentile response", "s"],
+  energy_dynamic_j: ["Dynamic energy", "J"],
+  cost: ["Cloud cost", "$"],
+  scheduling_overhead_us: ["Decision time", "µs"],
+};
+
+function EpisodeChart({ data, field, title, unit }: { data: DQNTrainingResult["history"]; field: "deadline_success_rate" | "mean_reward" | "energy_dynamic_j" | "loss"; title: string; unit: string }) {
+  return (
+    <div>
+      <h4 className="text-sm font-medium">{title}</h4>
+      <div className="mt-2 h-48">
+        <ResponsiveContainer>
+          <LineChart data={data} margin={{ top: 6, right: 12, bottom: 18, left: 0 }}>
+            <CartesianGrid stroke="var(--line)" strokeDasharray="2 4" vertical={false} />
+            <XAxis dataKey="episode" type="number" domain={["dataMin", "dataMax"]} tick={axisTick} stroke="var(--line)" allowDecimals={false}
+              label={{ value: "Training episode", position: "insideBottom", offset: -10, fill: "var(--ink-3)", fontSize: 11 }} />
+            <YAxis tick={axisTick} stroke="var(--line)" domain={["auto", "auto"]} width={52} tickFormatter={(v: number) => fmt(v)} />
+            <Tooltip contentStyle={tooltipStyle} labelFormatter={(e) => {
+              const h = data.find((d) => d.episode === e);
+              return `Episode ${e}${h ? `, exploration ${fmt(100 * h.epsilon)}%` : ""}`;
+            }} formatter={(v) => [`${fmt(Number(v))}${unit ? ` ${unit}` : ""}`, title]} />
+            <Line dataKey={field} stroke="var(--series-1)" strokeWidth={2} dot={false} isAnimationActive={false} connectNulls />
+          </LineChart>
+        </ResponsiveContainer>
+      </div>
+    </div>
+  );
+}
+
+export function DQNTrainingView({ result }: { result: DQNTrainingResult }) {
+  const [metric, setMetric] = useState("deadline_success_rate");
+  const name = (k: string) => POLICY_NAMES[k] ?? k;
+  return (
+    <div className="space-y-10">
+      <section>
+        <div className="flex flex-wrap items-center gap-3">
+          <h2 className="text-lg font-semibold">DQN training and evaluation</h2>
+          <OriginBadge origin={result.data_origin} />
+        </div>
+        <p className="mt-2 max-w-3xl text-sm text-ink-2">
+          Trained for {result.summary.episodes} episodes of {fmt(Number(result.params.episode_s))} simulated seconds on fresh workloads
+          ({fmt(result.training_seconds)} s of computing), then compared with online baselines on {result.summary.evaluation_replications}{" "}
+          held-out workloads it never saw. Deadlines met by the DQN: {fmt(result.summary.dqn_deadline_rate)}%.{" "}
+          {result.stats.deadline_success_rate.verdict}
+        </p>
+      </section>
+
+      <section>
+        <h3 className="font-semibold">Learning curve</h3>
+        <p className="mt-1 text-xs text-ink-3">
+          Measured on each training episode while the policy still explores, so it is noisier and lower than the evaluation below.
+        </p>
+        <div className="mt-4 grid gap-6 md:grid-cols-2">
+          <EpisodeChart data={result.history} field="deadline_success_rate" title="Deadlines met (%)" unit="%" />
+          <EpisodeChart data={result.history} field="mean_reward" title="Mean reward per decision" unit="" />
+          <EpisodeChart data={result.history} field="energy_dynamic_j" title="Dynamic energy (J)" unit="J" />
+          <EpisodeChart data={result.history} field="loss" title="Training loss (Huber)" unit="" />
+        </div>
+      </section>
+
+      <section className="space-y-6">
+        <h3 className="font-semibold">Held-out comparison</h3>
+        <div className="max-w-3xl space-y-6">
+          {(["deadline_success_rate", "energy_dynamic_j", "mean_response_s", "cost"] as const).map((m) => (
+            <DotWhisker key={m} title={`${DQN_METRIC_INFO[m][0]}, mean and 95% CI`} unit={DQN_METRIC_INFO[m][1]}
+              rows={result.policies.map((k) => ({ label: name(k), summary: result.table[k][m] }))} />
+          ))}
+        </div>
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead className="text-left text-ink-3">
+              <tr className="border-b border-line">
+                <th className="py-1.5 pr-3 font-normal">Policy</th>
+                {result.metrics.map((m) => (
+                  <th key={m} className="py-1.5 pr-3 text-right font-normal">{DQN_METRIC_INFO[m]?.[0] ?? m} ({DQN_METRIC_INFO[m]?.[1]})</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-line">
+              {result.policies.map((k) => (
+                <tr key={k}>
+                  <td className="py-1.5 pr-3">{name(k)}</td>
+                  {result.metrics.map((m) => (
+                    <td key={m} className="py-1.5 pr-3 text-right tabular-nums">
+                      {fmtSmall(result.table[k][m].mean ?? NaN)} <span className="text-ink-3">± {fmt(result.table[k][m].half_width)}</span>
+                    </td>
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section>
+        <h3 className="font-semibold">Statistics</h3>
+        <div className="mt-3 flex flex-wrap gap-2" role="tablist">
+          {Object.keys(result.stats).map((m) => (
+            <button key={m} role="tab" aria-selected={metric === m} onClick={() => setMetric(m)}
+              className={cn("rounded-full border px-3 py-1 text-xs", metric === m ? "border-accent bg-accent-soft text-ink" : "border-line text-ink-2 hover:border-ink-3")}>
+              {DQN_METRIC_INFO[m]?.[0] ?? m}
+            </button>
+          ))}
+        </div>
+        <div className="mt-4">
+          <AnalysisDetail label={DQN_METRIC_INFO[metric]?.[0] ?? metric} an={result.stats[metric]} />
+        </div>
+      </section>
+    </div>
+  );
+}

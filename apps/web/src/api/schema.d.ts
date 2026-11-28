@@ -2785,7 +2785,7 @@ export interface components {
              * @default mct
              * @enum {string}
              */
-            placement: "random" | "round_robin" | "least_loaded" | "mct" | "cloud_only" | "edge_ward" | "min_min" | "max_min" | "ga" | "pso" | "aco" | "gwo" | "woa" | "nsga2" | "random_search";
+            placement: "random" | "round_robin" | "least_loaded" | "mct" | "cloud_only" | "edge_ward" | "min_min" | "max_min" | "ga" | "pso" | "aco" | "gwo" | "woa" | "nsga2" | "random_search" | "dqn";
             /**
              * Discipline
              * @default edf

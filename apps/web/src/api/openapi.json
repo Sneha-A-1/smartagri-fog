@@ -8621,7 +8621,8 @@
               "gwo",
               "woa",
               "nsga2",
-              "random_search"
+              "random_search",
+              "dqn"
             ],
             "title": "Placement",
             "default": "mct"

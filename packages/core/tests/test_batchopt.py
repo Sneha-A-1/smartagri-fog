@@ -155,7 +155,7 @@ def test_registry_status_of_optimisers():
         assert reg.get(f"optimizer:{key}").runnable
         assert reg.get(f"placement:{key}").runnable
         assert not reg.get(f"placement:{key}").startable
-    assert not reg.get("optimizer:dqn").runnable
+    assert not reg.get("optimizer:ppo").runnable
     assert reg.get("simulation:optimizer_benchmark").startable
 
 

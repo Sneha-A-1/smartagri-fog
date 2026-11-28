@@ -40,7 +40,7 @@ def test_validate_params(client: TestClient) -> None:
 
 
 def test_planned_plugin_cannot_be_run(client: TestClient) -> None:
-    resp = client.post("/api/jobs", json={"plugin_id": "optimizer:dqn", "params": {}})
+    resp = client.post("/api/jobs", json={"plugin_id": "optimizer:ppo", "params": {}})
     assert resp.status_code == 409 and "Phase 4" in resp.json()["detail"]
 
 

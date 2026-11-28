@@ -42,6 +42,7 @@ Full instructions: [docs/getting-started.md](docs/getting-started.md).
 | Data acquisition (Phase 3b) | Upload CSV, Excel or JSON datasets with declared origin and source; column profiling, mapping to sensor metrics, data-quality report, tidy export, and processing by the retrieval framework. See [docs/data-acquisition.md](docs/data-acquisition.md) |
 | Metaheuristic schedulers (Phase 4a) | GA, PSO, ACO, Grey Wolf, Whale and NSGA-II (plus random search) as batch schedulers with an equal evaluation budget, validated against brute force; a benchmark on frozen scheduling windows with convergence curves, a Pareto front and statistics; the Optimization lab page. See [docs/optimisation.md](docs/optimisation.md) |
 | Learned scheduler (Phase 4b) | A Deep Q-Network online scheduler in numpy (no GPU), trained on fresh simulated workloads and tested on held-out ones against MCT, edge-ward, least-loaded and random placement, with learning curves and statistics. See [docs/optimisation.md](docs/optimisation.md) |
+| Stress scenarios (Phase 4c) | Data age and freshness bounds (AoI) on tasks; monsoon-burst and heat-wave surges with imperfect early warnings; scheduled cloud disconnection and fog failure; metrics for stale decisions, decision value and autonomy; a Scenario choice on every simulation form. See [docs/scenarios.md](docs/scenarios.md) |
 | Command line | `uv run smartagri plugins list`, `uv run smartagri experiment run experiments/rural-baseline.yaml --out results/x`, `uv run smartagri plugins run simulation:ifogsim_eeg --out results/eeg` |
 
 ## Architecture

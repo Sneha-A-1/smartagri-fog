@@ -12,7 +12,6 @@ E, F, C = "edge", "fog", "cloud"
 _SCHEDULERS: list[tuple[str, str, int, str]] = []  # HEFT and CPOP are implemented in smartagri_core.sched
 
 _OPTIMIZERS = [
-    ("dqn", "Deep Q-Network", 4, "Learned scheduling policy trained in a Gymnasium environment around the simulator."),
     ("ppo", "Proximal Policy Optimization", 4, "Policy-gradient learned scheduling policy (Stable-Baselines3)."),
 ]
 

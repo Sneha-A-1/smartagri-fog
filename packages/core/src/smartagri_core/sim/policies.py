@@ -55,6 +55,10 @@ class ClusterView:
             and router.reachable(task.source, ns.spec.id)
         ]
 
+    def training_context(self):
+        """(topology, workload spec or None, settings) of the running simulation, for policies that learn."""
+        return self._sim.topology, self._sim.trace.spec, self._sim.settings
+
     def backlog_s(self, node_id: str) -> float:
         """Committed work (queued, running and in transit) divided by the node's total capacity."""
         ns = self._sim.nodes[node_id]
@@ -409,5 +413,6 @@ PLACEMENT_KEYS = Literal[
     "woa",
     "nsga2",
     "random_search",
+    "dqn",
 ]
 DISCIPLINE_KEYS = Literal["fcfs", "edf", "priority", "sjf"]

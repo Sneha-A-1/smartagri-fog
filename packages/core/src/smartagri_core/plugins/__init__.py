@@ -5,4 +5,4 @@ from smartagri_core.agro import plugins as agro_plugins  # noqa: F401
 from smartagri_core.plugins import catalogue, demo_soil_moisture  # noqa: F401
 from smartagri_core.retrieval import plugins as retrieval_plugins  # noqa: F401
 from smartagri_core.sched import plugins as sched_plugins  # noqa: F401
-from smartagri_core.sim import ifogsim_eeg, opt_benchmark, opt_placement, policies, runner  # noqa: F401
+from smartagri_core.sim import dqn_placement, ifogsim_eeg, opt_benchmark, opt_placement, policies, runner  # noqa: F401

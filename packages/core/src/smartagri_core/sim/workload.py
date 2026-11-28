@@ -8,7 +8,7 @@ from __future__ import annotations
 
 import hashlib
 import json
-from dataclasses import asdict, dataclass
+from dataclasses import asdict, dataclass, field
 from typing import Literal
 
 import numpy as np
@@ -79,6 +79,8 @@ class Trace:
     spec_name: str
     seed: int
     tasks: tuple[Task, ...]
+    # The generator settings, when the trace was generated (learned policies train on fresh traces from it).
+    spec: WorkloadSpec | None = field(default=None, compare=False, repr=False)
 
     @property
     def sha256(self) -> str:
@@ -129,7 +131,7 @@ def generate_trace(spec: WorkloadSpec, topology: Topology, seed: int) -> Trace:
                 result_to_source=cls.result_to == "source",
             )
         )
-    return Trace(spec_name=spec.name, seed=seed, tasks=tuple(tasks))
+    return Trace(spec_name=spec.name, seed=seed, tasks=tuple(tasks), spec=spec)
 
 
 # Illustrative agricultural task mix. Sizes and lengths are placeholders to be replaced by profiled values

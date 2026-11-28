@@ -81,5 +81,5 @@ def test_cli_runs_a_plugin(tmp_path) -> None:
 
     assert main(["plugins", "run", "scheduler:cpop", "--set", 'workflow="paper_example"', "--out", str(tmp_path)]) == 0
     assert json.loads((tmp_path / "result.json").read_text())["schedule"]["metrics"]["makespan"] == 86
-    assert main(["plugins", "run", "optimizer:dqn", "--out", str(tmp_path)]) == 2  # planned plugins never run
+    assert main(["plugins", "run", "optimizer:ppo", "--out", str(tmp_path)]) == 2  # planned plugins never run
     assert main(["plugins", "run", "placement:ga", "--out", str(tmp_path)]) == 2  # building blocks are not jobs

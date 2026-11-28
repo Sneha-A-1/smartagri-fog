@@ -140,3 +140,27 @@ def test_simulation_comparison_job(client: TestClient) -> None:
 def test_new_plugin_kinds_listed(client: TestClient) -> None:
     kinds = {p["kind"] for p in client.get("/api/plugins").json()}
     assert {"placement", "queue_discipline", "simulation"} <= kinds
+
+
+def test_reports_for_a_finished_job(client: TestClient) -> None:
+    params = {"placements": ["cloud_only", "mct"], "replications": 2, "duration_s": 120, "farms": 1}
+    job = client.post("/api/jobs", json={"plugin_id": "simulation:comparison", "params": params}).json()
+    assert wait_for_job(client, job["id"], timeout=120)["status"] == "succeeded"
+    listing = client.get("/api/reports").json()
+    item = next(x for x in listing if x["job_id"] == job["id"])
+    assert item["kind"] == "simulation.comparison" and item["dedicated_layout"]
+    preview = client.get(f"/api/reports/{job['id']}/preview").json()
+    assert preview["tables"][0]["rows"] and preview["figures"]
+    svg = client.get(f"/api/reports/{job['id']}/figure/{preview['figures'][0]['key']}.svg")
+    assert svg.status_code == 200 and svg.headers["content-type"].startswith("image/svg+xml")
+    pdf = client.get(f"/api/reports/{job['id']}/export/pdf")
+    assert pdf.status_code == 200 and pdf.content.startswith(b"%PDF")
+    assert "attachment" in pdf.headers["content-disposition"]
+    bundle = client.get(f"/api/reports/{job['id']}/export/bundle")
+    import io
+    import zipfile
+
+    files = zipfile.ZipFile(io.BytesIO(bundle.content))
+    assert "simulation:comparison" in files.read("reproduce.ps1").decode()
+    assert client.get(f"/api/reports/{job['id']}/export/docx").status_code == 404
+    assert client.get(f"/api/reports/{job['id']}/figure/nope.svg").status_code == 404

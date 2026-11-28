@@ -145,3 +145,25 @@ def test_evaluation_plugin_reports_tests_and_hypotheses():
     with pytest.raises(ValueError, match="Unknown"):
         AuraEvaluationParams(algorithms=["aura", "nonsense"])
     assert not math.isnan(out["table"]["normal"]["aura"]["decision_value_pct"]["mean"])
+
+
+def test_aura_evaluation_report_exports():
+    import io
+    import zipfile
+
+    from smartagri_core.reports import build_report, export
+
+    params = AuraEvaluationParams(
+        scenarios=["monsoon_burst"],
+        replications=2,
+        duration_s=300,
+        intensity=40,
+        algorithms=["aura", "aura_staticreserve", "mct"],
+    )
+    out = AuraEvaluation(params).run()
+    report = build_report(out)
+    assert [t.key for t in report.tables][:2] == ["hypotheses", "results_monsoon_burst"]
+    assert report.tables[1].highlight_row == 0
+    assert any(f.key.startswith("reservation_") for f in report.figures)
+    names = zipfile.ZipFile(io.BytesIO(export(out, "latex")[0])).namelist()
+    assert "tables/results_monsoon_burst.tex" in names

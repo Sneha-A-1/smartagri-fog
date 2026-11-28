@@ -31,6 +31,7 @@ from smartagri_api.routers import (
     literature,
     plugins,
     projects,
+    reports,
     retrieval,
     system,
 )
@@ -95,6 +96,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         retrieval,
         datasets,
         projects,
+        reports,
         settings_router,
     ):
         app.include_router(module.router, prefix="/api")

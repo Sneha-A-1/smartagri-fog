@@ -40,8 +40,15 @@ def test_validate_params(client: TestClient) -> None:
 
 
 def test_planned_plugin_cannot_be_run(client: TestClient) -> None:
-    resp = client.post("/api/jobs", json={"plugin_id": "optimizer:ga", "params": {}})
+    resp = client.post("/api/jobs", json={"plugin_id": "optimizer:dqn", "params": {}})
     assert resp.status_code == 409 and "Phase 4" in resp.json()["detail"]
+
+
+def test_building_block_plugin_is_not_a_job(client: TestClient) -> None:
+    resp = client.post("/api/jobs", json={"plugin_id": "placement:ga", "params": {}})
+    assert resp.status_code == 409 and "building block" in resp.json()["detail"]
+    plugin = client.get("/api/plugins/placement:ga").json()
+    assert plugin["runnable"] and not plugin["startable"]
 
 
 def test_job_runs_and_streams_progress(client: TestClient) -> None:

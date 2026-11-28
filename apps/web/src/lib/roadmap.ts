@@ -1,5 +1,5 @@
 /** Development roadmap, mirrored from the project document. Update CURRENT_PHASE as phases complete. */
-export const CURRENT_PHASE = 1;
+export const CURRENT_PHASE = 4;
 
 export const PHASES = [
   { n: 0, name: "Foundations", goal: "Platform skeleton, plugin registry, jobs, access control" },

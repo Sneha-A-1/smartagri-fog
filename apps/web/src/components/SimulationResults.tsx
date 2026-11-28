@@ -220,7 +220,8 @@ export function DotWhisker({ title, unit, rows }: { title: string; unit: string;
   lo -= pad;
   hi += pad;
   const W = 520;
-  const labelW = 170;
+  // Room for the longest label (about 6.6 viewBox units per character at this font size).
+  const labelW = Math.max(120, Math.min(260, Math.max(...rows.map((r) => r.label.length)) * 6.6 + 16));
   const rowH = 26;
   const H = rows.length * rowH + 28;
   const x = (v: number) => labelW + ((v - lo) / (hi - lo)) * (W - labelW - 16);

@@ -7742,6 +7742,11 @@
             "type": "boolean",
             "title": "Runnable"
           },
+          "startable": {
+            "type": "boolean",
+            "title": "Startable",
+            "default": false
+          },
           "summary": {
             "type": "string",
             "title": "Summary"
@@ -7879,6 +7884,11 @@
           "runnable": {
             "type": "boolean",
             "title": "Runnable"
+          },
+          "startable": {
+            "type": "boolean",
+            "title": "Startable",
+            "default": false
           },
           "summary": {
             "type": "string",
@@ -8604,7 +8614,14 @@
               "cloud_only",
               "edge_ward",
               "min_min",
-              "max_min"
+              "max_min",
+              "ga",
+              "pso",
+              "aco",
+              "gwo",
+              "woa",
+              "nsga2",
+              "random_search"
             ],
             "title": "Placement",
             "default": "mct"

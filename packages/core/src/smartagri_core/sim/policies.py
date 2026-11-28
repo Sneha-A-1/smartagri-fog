@@ -394,6 +394,20 @@ class MaxMin(_MinMaxBase):
 
 
 PLACEMENT_KEYS = Literal[
-    "random", "round_robin", "least_loaded", "mct", "cloud_only", "edge_ward", "min_min", "max_min"
+    "random",
+    "round_robin",
+    "least_loaded",
+    "mct",
+    "cloud_only",
+    "edge_ward",
+    "min_min",
+    "max_min",
+    "ga",
+    "pso",
+    "aco",
+    "gwo",
+    "woa",
+    "nsga2",
+    "random_search",
 ]
 DISCIPLINE_KEYS = Literal["fcfs", "edf", "priority", "sjf"]

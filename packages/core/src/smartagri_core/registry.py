@@ -109,6 +109,11 @@ class PluginSpec:
     def runnable(self) -> bool:
         return self.status.runnable and self.factory is not None
 
+    @property
+    def startable(self) -> bool:
+        """Can be started as a job on its own (has ``run``), rather than being a building block such as a placement."""
+        return self.runnable and callable(getattr(self.factory, "run", None))
+
     def params_schema(self) -> dict[str, Any]:
         return self.params_model.model_json_schema()
 
@@ -127,6 +132,7 @@ class PluginSpec:
             "version": self.version,
             "status": str(self.status),
             "runnable": self.runnable,
+            "startable": self.startable,
             "summary": self.summary,
             "description": self.description,
             "layers": list(self.layers),

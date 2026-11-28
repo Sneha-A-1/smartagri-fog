@@ -110,6 +110,7 @@ def test_builtin_catalogue_loads_via_entry_points() -> None:
 
     reg = get_registry()
     assert reg.get("data_generator:soil_moisture_demo").runnable
-    assert reg.get("optimizer:ga").status is CapabilityStatus.PLANNED
+    assert reg.get("optimizer:dqn").status is CapabilityStatus.PLANNED
+    assert reg.get("optimizer:ga").status is CapabilityStatus.IMPLEMENTED
     assert reg.get("queue_discipline:edf").status is CapabilityStatus.IMPLEMENTED
     assert not reg.load_errors

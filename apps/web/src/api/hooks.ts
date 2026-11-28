@@ -29,6 +29,7 @@ export const useJobs = () =>
 export const useJob = (id: string) =>
   useQuery({
     queryKey: ["job", id],
+    enabled: !!id,
     queryFn: () => unwrap(api.GET("/api/jobs/{job_id}", { params: { path: { job_id: id } } })),
   });
 

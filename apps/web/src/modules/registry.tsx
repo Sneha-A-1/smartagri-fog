@@ -183,8 +183,10 @@ export const MODULES: ModuleManifest[] = [
     component: lazy(() => import("@/pages/Projects")),
   },
   {
-    id: "reports", path: "/reports", group: "platform", icon: FileText, status: "planned", phase: 5,
+    id: "reports", path: "/reports", group: "platform", icon: FileText, status: "implemented", phase: 5,
+    permission: "job:read",
     description: "PDF, Excel and LaTeX reports, publication figures and reproducibility bundles.",
+    component: lazy(() => import("@/pages/Reports")),
   },
   {
     id: "security", path: "/security", group: "platform", icon: ShieldCheck, status: "planned", phase: 7,

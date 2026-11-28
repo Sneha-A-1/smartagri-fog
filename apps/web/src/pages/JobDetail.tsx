@@ -79,6 +79,12 @@ export default function JobDetail() {
             Cancel job
           </Button>
         )}
+        {job.status === "succeeded" && job.has_result && (
+          <Link to={`/reports?job=${job.id}`}
+            className="rounded-lg border border-line bg-surface px-3.5 py-2 text-sm font-medium hover:bg-surface-2">
+            Export report (PDF, LaTeX, Excel)
+          </Link>
+        )}
       </header>
 
       <div className="max-w-xl">

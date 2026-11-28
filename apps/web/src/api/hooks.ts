@@ -611,3 +611,40 @@ export function useDeleteDataset() {
     onSuccess: () => invalidateDatasets(qc),
   });
 }
+
+export type ReportListItem = {
+  job_id: string;
+  plugin_id: string;
+  plugin_name: string;
+  kind: string;
+  title: string;
+  dedicated_layout: boolean;
+  data_origin: string | null;
+  created_at: string | null;
+  finished_at: string | null;
+};
+
+export type ReportPreview = {
+  job_id: string;
+  plugin_id: string;
+  kind: string;
+  title: string;
+  subtitle: string;
+  data_origin: string;
+  summary: string[];
+  caveats: string[];
+  tables: { key: string; caption: string; columns: string[]; numeric: boolean[]; rows: string[][]; notes: string; highlight_row: number | null }[];
+  figures: { key: string; caption: string }[];
+  formats: string[];
+};
+
+export const useReports = () =>
+  useQuery({ queryKey: ["reports"], queryFn: async () => (await unwrap(api.GET("/api/reports"))) as unknown as ReportListItem[] });
+
+export const useReportPreview = (jobId: string) =>
+  useQuery({
+    queryKey: ["report-preview", jobId],
+    enabled: !!jobId,
+    queryFn: async () =>
+      (await unwrap(api.GET("/api/reports/{job_id}/preview", { params: { path: { job_id: jobId } } }))) as unknown as ReportPreview,
+  });

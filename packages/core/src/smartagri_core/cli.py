@@ -9,6 +9,7 @@ from __future__ import annotations
 import argparse
 import json
 import sys
+from pathlib import Path
 
 from smartagri_core import __version__
 from smartagri_core.registry import PluginError, get_registry
@@ -137,9 +138,37 @@ def _cmd_plugins_run(args: argparse.Namespace) -> int:
     out.mkdir(parents=True, exist_ok=True)
     (out / "result.json").write_text(json.dumps(result, ensure_ascii=False, indent=1), encoding="utf-8")
     (out / "params.json").write_text(json.dumps(params, indent=1), encoding="utf-8")
+    (out / "run.json").write_text(
+        json.dumps({"plugin_id": args.plugin_id, "params": params}, indent=1), encoding="utf-8"
+    )
     for check in result.get("checks", []):
         print(f"- {'reproduced' if check['holds'] else 'NOT reproduced'}: {check['claim']}")
     print(f"Wrote result.json and params.json to {out}")
+    return 0
+
+
+def _cmd_report(args: argparse.Namespace) -> int:
+    from smartagri_core.reports import FORMATS, export
+
+    src = Path(args.result)
+    folder = src if src.is_dir() else src.parent
+    path = src / "result.json" if src.is_dir() else src
+    if not path.exists():
+        print(f"Error: no result file at {path}", file=sys.stderr)
+        return 2
+    result = json.loads(path.read_text(encoding="utf-8"))
+    plugin_id, params = args.plugin, None
+    run_file = folder / "run.json"
+    if run_file.exists():
+        run = json.loads(run_file.read_text(encoding="utf-8"))
+        plugin_id, params = plugin_id or run.get("plugin_id"), run.get("params")
+    formats = list(FORMATS) if args.format == "all" else [args.format]
+    out = Path(args.out) if args.out else folder / "report"
+    out.mkdir(parents=True, exist_ok=True)
+    for fmt in formats:
+        data, _media, name = export(result, fmt, plugin_id=plugin_id, params=params)
+        (out / name).write_bytes(data)
+        print(f"Wrote {out / name}")
     return 0
 
 
@@ -171,6 +200,13 @@ def build_parser() -> argparse.ArgumentParser:
     e_run.add_argument("spec", help="Path to the experiment YAML file")
     e_run.add_argument("--out", required=True, help="Output folder")
     e_run.set_defaults(func=_cmd_experiment_run)
+
+    rep = sub.add_parser("report", help="Export a saved result as PDF, Excel, LaTeX, figures or a bundle")
+    rep.add_argument("result", help="A result.json file, or the folder that 'plugins run --out' wrote")
+    rep.add_argument("--format", default="bundle", choices=["pdf", "xlsx", "latex", "figures", "bundle", "all"])
+    rep.add_argument("--plugin", help="Plugin id for the re-run command (read from run.json when present)")
+    rep.add_argument("--out", help="Output folder (default: a 'report' folder next to the result)")
+    rep.set_defaults(func=_cmd_report)
 
     demo = sub.add_parser("demo", help="Run the synthetic soil-moisture demo")
     demo.add_argument("--days", type=int, default=30)

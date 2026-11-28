@@ -11,7 +11,12 @@ export type SingleRunResult = {
   metrics: Record<string, number | null>;
   nodes?: NodeRow[];
   provenance: Record<string, unknown>;
+  params?: { duration_s?: number; stress?: string };
+  scenario_events?: ScenarioEvent[];
+  warnings?: { issued: number; true: number };
 };
+
+export type ScenarioEvent = { kind: "surge" | "outage"; label: string; start_s: number; end_s: number; detail: string };
 
 type NodeRow = { id: string; layer: string; cores: number; mips: number; utilization: number; tasks_done: number; energy_j: number; dynamic_energy_j: number; failures: number; availability: number };
 
@@ -21,9 +26,42 @@ export type ComparisonResult = {
   metric_info: MetricInfo;
   headline_metrics: string[];
   comparison: Record<string, Record<string, Summary>>;
-  params: { replications: number; discipline: string; placements: string[] };
+  params: { replications: number; discipline: string; placements: string[]; duration_s?: number; stress?: string };
   provenance: Record<string, unknown>;
+  scenario_events?: ScenarioEvent[];
 };
+
+/** The scenario's events on a time axis of the run, so readers see when the surge or outage happened. */
+export function ScenarioTimeline({ events, duration, stress }: { events: ScenarioEvent[]; duration?: number; stress?: string }) {
+  if (!stress || stress === "none") return null;
+  const end = Math.max(duration ?? 0, ...events.map((e) => e.end_s), 1);
+  const min = (s: number) => `${Math.round(s / 60)} min`;
+  return (
+    <div className="mt-5 max-w-3xl">
+      <p className="text-sm">
+        <span className="font-medium">Scenario: {optionLabel(stress)}.</span>{" "}
+        <span className="text-ink-2">
+          {events.length === 0 ? "No events; tasks carry data timestamps and freshness bounds." : events.map((e) => `${e.label} from ${min(e.start_s)} to ${min(Math.min(e.end_s, end))}: ${e.detail}.`).join(" ")}
+        </span>
+      </p>
+      {events.length > 0 && (
+        <div className="mt-2" aria-hidden>
+          <div className="relative h-3 rounded-full bg-surface-2">
+            {events.map((e) => (
+              <div key={e.label + e.start_s} title={`${e.label}: ${e.detail}`}
+                className={e.kind === "outage" ? "absolute inset-y-0 rounded-full bg-danger/70" : "absolute inset-y-0 rounded-full bg-[var(--series-2)]"}
+                style={{ left: `${(100 * e.start_s) / end}%`, width: `${(100 * (Math.min(e.end_s, end) - e.start_s)) / end}%` }} />
+            ))}
+          </div>
+          <div className="mt-1 flex justify-between text-[11px] text-ink-3">
+            <span>0</span>
+            <span>{min(end)}</span>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
 
 export function fmt(v: number | null | undefined, unit = ""): string {
   if (v === null || v === undefined || Number.isNaN(v)) return "–";
@@ -40,6 +78,7 @@ const GROUPS: [string, string[]][] = [
   ["Network", ["bytes_total_mb", "bytes_cloud_mb", "network_usage"]],
   ["Where tasks ran", ["share_edge", "share_fog", "share_cloud", "utilization_edge", "utilization_fog", "utilization_cloud", "load_balance_cv"]],
   ["Scheduler and reliability", ["scheduling_overhead_us", "node_failures"]],
+  ["Freshness, value and autonomy", ["effective_deadline_success_rate", "aoi_violation_rate", "urgent_aoi_violation_rate", "decision_value_pct", "autonomy_ratio"]],
 ];
 
 export function SingleRunView({ result }: { result: SingleRunResult }) {
@@ -53,6 +92,7 @@ export function SingleRunView({ result }: { result: SingleRunResult }) {
         One simulated run. A single run can't show whether one policy is better than another; use the comparison
         plugin, which repeats runs with different seeds and reports confidence intervals.
       </p>
+      <ScenarioTimeline events={result.scenario_events ?? []} duration={result.params?.duration_s} stress={result.params?.stress} />
       <div className="mt-6 grid gap-x-10 gap-y-8 md:grid-cols-2">
         {GROUPS.map(([title, keys]) => (
           <div key={title}>
@@ -144,9 +184,10 @@ export function ComparisonView({ result }: { result: ComparisonResult }) {
       <p className="mt-1 max-w-3xl text-sm text-ink-2">
         Each value is the mean of {result.params.replications} replications with a 95% confidence interval. Every
         policy saw exactly the same workloads, and every node used {optionLabel(result.params.discipline)}.
-        Overlapping intervals mean the data can't separate the policies. Formal significance tests arrive in Phase 1b,
-        so no policy is ranked here.
+        Overlapping intervals mean the data can't separate the policies. For significance tests, run the comparison
+        in Experiments.
       </p>
+      <ScenarioTimeline events={result.scenario_events ?? []} duration={result.params.duration_s} stress={result.params.stress} />
 
       <div className="mt-6 overflow-x-auto">
         <table className="w-full min-w-[48rem] text-sm">

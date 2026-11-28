@@ -29,6 +29,21 @@ from smartagri_core.sim.topology import Router, Topology
 from smartagri_core.sim.workload import Task, Trace
 
 
+class Outage(BaseModel):
+    """A scheduled outage: a node, or every node of a layer, is unavailable for a while.
+
+    A cloud outage stands in for losing the farm's internet link: work in progress there is lost and
+    retried elsewhere, and nothing new can be sent until the link returns.
+    """
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    target: str = Field(description="Node id, or a layer name (edge, fog, cloud) for every node of that layer")
+    start_s: float = Field(ge=0)
+    duration_s: float = Field(gt=0)
+    label: str = ""
+
+
 class SimSettings(BaseModel):
     model_config = ConfigDict(extra="forbid", frozen=True)
 
@@ -42,6 +57,7 @@ class SimSettings(BaseModel):
         "(breaks bit-for-bit reproducibility; off by default)",
     )
     e_tx_j_per_mb: float = Field(0.0, ge=0, description="Transmission energy per MB per hop (0 = not modelled)")
+    outages: tuple[Outage, ...] = Field((), description="Scheduled outages (cloud disconnection, fog failure)")
 
 
 # event kinds
@@ -90,6 +106,8 @@ class NodeState:
     up_s: float = 0.0
     tasks_done: int = 0
     failures: int = 0
+    outage_until: float = -1.0  # end of a scheduled outage in progress
+    fail_pending: bool = False  # a random (MTBF) failure event is waiting in the event queue
 
     def advance(self, t: float) -> None:
         dt = t - self.last_t
@@ -151,6 +169,17 @@ class Simulator:
             for ns in self.nodes.values():
                 if ns.spec.mtbf_s > 0 and ns.spec.can_compute:
                     self._push(self.rng_failures.exponential(ns.spec.mtbf_s), FAIL, (ns.spec.id,))
+                    ns.fail_pending = True
+        for outage in self.settings.outages:
+            targets = [
+                nid
+                for nid, ns in self.nodes.items()
+                if ns.spec.can_compute and (nid == outage.target or str(ns.spec.layer) == outage.target)
+            ]
+            if not targets:
+                raise ValueError(f"Outage target {outage.target!r} matches no computing node")
+            for nid in targets:
+                self._push(outage.start_s, FAIL, (nid, outage.start_s + outage.duration_s))
         total = max(len(self.records), 1)
         finished = 0
         last_report = 0.0
@@ -170,9 +199,9 @@ class Simulator:
             elif kind == DELIVER:
                 finished += self._on_deliver(payload[0])
             elif kind == FAIL:
-                self._on_fail(payload[0])
+                self._on_fail(*payload)
             elif kind == REPAIR:
-                self._on_repair(payload[0])
+                self._on_repair(*payload)
             if finished / total - last_report >= 0.02:
                 last_report = finished / total
                 progress(min(0.99, last_report), f"{finished} of {total} tasks finished")
@@ -281,8 +310,19 @@ class Simulator:
         rec.delivered_s, rec.status = self.now, "completed"
         return 1
 
-    def _on_fail(self, node_id: str) -> None:
+    def _on_fail(self, node_id: str, scheduled_end: float | None = None) -> None:
+        """A random failure (MTBF), or the start of a scheduled outage that ends at ``scheduled_end``."""
         ns = self.nodes[node_id]
+        if scheduled_end is not None:
+            first = ns.outage_until < self.now
+            ns.outage_until = max(ns.outage_until, scheduled_end)
+            self._push(scheduled_end, REPAIR, (node_id, True))
+            if not ns.up or not first:
+                return  # already down: the outage just extends it
+        else:
+            ns.fail_pending = False
+            if not ns.up:
+                return  # a random failure while a scheduled outage holds the node down
         ns.advance(self.now)
         ns.up, ns.epoch, ns.failures = False, ns.epoch + 1, ns.failures + 1
         lost = list(ns.running) + [tid for _, _, tid in ns.queue]
@@ -292,14 +332,18 @@ class Simulator:
         for tid in lost:
             ns.committed_mi -= self.records[tid].task.length_mi
             self._lost(tid, f"{node_id} failed")
-        self._push(self.now + self.rng_failures.exponential(max(ns.spec.mttr_s, 1e-9)), REPAIR, (node_id,))
+        if scheduled_end is None:
+            self._push(self.now + self.rng_failures.exponential(max(ns.spec.mttr_s, 1e-9)), REPAIR, (node_id,))
 
-    def _on_repair(self, node_id: str) -> None:
+    def _on_repair(self, node_id: str, scheduled: bool = False) -> None:
         ns = self.nodes[node_id]
+        if self.now < ns.outage_until or ns.up:
+            return  # a scheduled outage is still in force, or the node is already back
         ns.advance(self.now)
         ns.up, ns.committed_mi = True, max(ns.committed_mi, 0.0)
-        if ns.spec.mtbf_s > 0:
+        if ns.spec.mtbf_s > 0 and self.settings.failures and not ns.fail_pending:
             self._push(self.now + self.rng_failures.exponential(ns.spec.mtbf_s), FAIL, (node_id,))
+            ns.fail_pending = True
 
     def _lost(self, task_id: int, reason: str) -> None:
         rec = self.records[task_id]

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import math
 from typing import TYPE_CHECKING
 
 import numpy as np
@@ -41,7 +42,29 @@ METRIC_INFO: dict[str, tuple[str, str, bool]] = {
     "scheduling_overhead_us": ("Mean scheduling decision time", "µs", False),
     "makespan_s": ("Makespan", "s", False),
     "node_failures": ("Node failures", "", False),
+    "effective_deadline_success_rate": ("Effective deadlines met (deadline or data freshness)", "%", True),
+    "aoi_violation_rate": ("Stale decisions (AoI violations)", "%", False),
+    "urgent_aoi_violation_rate": ("Urgent stale decisions", "%", False),
+    "decision_value_pct": ("Decision value delivered", "%", True),
+    "autonomy_ratio": ("Urgent tasks completed locally (edge or fog)", "%", True),
 }
+
+# Decision value (AURA design): full weight by the effective deadline, then exponential decay with a half-life
+# of one stated deadline, and nothing after three deadlines. Weights follow the priority classes.
+VALUE_WEIGHT = {"critical": 4.0, "high": 2.0, "medium": 1.0, "low": 0.5}
+
+
+def decision_value(task, delivered_s: float | None) -> float:
+    w = VALUE_WEIGHT.get(task.priority, 1.0)
+    if delivered_s is None:
+        return 0.0
+    late = delivered_s - task.effective_deadline
+    if late <= 0:
+        return w
+    if late > 3.0 * task.deadline_s:
+        return 0.0
+    return w * math.exp(-math.log(2.0) * late / task.deadline_s)
+
 
 # Metrics shown by default in comparison tables.
 HEADLINE_METRICS = [
@@ -54,6 +77,15 @@ HEADLINE_METRICS = [
     "cost",
     "load_balance_cv",
     "scheduling_overhead_us",
+]
+
+
+# Extra metrics shown for stress scenarios (they need data timestamps or concern urgent autonomy).
+STRESS_METRICS = [
+    "effective_deadline_success_rate",
+    "aoi_violation_rate",
+    "decision_value_pct",
+    "autonomy_ratio",
 ]
 
 
@@ -87,6 +119,22 @@ def compute_metrics(sim: Simulator) -> dict[str, float]:
     for r in done:
         shares[str(layer_of[r.node])] += 1
     util_arr = np.array(utils) if utils else np.array([0.0])
+
+    def delivered(r) -> float | None:
+        return r.delivered_s if r.status == "completed" else None
+
+    fresh = [r for r in records if math.isfinite(r.task.freshness_s)]
+    urgent_fresh = [r for r in fresh if r.task.urgent]
+
+    def stale_share(rs: list) -> float:
+        if not rs:
+            return float("nan")
+        bad = sum(1 for r in rs if delivered(r) is None or delivered(r) > r.task.stale_at)
+        return pct(bad / len(rs))
+
+    weight_total = sum(VALUE_WEIGHT.get(r.task.priority, 1.0) for r in records)
+    value_total = sum(decision_value(r.task, delivered(r)) for r in records)
+    local_urgent = sum(1 for r in urgent_done if str(layer_of[r.node]) in ("edge", "fog"))
 
     def pct(x: float) -> float:
         return round(100.0 * x, 4)
@@ -127,6 +175,15 @@ def compute_metrics(sim: Simulator) -> dict[str, float]:
         "scheduling_overhead_us": float(np.mean(sim.overhead_ns)) / 1000.0 if sim.overhead_ns else 0.0,
         "makespan_s": horizon,
         "node_failures": sum(ns.failures for ns in sim.nodes.values()),
+        "effective_deadline_success_rate": pct(
+            sum(1 for r in records if delivered(r) is not None and delivered(r) <= r.task.effective_deadline) / n
+        )
+        if n
+        else float("nan"),
+        "aoi_violation_rate": stale_share(fresh),
+        "urgent_aoi_violation_rate": stale_share(urgent_fresh),
+        "decision_value_pct": pct(value_total / weight_total) if weight_total else float("nan"),
+        "autonomy_ratio": pct(local_urgent / len(urgent)) if urgent else float("nan"),
     }
 
 
